@@ -1,0 +1,62 @@
+[
+  {
+    "route": "/pages/home/index",
+    "name": "首页",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/phoneme/detail",
+    "name": "单音标学习",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/phoneme/compare",
+    "name": "易混音对比",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/phoneme/quiz",
+    "name": "听音辨认",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/phoneme/overview",
+    "name": "音标总览",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/syllable/index",
+    "name": "音素与音节",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/decoding/ipa",
+    "name": "看音标拼读",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/decoding/word",
+    "name": "看单词拆读",
+    "phase": "MVP"
+  },
+  {
+    "route": "/pages/word-list/index",
+    "name": "专业词库",
+    "phase": "2"
+  },
+  {
+    "route": "/pages/evaluation/index",
+    "name": "跟读评测",
+    "phase": "2"
+  },
+  {
+    "route": "/pages/correction/index",
+    "name": "AI纠音",
+    "phase": "3"
+  },
+  {
+    "route": "/pages/profile/index",
+    "name": "我的",
+    "phase": "MVP"
+  }
+]

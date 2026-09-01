@@ -1,0 +1,37 @@
+{
+  "colors": {
+    "background": "#F7F8FC",
+    "surface": "#FFFFFF",
+    "textPrimary": "#14213D",
+    "textSecondary": "#667085",
+    "primary": "#5267F8",
+    "success": "#21A66B",
+    "border": "#E8EBF2"
+  },
+  "radius": {
+    "card": 16,
+    "hero": 18,
+    "button": 14
+  },
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32
+  ],
+  "typography": {
+    "pageTitle": 24,
+    "heroTitle": 22,
+    "sectionTitle": 17,
+    "body": 14,
+    "caption": 12
+  },
+  "viewport": {
+    "designWidth": 390,
+    "referenceHeight": 844
+  },
+  "minTapSize": 44
+}
