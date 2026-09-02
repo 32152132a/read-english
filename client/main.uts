@@ -1,4 +1,4 @@
-import App from './App.uvue'
+import App from './App'
 import { createSSRApp } from 'vue'
 import { createPinia } from 'pinia'
 
