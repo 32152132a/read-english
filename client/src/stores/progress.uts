@@ -1,0 +1,12 @@
+import { defineStore } from 'pinia'
+
+export const useProgressStore = defineStore('progress', {
+  state: () => ({
+    pendingCount: 0,
+  }),
+  actions: {
+    markPending() {
+      this.pendingCount += 1
+    },
+  },
+})

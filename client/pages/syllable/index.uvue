@@ -1,0 +1,2 @@
+<template><ComingSoon title="音素与音节" /></template>
+<script lang="uts">import ComingSoon from '../../components/ComingSoon/index.uvue'; export default { components: { ComingSoon } }</script>

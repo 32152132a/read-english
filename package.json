@@ -1,0 +1,13 @@
+{
+  "name": "read-english",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm --prefix server run start:dev",
+    "build:server": "npm --prefix server run build",
+    "check:server": "npm --prefix server run check",
+    "format:server": "npm --prefix server run format",
+    "lint:server": "npm --prefix server run lint",
+    "test:server": "npm --prefix server test",
+    "type-check:server": "npm --prefix server run type-check"
+  }
+}

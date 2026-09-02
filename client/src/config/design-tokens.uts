@@ -1,0 +1,11 @@
+export const colors = {
+  background: '#F7F8FC',
+  surface: '#FFFFFF',
+  textPrimary: '#14213D',
+  textSecondary: '#667085',
+  primary: '#5267F8',
+  success: '#21A66B',
+  border: '#E8EBF2',
+}
+
+export const spacing = [4, 8, 12, 16, 20, 24, 32]

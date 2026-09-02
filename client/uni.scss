@@ -1,0 +1,26 @@
+$color-background: #f7f8fc;
+$color-surface: #ffffff;
+$color-text-primary: #14213d;
+$color-text-secondary: #667085;
+$color-primary: #5267f8;
+$color-success: #21a66b;
+$color-border: #e8ebf2;
+
+page {
+  background-color: $color-background;
+  color: $color-text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+}
+
+.page {
+  min-height: 100%;
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  padding: 32rpx;
+  border: 2rpx solid $color-border;
+  border-radius: 32rpx;
+  background-color: $color-surface;
+}

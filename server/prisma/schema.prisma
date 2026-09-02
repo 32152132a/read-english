@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  REVIEWING
+}
+
+enum TargetType {
+  LESSON
+  PHONEME
+  WORD_LIST
+  WORD
+}
+
+enum EvaluationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum CorrectionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id               BigInt             @id @default(autoincrement())
+  openid           String             @unique @db.VarChar(128)
+  nickname         String?            @db.VarChar(64)
+  avatarUrl        String?            @map("avatar_url") @db.VarChar(1024)
+  accentPreference String             @default("US") @map("accent_preference") @db.VarChar(16)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  progress         UserProgress[]
+  evaluations      EvaluationRecord[]
+  correctionTasks  CorrectionTask[]
+
+  @@map("users")
+}
+
+model LearningStage {
+  id        BigInt   @id @default(autoincrement())
+  code      String   @unique @db.VarChar(32)
+  name      String   @db.VarChar(64)
+  sortOrder Int      @map("sort_order")
+  lessons   Lesson[]
+
+  @@map("learning_stages")
+}
+
+model Lesson {
+  id          BigInt        @id @default(autoincrement())
+  stageId     BigInt        @map("stage_id")
+  type        String        @db.VarChar(32)
+  title       String        @db.VarChar(128)
+  contentJson Json?         @map("content_json")
+  sortOrder   Int           @map("sort_order")
+  stage       LearningStage @relation(fields: [stageId], references: [id])
+
+  @@index([stageId, sortOrder])
+  @@map("lessons")
+}
+
+model Phoneme {
+  id          BigInt           @id @default(autoincrement())
+  ipa         String           @unique @db.VarChar(32)
+  category    String           @db.VarChar(32)
+  audioKey    String?          @map("audio_key") @db.VarChar(512)
+  mouthTip    String?          @map("mouth_tip") @db.VarChar(512)
+  chineseTip  String?          @map("chinese_tip") @db.VarChar(512)
+  leftPairs   PhonemePair[]    @relation("LeftPhoneme")
+  rightPairs  PhonemePair[]    @relation("RightPhoneme")
+  corrections CorrectionTask[]
+
+  @@index([category])
+  @@map("phonemes")
+}
+
+model PhonemePair {
+  leftId      BigInt  @map("left_id")
+  rightId     BigInt  @map("right_id")
+  explanation String? @db.Text
+  left        Phoneme @relation("LeftPhoneme", fields: [leftId], references: [id])
+  right       Phoneme @relation("RightPhoneme", fields: [rightId], references: [id])
+
+  @@id([leftId, rightId])
+  @@map("phoneme_pairs")
+}
+
+model Word {
+  id            BigInt             @id @default(autoincrement())
+  word          String             @unique @db.VarChar(128)
+  ipa           String?            @db.VarChar(255)
+  meaningZh     String?            @map("meaning_zh") @db.VarChar(512)
+  syllablesJson Json?              @map("syllables_json")
+  mappingJson   Json?              @map("mapping_json")
+  audioKey      String?            @map("audio_key") @db.VarChar(512)
+  audioSource   String?            @map("audio_source") @db.VarChar(32)
+  audioVersion  String?            @map("audio_version") @db.VarChar(32)
+  wordListItems WordListItem[]
+  evaluations   EvaluationRecord[]
+
+  @@map("words")
+}
+
+model WordList {
+  id       BigInt         @id @default(autoincrement())
+  name     String         @db.VarChar(128)
+  category String         @db.VarChar(64)
+  status   String         @default("ACTIVE") @db.VarChar(16)
+  items    WordListItem[]
+
+  @@index([category, status])
+  @@map("word_lists")
+}
+
+model WordListItem {
+  listId    BigInt   @map("list_id")
+  wordId    BigInt   @map("word_id")
+  sortOrder Int      @map("sort_order")
+  list      WordList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  word      Word     @relation(fields: [wordId], references: [id])
+
+  @@id([listId, wordId])
+  @@index([listId, sortOrder])
+  @@map("word_list_items")
+}
+
+model UserProgress {
+  id         BigInt         @id @default(autoincrement())
+  userId     BigInt         @map("user_id")
+  targetType TargetType     @map("target_type")
+  targetId   BigInt         @map("target_id")
+  status     ProgressStatus @default(NOT_STARTED)
+  progress   Int            @default(0)
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
+  @@index([userId, status])
+  @@map("user_progress")
+}
+
+model EvaluationRecord {
+  id                BigInt           @id @default(autoincrement())
+  userId            BigInt           @map("user_id")
+  wordId            BigInt           @map("word_id")
+  status            EvaluationStatus @default(PENDING)
+  scoresJson        Json?            @map("scores_json")
+  phonemeResultJson Json?            @map("phoneme_result_json")
+  audioKey          String?          @map("audio_key") @db.VarChar(512)
+  errorMessage      String?          @map("error_message") @db.VarChar(512)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word              Word             @relation(fields: [wordId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@map("evaluation_records")
+}
+
+model CorrectionTask {
+  id         BigInt           @id @default(autoincrement())
+  userId     BigInt           @map("user_id")
+  phonemeId  BigInt           @map("phoneme_id")
+  reasonJson Json?            @map("reason_json")
+  status     CorrectionStatus @default(PENDING)
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneme    Phoneme          @relation(fields: [phonemeId], references: [id])
+
+  @@index([userId, status])
+  @@map("correction_tasks")
+}

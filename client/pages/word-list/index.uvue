@@ -1,0 +1,2 @@
+<template><ComingSoon title="专业词库" /></template>
+<script lang="uts">import ComingSoon from '../../components/ComingSoon/index.uvue'; export default { components: { ComingSoon } }</script>

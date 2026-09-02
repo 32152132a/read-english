@@ -1,0 +1,2 @@
+<template><ComingSoon title="易混音标对比" /></template>
+<script lang="uts">import ComingSoon from '../../components/ComingSoon/index.uvue'; export default { components: { ComingSoon } }</script>
