@@ -1,10 +1,8 @@
 <template>
   <view class="lesson-progress">
-    <view v-if="current.length > 0 && total.length > 0" class="lesson-progress__meta">
-      <text class="lesson-progress__label">学习进度　{{ current }} / {{ total }}</text>
-    </view>
+    <text class="lesson-progress__label">{{ label }} {{ current }} / {{ total }}</text>
     <view class="lesson-progress__track">
-      <view class="lesson-progress__value" :style="{ width: percent + '%' }"></view>
+      <view class="lesson-progress__value" :style="{ width: progressPercent + '%' }"></view>
     </view>
   </view>
 </template>
@@ -12,42 +10,45 @@
 <script lang="uts">
 export default {
   props: {
-    current: { type: String, default: '' },
-    total: { type: String, default: '' },
-    percent: { type: Number, default: 0 },
+    current: { type: Number, required: true },
+    total: { type: Number, required: true },
+    label: { type: String, default: '学习进度' },
+  },
+  computed: {
+    progressPercent(): number {
+      if (this.total <= 0) return 0
+
+      return Math.min(Math.max(this.current / this.total * 100, 0), 100)
+    },
   },
 }
 </script>
 
-<style>
+<style lang="scss">
+@import '../../uni.scss';
+
 .lesson-progress {
   padding: 24rpx 0 16rpx;
-}
 
-.lesson-progress__meta {
-  margin-bottom: 18rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
+  &__label {
+    display: block;
+    margin-bottom: 18rpx;
+    color: $color-text-secondary;
+    font-size: 25rpx;
+    line-height: 36rpx;
+  }
 
-.lesson-progress__label {
-  color: #667085;
-  font-size: 25rpx;
-  line-height: 36rpx;
-}
+  &__track {
+    height: 7rpx;
+    border-radius: 8rpx;
+    background-color: $color-border;
+    overflow: hidden;
+  }
 
-.lesson-progress__track {
-  height: 7rpx;
-  border-radius: 8rpx;
-  background-color: #e9edf5;
-  overflow: hidden;
-}
-
-.lesson-progress__value {
-  height: 7rpx;
-  border-radius: 8rpx;
-  background-color: #1f50ff;
+  &__value {
+    height: 100%;
+    border-radius: inherit;
+    background-color: $color-primary;
+  }
 }
 </style>

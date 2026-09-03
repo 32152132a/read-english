@@ -1,7 +1,7 @@
 <template>
   <view class="page">
 
-    <LessonProgress current="4" total="10" :percent="40" />
+    <LessonProgress :current="4" :total="10" />
     <text class="page-title task">把音标分段读出来</text>
     <text class="main-ipa">/kəmˈpəʊnənt/</text>
     <view class="stages">
