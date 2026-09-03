@@ -1,0 +1,21 @@
+const TOKEN_KEY = 'token'
+
+export function getToken(): string {
+  const token = uni.getStorageSync(TOKEN_KEY)
+  return token == null ? '' : (token as string).trim()
+}
+
+export function setToken(token: string) {
+  uni.setStorageSync(TOKEN_KEY, token.trim())
+}
+
+export function clearToken() {
+  uni.removeStorageSync(TOKEN_KEY)
+}
+
+export function getAuthorization(): string {
+  const token = getToken()
+  if (token.length === 0) return ''
+
+  return token.toLowerCase().startsWith('bearer ') ? token : `Bearer ${token}`
+}

@@ -1,0 +1,26 @@
+<template>
+  <ErrorState
+    code="404"
+    title="页面不存在"
+    description="页面可能已被删除，或者访问地址有误"
+    primary-text="返回上一页"
+    @primary="goBack"
+    @secondary="goHome"
+  />
+</template>
+
+<script lang="uts">
+import ErrorState from '../../components/ErrorState/index.uvue'
+
+export default {
+  components: { ErrorState },
+  methods: {
+    goBack() {
+      uni.navigateBack()
+    },
+    goHome() {
+      uni.reLaunch({ url: '/pages/home/index' })
+    },
+  },
+}
+</script>

@@ -1,5 +1,121 @@
+import { clearToken, getAuthorization } from './token.uts'
+
 const apiBaseUrl = 'http://localhost:3000/api/v1'
+const loadingDelay = 150
+
+export type HttpOptions = {
+  url: string
+  method?: RequestMethod | null
+  data?: any | null
+  header?: UTSJSONObject | null
+  timeout?: number | null
+  auth?: boolean | null
+  showLoading?: boolean | null
+  loadingText?: string | null
+}
+
+export class HttpError {
+  statusCode: number
+  message: string
+  data: any | null
+
+  constructor(statusCode: number, message: string, data: any | null) {
+    this.statusCode = statusCode
+    this.message = message
+    this.data = data
+  }
+}
+
+let loadingCount = 0
+let loadingTimer = 0
+let loadingVisible = false
+let errorPageOpening = false
 
 export function getApiBaseUrl(): string {
   return apiBaseUrl
+}
+
+function startLoading(text: string) {
+  loadingCount += 1
+  if (loadingCount > 1) return
+
+  loadingTimer = setTimeout(() => {
+    loadingVisible = true
+    uni.showLoading({ title: text, mask: true })
+  }, loadingDelay)
+}
+
+function finishLoading() {
+  loadingCount = loadingCount > 0 ? loadingCount - 1 : 0
+  if (loadingCount > 0) return
+
+  clearTimeout(loadingTimer)
+  loadingTimer = 0
+  if (!loadingVisible) return
+
+  loadingVisible = false
+  uni.hideLoading()
+}
+
+function openErrorPage(statusCode: number) {
+  if (errorPageOpening) return
+
+  errorPageOpening = true
+  uni.navigateTo({
+    url: `/pages/error/${statusCode}`,
+    complete: () => {
+      setTimeout(() => {
+        errorPageOpening = false
+      }, 500)
+    },
+  })
+}
+
+function handleStatus(statusCode: number) {
+  if (statusCode === 401) {
+    clearToken()
+    uni.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+    return
+  }
+
+  if (statusCode === 404 || statusCode >= 500) {
+    openErrorPage(statusCode === 404 ? 404 : 500)
+  }
+}
+
+export function request<T>(options: HttpOptions): Promise<T> {
+  const shouldShowLoading = options.showLoading !== false
+  const headers: UTSJSONObject = options.header ?? {}
+  const authorization = getAuthorization()
+
+  if (options.auth !== false && authorization.length > 0) {
+    headers['Authorization'] = authorization
+  }
+  if (shouldShowLoading) startLoading(options.loadingText ?? '加载中')
+
+  return new Promise<T>((resolve, reject) => {
+    uni.request<T>({
+      url: options.url.startsWith('http') ? options.url : `${apiBaseUrl}${options.url}`,
+      method: options.method ?? 'GET',
+      data: options.data,
+      header: headers,
+      timeout: options.timeout ?? 10000,
+      success: (response) => {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          resolve(response.data)
+          return
+        }
+
+        handleStatus(response.statusCode)
+        reject(new HttpError(response.statusCode, `请求失败（${response.statusCode}）`, response.data))
+      },
+      fail: (error) => {
+        uni.showToast({ title: '网络连接失败，请稍后重试', icon: 'none' })
+        reject(new HttpError(0, error.errMsg, null))
+      },
+      complete: () => {
+        if (shouldShowLoading) finishLoading()
+      },
+    })
+  })
 }

@@ -1,0 +1,26 @@
+<template>
+  <ErrorState
+    code="500"
+    title="服务暂时不可用"
+    description="服务器遇到了一点问题，请稍后再试"
+    primary-text="重新尝试"
+    @primary="retry"
+    @secondary="goHome"
+  />
+</template>
+
+<script lang="uts">
+import ErrorState from '../../components/ErrorState/index.uvue'
+
+export default {
+  components: { ErrorState },
+  methods: {
+    retry() {
+      uni.navigateBack()
+    },
+    goHome() {
+      uni.reLaunch({ url: '/pages/home/index' })
+    },
+  },
+}
+</script>

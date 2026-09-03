@@ -11,7 +11,9 @@
     { "path": "pages/word-list/index", "style": { "navigationBarTitleText": "专业词库" } },
     { "path": "pages/evaluation/index", "style": { "navigationBarTitleText": "跟读评测" } },
     { "path": "pages/correction/index", "style": { "navigationBarTitleText": "AI纠音" } },
-    { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } }
+    { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/error/404", "style": { "navigationBarTitleText": "页面不存在" } },
+    { "path": "pages/error/500", "style": { "navigationBarTitleText": "服务异常" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
