@@ -1,0 +1,3 @@
+<template><view class="play" :class="large ? 'large' : ''" @click="$emit('click')"><text class="icon">▶</text></view></template>
+<script lang="uts">export default { props: { large: { type: Boolean, default: false } }, emits: ['click'] }</script>
+<style>.play{width:66rpx;height:66rpx;border:2rpx solid #2452ff;border-radius:50%;display:flex;align-items:center;justify-content:center}.play.large{width:154rpx;height:154rpx}.icon{margin-left:5rpx;color:#2452ff;font-size:26rpx}.large .icon{font-size:54rpx}</style>

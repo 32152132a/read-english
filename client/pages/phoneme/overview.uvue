@@ -1,2 +1,42 @@
-<template><ComingSoon title="音标总览" /></template>
-<script lang="uts">import ComingSoon from '../../components/ComingSoon/index.uvue'; export default { components: { ComingSoon } }</script>
+<template><view class="page"><view class="mastered">已掌握 <text class="primary">8</text> / 48</view><LessonProgress :percent="18"/><view class="tabs"><view class="tab active">元音</view><view class="tab">辅音</view></view><text class="section-title">单元音</text><view class="phonemes"><view v-for="item in singles" :key="item.ipa" class="phoneme-card" @click="openDetail"><text class="dot" :class="item.done?'done':''">{{item.done?'✓':'·'}}</text><text class="phoneme">{{item.ipa}}</text><text>{{item.word}}</text><text class="muted">{{item.zh}}</text></view></view><text class="section-title">双元音</text><view class="phonemes"><view v-for="item in doubles" :key="item.ipa" class="phoneme-card"><text class="phoneme">{{item.ipa}}</text><text>{{item.word}}</text><text class="muted">{{item.zh}}</text></view></view><button class="primary-button bottom" @click="next">继续学习</button></view></template>
+<script lang="uts">import LessonProgress from '../../components/LessonProgress/index.uvue';export default{components:{LessonProgress},data(){return{singles:[{ipa:'iː',word:'see',zh:'看见',done:true},{ipa:'ɪ',word:'sit',zh:'坐',done:true},{ipa:'e',word:'bed',zh:'床',done:false},{ipa:'æ',word:'cat',zh:'猫',done:false},{ipa:'ɑː',word:'car',zh:'汽车',done:true},{ipa:'ɒ',word:'hot',zh:'热的',done:false},{ipa:'ɔː',word:'saw',zh:'看见',done:true},{ipa:'ʊ',word:'book',zh:'书',done:false},{ipa:'uː',word:'food',zh:'食物',done:true},{ipa:'ʌ',word:'cup',zh:'杯子',done:false},{ipa:'ɜː',word:'bird',zh:'鸟',done:false},{ipa:'ə',word:'sofa',zh:'沙发',done:false}],doubles:[{ipa:'eɪ',word:'face',zh:'脸'},{ipa:'aɪ',word:'like',zh:'喜欢'},{ipa:'ɔɪ',word:'boy',zh:'男孩'},{ipa:'aʊ',word:'house',zh:'房子'}]}},methods:{openDetail(){uni.navigateTo({url:'/pages/phoneme/detail'})},next(){uni.navigateTo({url:'/pages/syllable/index'})}}}</script>
+<style lang="scss">
+@import '../../uni.scss';
+
+.mastered { margin: 20rpx 0; color: $color-text-secondary; }
+
+.tabs {
+  margin-top: 34rpx;
+  border: 2rpx solid #b8c2dc;
+  border-radius: 18rpx;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  .tab { padding: 20rpx; text-align: center; }
+  .active { background: $color-primary; color: #fff; }
+}
+
+.phonemes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18rpx;
+
+  .phoneme-card {
+    padding: 18rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 16rpx;
+    background: #fff;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8rpx;
+  }
+
+  .phoneme { grid-column: 1; font-size: 40rpx; }
+  .dot { grid-column: 2; grid-row: 1; color: #aab1c8; }
+  .done { width: 28rpx; height: 28rpx; border-radius: 50%; background: $color-primary; color: #fff; text-align: center; }
+  .phoneme-card > text:not(.dot) { grid-column: 1 / -1; }
+}
+
+.bottom { width: 100%; margin-top: 34rpx; }
+</style>

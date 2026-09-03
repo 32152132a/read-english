@@ -13,14 +13,31 @@ page {
 }
 
 .page {
-  min-height: 100%;
-  padding: 32rpx;
+  min-height: 100vh;
+  padding: 0 44rpx 48rpx;
   box-sizing: border-box;
 }
 
 .card {
-  padding: 32rpx;
+  padding: 28rpx;
   border: 2rpx solid $color-border;
   border-radius: 32rpx;
   background-color: $color-surface;
 }
+
+.page-title { color: $color-text-primary; font-size: 44rpx; font-weight: 700; line-height: 1.35; }
+.section-title { display: block; margin: 40rpx 0 20rpx; font-size: 30rpx; font-weight: 700; }
+.muted { color: $color-text-secondary; }
+.primary { color: $color-primary; }
+.primary-button {
+  display: flex; align-items: center; justify-content: center; min-height: 88rpx;
+  border: 0; border-radius: 16rpx; color: #fff; font-size: 30rpx;
+  background: linear-gradient(135deg, #154cff 0%, #253eff 100%);
+}
+.outline-button {
+  display: flex; align-items: center; justify-content: center; min-height: 84rpx;
+  border: 2rpx solid $color-primary; border-radius: 16rpx; color: $color-primary;
+  background-color: #fff; font-size: 30rpx;
+}
+.row { display: flex; flex-direction: row; align-items: center; }
+.space-between { justify-content: space-between; }

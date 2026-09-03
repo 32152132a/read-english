@@ -1,0 +1,3 @@
+<template><view class="actions"><button class="outline-button half" @click="$emit('previous')">上一个</button><button class="primary-button half" @click="$emit('next')">下一个</button></view></template>
+<script lang="uts">export default { emits: ['previous', 'next'] }</script>
+<style lang="scss">@import '../../uni.scss';.actions{display:flex;gap:24rpx;margin-top:32rpx}.half{flex:1;margin:0}</style>

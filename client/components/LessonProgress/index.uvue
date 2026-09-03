@@ -1,0 +1,53 @@
+<template>
+  <view class="lesson-progress">
+    <view v-if="current.length > 0 && total.length > 0" class="lesson-progress__meta">
+      <text class="lesson-progress__label">学习进度　{{ current }} / {{ total }}</text>
+    </view>
+    <view class="lesson-progress__track">
+      <view class="lesson-progress__value" :style="{ width: percent + '%' }"></view>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    current: { type: String, default: '' },
+    total: { type: String, default: '' },
+    percent: { type: Number, default: 0 },
+  },
+}
+</script>
+
+<style>
+.lesson-progress {
+  padding: 24rpx 0 16rpx;
+}
+
+.lesson-progress__meta {
+  margin-bottom: 18rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lesson-progress__label {
+  color: #667085;
+  font-size: 25rpx;
+  line-height: 36rpx;
+}
+
+.lesson-progress__track {
+  height: 7rpx;
+  border-radius: 8rpx;
+  background-color: #e9edf5;
+  overflow: hidden;
+}
+
+.lesson-progress__value {
+  height: 7rpx;
+  border-radius: 8rpx;
+  background-color: #1f50ff;
+}
+</style>

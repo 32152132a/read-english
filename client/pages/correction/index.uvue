@@ -1,2 +1,31 @@
-<template><ComingSoon title="AI纠音" /></template>
-<script lang="uts">import ComingSoon from '../../components/ComingSoon/index.uvue'; export default { components: { ComingSoon } }</script>
+<template><view class="page"><text class="badge">✦ AI 建议</text><text class="headline">你的 <text class="primary">/θ/</text> 需要加强</text><text class="muted sub">根据最近 6 次跟读结果生成</text><view class="card issue"><text class="muted">常见问题</text><text class="issue-title">容易读成 /s/</text><text class="muted">受影响的单词</text><text>think，authentication，method</text><text class="mouth">≋</text></view><text class="section-title">纠音要点</text><view v-for="(tip,index) in tips" :key="tip.title" class="card correction"><text class="number">{{index+1}}</text><view><text class="tip-title">{{tip.title}}</text><text class="muted">{{tip.text}}</text></view></view><text class="section-title">迷你练习</text><view class="card practice"><text class="practice-word">🔊　think　<text class="muted">/θɪŋk/</text></text><view class="record-box">🎙　点击录音跟读</view></view><button class="primary-button full">开始专项练习</button><button class="outline-button full">稍后复习</button></view></template>
+<script lang="uts">export default{components:{},data(){return{tips:[{title:'舌尖轻触上下齿之间',text:'舌尖放在上下门齿之间，轻轻接触'},{title:'先送气再发声',text:'先让气流从齿间通过，再发出声音'},{title:'不要读成「丝」',text:'避免舌尖离开或顶住上齿龈'}]}}}</script>
+<style lang="scss">
+@import '../../uni.scss';
+
+.badge { padding: 8rpx 14rpx; border: 1rpx solid #a6b6ff; border-radius: 10rpx; color: $color-primary; }
+.headline { display: block; margin-top: 28rpx; font-size: 42rpx; font-weight: 700; }
+.sub { display: block; margin: 14rpx 0 34rpx; }
+
+.issue {
+  display: grid;
+  grid-template-columns: 1fr 180rpx;
+  gap: 20rpx;
+
+  .mouth { grid-column: 2; grid-row: 1 / span 4; align-self: center; color: $color-primary; font-size: 100rpx; }
+  .issue-title { font-size: 34rpx; font-weight: 700; }
+}
+
+.correction {
+  margin-bottom: 14rpx;
+  display: grid;
+  grid-template-columns: 52rpx 1fr;
+  gap: 20rpx;
+
+  .number { width: 52rpx; height: 52rpx; border-radius: 50%; background: $color-primary; color: #fff; text-align: center; line-height: 52rpx; }
+  .tip-title { display: block; font-weight: 600; }
+}
+
+.record-box { margin-top: 24rpx; padding: 26rpx; border-radius: 14rpx; background: #f4f6ff; text-align: center; }
+.full { width: 100%; margin-top: 18rpx; }
+</style>

@@ -1,46 +1,60 @@
 <template>
-  <view class="page home-page">
-    <view class="safe-area"></view>
-    <text class="eyebrow">每天进步一点点</text>
-    <text class="title">你好，开始今天的发音练习</text>
-
-    <view class="card hero-card">
-      <text class="hero-label">今日任务</text>
-      <text class="hero-title">认识第一个音标</text>
-      <text class="hero-description">从口型、听音和例词开始学习</text>
-      <button class="primary-button" @click="startLearning">开始学习</button>
-    </view>
-
-    <text class="section-title">学习路径</text>
-    <view class="card path-card">
-      <text class="path-title">基础发音</text>
-      <text class="path-description">音标总览 · 音素与音节 · 拼读训练</text>
-    </view>
+  <view class="screen">
+    <view class="page home">
+      <view class="home-head"><view><text class="greeting">下午好，永庆</text><text class="subtitle">看到陌生单词，也能试着读出来</text></view><text class="search">⌕</text></view>
+      <view class="card hero">
+        <text class="tag">今日学习</text><text class="hero-title">短元音 · 第 3 课</text><text class="hero-sub">区分 /ɪ/ 和 /iː/</text><text class="time">◷ 约 6 分钟</text>
+        <view class="hero-bottom"><button class="primary-button continue" @click="go('/pages/phoneme/compare')">继续学习  ›</button><text class="muted">基础学习 <text class="green">8</text> / 20</text></view>
+      </view>
+      <text class="section-title">学习路径</text>
+      <view class="path"><view v-for="(item,index) in paths" :key="item" class="path-item"><view class="circle" :class="index===0?'active-circle':''">{{ index+1 }}</view><text :class="index===0?'primary':''">{{ item }}</text></view></view>
+      <text class="current">当前：<text class="primary">认识音标</text></text>
+      <text class="section-title">下一阶段</text>
+      <view class="card next-stage"><view class="stage" @click="go('/pages/word-list/index')"><text class="stage-icon">▢</text><text>专业词库</text><text class="muted small">实际应用</text></view><text>›</text><view class="stage" @click="go('/pages/evaluation/index')"><text class="stage-icon">♧</text><text>跟读评测</text><text class="muted small">发现问题</text></view><text>›</text><view class="stage" @click="go('/pages/correction/index')"><text class="stage-icon">≋</text><text>AI 纠音</text><text class="muted small">针对提升</text></view></view>
+    </view><BottomNav active="home" />
   </view>
 </template>
-
-<script lang="uts">
-export default {
-  methods: {
-    startLearning() {
-      uni.navigateTo({ url: '/pages/phoneme/detail' })
-    },
-  },
-}
-</script>
-
+<script lang="uts">import BottomNav from '../../components/BottomNav/index.uvue'; export default { components:{BottomNav}, data(){return{paths:['认识音标','音素与音节','看音标拼读','看单词拆读']}}, methods:{go(url:string){uni.navigateTo({url})}} }</script>
 <style lang="scss">
 @import '../../uni.scss';
 
-.safe-area { height: 88rpx; }
-.eyebrow { color: $color-primary; font-size: 28rpx; }
-.title { display: block; margin-top: 12rpx; font-size: 48rpx; font-weight: 700; line-height: 1.3; }
-.hero-card { margin-top: 48rpx; background-color: $color-primary; border-color: $color-primary; color: #fff; }
-.hero-label { font-size: 24rpx; opacity: 0.8; }
-.hero-title { display: block; margin-top: 16rpx; font-size: 40rpx; font-weight: 700; }
-.hero-description { display: block; margin-top: 12rpx; font-size: 28rpx; opacity: 0.84; }
-.primary-button { margin-top: 40rpx; min-height: 88rpx; border-radius: 28rpx; background-color: #fff; color: $color-primary; font-size: 28rpx; }
-.section-title { display: block; margin: 48rpx 0 20rpx; font-size: 34rpx; font-weight: 600; }
-.path-title { display: block; font-size: 32rpx; font-weight: 600; }
-.path-description { display: block; margin-top: 12rpx; color: $color-text-secondary; font-size: 26rpx; }
+.screen { min-height: 100vh; }
+.home { padding-top: 92rpx; padding-bottom: 30rpx; }
+
+.home-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+
+  .greeting { display: block; font-size: 42rpx; font-weight: 700; }
+  .subtitle { display: block; margin-top: 12rpx; color: $color-text-secondary; }
+  .search { font-size: 52rpx; }
+}
+
+.hero {
+  margin-top: 46rpx;
+  padding: 34rpx;
+
+  .tag { padding: 8rpx 12rpx; border-radius: 10rpx; background: #eef0ff; color: $color-primary; }
+  .hero-title { display: block; margin-top: 42rpx; font-size: 40rpx; font-weight: 700; }
+  .hero-sub, .time { display: block; margin-top: 20rpx; color: $color-text-secondary; }
+  .hero-bottom { margin-top: 48rpx; display: grid; grid-template-columns: 238rpx 1fr; align-items: center; gap: 24rpx; }
+  .continue { width: 100%; margin: 0; }
+  .green { color: $color-success; }
+}
+
+.path {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12rpx;
+
+  .path-item { min-width: 0; display: flex; align-items: center; flex-direction: column; gap: 16rpx; text-align: center; color: $color-text-secondary; }
+  .circle { width: 60rpx; height: 60rpx; border: 2rpx solid #dfe3ed; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
+  .active-circle { border-color: $color-primary; background: $color-primary; color: #fff; }
+}
+
+.current { display: block; margin: 42rpx 12rpx; color: $color-text-secondary; }
+.next-stage { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; }
+.stage { display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
+.stage-icon { color: $color-primary; font-size: 46rpx; }
+.small { font-size: 21rpx; }
 </style>

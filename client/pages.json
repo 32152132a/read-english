@@ -1,8 +1,8 @@
 {
   "pages": [
     { "path": "pages/home/index", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/phoneme/detail", "style": { "navigationBarTitleText": "单音标学习" } },
-    { "path": "pages/phoneme/compare", "style": { "navigationBarTitleText": "易混音标对比" } },
+    { "path": "pages/phoneme/detail", "style": { "navigationBarTitleText": "认识音标" } },
+    { "path": "pages/phoneme/compare", "style": { "navigationBarTitleText": "认识音标" } },
     { "path": "pages/phoneme/quiz", "style": { "navigationBarTitleText": "听音辨认" } },
     { "path": "pages/phoneme/overview", "style": { "navigationBarTitleText": "音标总览" } },
     { "path": "pages/syllable/index", "style": { "navigationBarTitleText": "音素与音节" } },
@@ -11,7 +11,7 @@
     { "path": "pages/word-list/index", "style": { "navigationBarTitleText": "专业词库" } },
     { "path": "pages/evaluation/index", "style": { "navigationBarTitleText": "跟读评测" } },
     { "path": "pages/correction/index", "style": { "navigationBarTitleText": "AI纠音" } },
-    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的" } }
+    { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
