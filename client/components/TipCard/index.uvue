@@ -26,26 +26,27 @@ export default {
   border-radius: 14rpx;
   background-color: #eef2ff;
   display: grid;
-  grid-template-columns: 32rpx 1fr;
+  grid-template-columns: 28rpx 1fr;
   align-items: start;
   gap: 12rpx;
 
   &__icon {
-    width: 32rpx;
-    height: 32rpx;
+    width: 28rpx;
+    height: 28rpx;
+    margin-top: 2rpx;
     border-radius: 50%;
     background-color: $color-primary;
     color: $color-surface;
     text-align: center;
-    font-size: 22rpx;
+    font-size: 20rpx;
     font-weight: 600;
-    line-height: 32rpx;
+    line-height: 28rpx;
   }
 
   &__content {
     color: $color-text-secondary;
-    font-size: 24rpx;
-    line-height: 1.5;
+    font-size: 22rpx;
+    line-height: 32rpx;
   }
 
   &__title {
