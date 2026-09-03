@@ -1,3 +1,203 @@
-<template><view class="play" :class="large ? 'large' : ''" @click="$emit('click')"><text class="icon">▶</text></view></template>
-<script lang="uts">export default { props: { large: { type: Boolean, default: false } }, emits: ['click'] }</script>
-<style>.play{width:66rpx;height:66rpx;border:2rpx solid #2452ff;border-radius:50%;display:flex;align-items:center;justify-content:center}.play.large{width:154rpx;height:154rpx}.icon{margin-left:5rpx;color:#2452ff;font-size:26rpx}.large .icon{font-size:54rpx}</style>
+<template>
+  <view
+    class="play-button"
+    :class="['play-button--' + buttonSize, disabled ? 'is-disabled' : '']"
+    @click="play"
+  >
+    <view class="play-button__circle" :style="{ borderColor: color }">
+      <view v-if="status === 'loading'" class="play-button__loading" :style="{ borderTopColor: color }" />
+      <view v-else-if="status === 'playing'" class="play-button__playing">
+        <view v-for="index in 3" :key="index" class="play-button__bar" :style="{ backgroundColor: color }" />
+      </view>
+      <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
+    </view>
+    <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">{{ text }}</text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    src: { type: String, default: '' },
+    text: { type: String, default: '' },
+    size: { type: String, default: 'default' },
+    color: { type: String, default: '#5267f8' },
+    disabled: { type: Boolean, default: false },
+  },
+  emits: ['error'],
+  data() {
+    return {
+      status: 'idle',
+      audioContext: null as InnerAudioContext | null,
+    }
+  },
+  computed: {
+    buttonSize(): string {
+      return ['mini', 'large'].includes(this.size) ? this.size : 'default'
+    },
+  },
+  methods: {
+    play() {
+      if (this.disabled || this.src.length === 0 || this.status !== 'idle') return
+
+      this.status = 'loading'
+      const audio = uni.createInnerAudioContext()
+      this.audioContext = audio
+      audio.src = this.src
+      audio.onPlay(() => {
+        this.status = 'playing'
+      })
+      audio.onWaiting(() => {
+        this.status = 'loading'
+      })
+      audio.onCanplay(() => {
+        if (this.status === 'loading') this.status = 'playing'
+      })
+      audio.onEnded(() => {
+        this.resetAudio()
+      })
+      audio.onError((error) => {
+        this.resetAudio()
+        this.$emit('error', error)
+      })
+      audio.play()
+    },
+    resetAudio() {
+      this.audioContext?.destroy()
+      this.audioContext = null
+      this.status = 'idle'
+    },
+  },
+  beforeUnmount() {
+    this.resetAudio()
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.play-button {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  width: fit-content;
+
+  &__circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 66rpx;
+    height: 66rpx;
+    box-sizing: border-box;
+    border: 2rpx solid $color-primary;
+    border-radius: 50%;
+  }
+
+  &__icon {
+    margin-left: 5rpx;
+    font-size: 26rpx;
+  }
+
+  &__text {
+    font-size: 26rpx;
+  }
+
+  &__loading {
+    width: 24rpx;
+    height: 24rpx;
+    box-sizing: border-box;
+    border: 3rpx solid $color-border;
+    border-radius: 50%;
+    animation: play-button-loading 0.8s linear infinite;
+  }
+
+  &__playing {
+    display: flex;
+    align-items: center;
+    gap: 4rpx;
+    height: 28rpx;
+  }
+
+  &__bar {
+    width: 4rpx;
+    height: 12rpx;
+    border-radius: 4rpx;
+    animation: play-button-playing 0.8s ease-in-out infinite alternate;
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+
+  &--mini {
+    gap: 10rpx;
+
+    .play-button__circle {
+      width: 48rpx;
+      height: 48rpx;
+    }
+
+    .play-button__icon,
+    .play-button__text {
+      font-size: 22rpx;
+    }
+  }
+
+  &--large {
+    flex-direction: column;
+    gap: 16rpx;
+
+    .play-button__circle {
+      width: 120rpx;
+      height: 120rpx;
+      border-width: 3rpx;
+    }
+
+    .play-button__icon {
+      margin-left: 6rpx;
+      font-size: 42rpx;
+    }
+
+    .play-button__text {
+      font-size: 30rpx;
+    }
+
+    .play-button__loading {
+      width: 38rpx;
+      height: 38rpx;
+      border-width: 4rpx;
+    }
+
+    .play-button__playing {
+      gap: 6rpx;
+      height: 44rpx;
+    }
+
+    .play-button__bar {
+      width: 6rpx;
+      height: 20rpx;
+    }
+  }
+
+  &.is-disabled {
+    opacity: 0.45;
+  }
+}
+
+@keyframes play-button-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes play-button-playing {
+  to {
+    height: 100%;
+  }
+}
+</style>
