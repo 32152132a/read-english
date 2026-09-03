@@ -1,47 +1,37 @@
 <template>
   <view class="screen">
     <view class="page profile">
-      <text class="title">我的</text>
+      <text class="title">{{ pageData.title }}</text>
       <view class="card user">
-        <view class="avatar">YQ</view>
+        <view class="avatar">{{ pageData.user.avatarText }}</view>
         <view>
-          <text class="name">永庆</text>
-          <text class="muted">正在完成基础学习</text>
+          <text class="name">{{ pageData.user.nickname }}</text>
+          <text class="muted">{{ pageData.user.learningStatus }}</text>
         </view>
         <text class="arrow">›</text>
       </view>
       <view class="card stats">
-        <view>
-          <text>已学习</text>
-          <b>8</b>
-          <text>/ 20</text>
-        </view>
-        <view>
-          <text>连续学习</text>
-          <b>3</b>
-          <text>天</text>
-        </view>
-        <view>
-          <text>待复习</text>
-          <b>2</b>
-          <text>个</text>
+        <view v-for="stat in pageData.stats" :key="stat.code">
+          <text>{{ stat.label }}</text>
+          <b>{{ stat.value }}</b>
+          <text>{{ stat.suffix }}</text>
         </view>
       </view>
       <text class="section-title">学习记录</text>
       <view class="card menu">
-        <view v-for="item in records" :key="item">
-          {{ item }}
+        <view v-for="item in pageData.records" :key="item.code">
+          {{ item.label }}
           <text>›</text>
         </view>
       </view>
       <text class="section-title">设置</text>
       <view class="card menu">
-        <view v-for="item in settings" :key="item">
-          {{ item }}
+        <view v-for="item in pageData.settings" :key="item.code">
+          {{ item.label }}
           <text>›</text>
         </view>
       </view>
-      <text class="version">v1.0.0</text>
+      <text class="version">{{ pageData.version }}</text>
     </view>
     <BottomNav active="profile" />
   </view>
@@ -52,13 +42,27 @@ export default {
   components: { BottomNav },
   data() {
     return {
-      records: ['▧　学习进度', '/iː/　已掌握音标', '☆　收藏单词'],
-      settings: [
-        '🔊　发音偏好　　　　　　　 美式英语',
-        '⇩　音频缓存',
-        '□　意见反馈',
-        'ⓘ　关于产品',
-      ],
+      pageData: {
+        title: '我的',
+        user: { avatarText: 'YQ', nickname: '永庆', learningStatus: '正在完成基础学习' },
+        stats: [
+          { code: 'learned', label: '已学习', value: 8, suffix: '/ 20' },
+          { code: 'streak', label: '连续学习', value: 3, suffix: '天' },
+          { code: 'review', label: '待复习', value: 2, suffix: '个' },
+        ],
+        records: [
+          { code: 'progress', label: '▧　学习进度' },
+          { code: 'mastered', label: '/iː/　已掌握音标' },
+          { code: 'favorites', label: '☆　收藏单词' },
+        ],
+        settings: [
+          { code: 'accent', label: '🔊　发音偏好　　　　　　　 美式英语' },
+          { code: 'audio-cache', label: '⇩　音频缓存' },
+          { code: 'feedback', label: '□　意见反馈' },
+          { code: 'about', label: 'ⓘ　关于产品' },
+        ],
+        version: 'v1.0.0',
+      },
     }
   },
 }

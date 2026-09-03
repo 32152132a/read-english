@@ -1,29 +1,27 @@
 <template>
   <view class="page">
-    <LessonProgress :current="5" :total="12" />
-    <text class="page-title centered">根据字母组合推测读音</text>
-    <TipCard text="非重读音节中的 o 常弱读为 /ə/" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" />
+    <text class="page-title centered">{{ pageData.title }}</text>
+    <TipCard :text="pageData.tip" />
     <view class="word-parts">
-      <text>com</text>
-      <text class="focus">ˈpo</text>
-      <text>nent</text>
+      <text v-for="part in pageData.parts" :key="part.text" :class="part.stressed ? 'focus' : ''">
+        {{ part.text }}
+      </text>
     </view>
     <view class="tiles">
-      <text>com</text>
-      <text>po</text>
-      <text>nent</text>
+      <text v-for="part in pageData.parts" :key="part.text">{{ part.text }}</text>
     </view>
     <text class="muted centered">拖动分隔符调整拆分</text>
     <text class="section-title">字母与发音</text>
     <view class="card mappings">
-      <view v-for="m in mappings" :key="m.part">
+      <view v-for="m in pageData.mappings" :key="m.part">
         <text class="part">{{ m.part }}</text>
         <text>→</text>
         <text>{{ m.ipa }}</text>
         <text class="muted">{{ m.tip }}</text>
       </view>
     </view>
-    <StepActions :current="5" :total="12" @change="loadStep" />
+    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
@@ -34,16 +32,31 @@ export default {
   components: { LessonProgress, TipCard, StepActions },
   data() {
     return {
-      mappings: [
-        { part: 'com', ipa: '/kəm/', tip: '辅音 + o 弱读 /ə/' },
-        { part: 'po', ipa: '/pəʊ/', tip: '开音节 o 发 /əʊ/' },
-        { part: 'nent', ipa: '/nənt/', tip: '结尾 t 不发音' },
-      ],
+      pageData: {
+        id: 'word-decoding-component',
+        current: 5,
+        total: 12,
+        title: '根据字母组合推测读音',
+        tip: '非重读音节中的 o 常弱读为 /ə/',
+        word: 'component',
+        ipa: '/kəmˈpəʊnənt/',
+        audioUrl: '',
+        parts: [
+          { text: 'com', stressed: false },
+          { text: 'po', stressed: true },
+          { text: 'nent', stressed: false },
+        ],
+        mappings: [
+          { part: 'com', ipa: '/kəm/', tip: '辅音 + o 弱读 /ə/' },
+          { part: 'po', ipa: '/pəʊ/', tip: '开音节 o 发 /əʊ/' },
+          { part: 'nent', ipa: '/nənt/', tip: '结尾 t 不发音' },
+        ],
+      },
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < 5) uni.navigateBack()
+      if (target < this.pageData.current) uni.navigateBack()
     },
   },
 }

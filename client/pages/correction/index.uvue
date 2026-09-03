@@ -1,21 +1,21 @@
 <template>
   <view class="page">
-    <text class="badge">✦ AI 建议</text>
+    <text class="badge">{{ pageData.badge }}</text>
     <text class="headline">
       你的
-      <text class="primary">/θ/</text>
+      <text class="primary">{{ pageData.phoneme }}</text>
       需要加强
     </text>
-    <text class="muted sub">根据最近 6 次跟读结果生成</text>
+    <text class="muted sub">{{ pageData.summary }}</text>
     <view class="card issue">
       <text class="muted">常见问题</text>
-      <text class="issue-title">容易读成 /s/</text>
+      <text class="issue-title">{{ pageData.issue }}</text>
       <text class="muted">受影响的单词</text>
-      <text>think，authentication，method</text>
+      <text>{{ pageData.affectedWords.join('，') }}</text>
       <text class="mouth">≋</text>
     </view>
     <text class="section-title">纠音要点</text>
-    <view v-for="(tip, index) in tips" :key="tip.title" class="card correction">
+    <view v-for="(tip, index) in pageData.tips" :key="tip.title" class="card correction">
       <text class="number">{{ index + 1 }}</text>
       <view>
         <text class="tip-title">{{ tip.title }}</text>
@@ -25,8 +25,8 @@
     <text class="section-title">迷你练习</text>
     <view class="card practice">
       <text class="practice-word">
-        🔊　think　
-        <text class="muted">/θɪŋk/</text>
+        🔊　{{ pageData.practice.word }}　
+        <text class="muted">{{ pageData.practice.ipa }}</text>
       </text>
       <view class="record-box">🎙　点击录音跟读</view>
     </view>
@@ -39,11 +39,19 @@ export default {
   components: {},
   data() {
     return {
-      tips: [
-        { title: '舌尖轻触上下齿之间', text: '舌尖放在上下门齿之间，轻轻接触' },
-        { title: '先送气再发声', text: '先让气流从齿间通过，再发出声音' },
-        { title: '不要读成「丝」', text: '避免舌尖离开或顶住上齿龈' },
-      ],
+      pageData: {
+        badge: '✦ AI 建议',
+        phoneme: '/θ/',
+        summary: '根据最近 6 次跟读结果生成',
+        issue: '容易读成 /s/',
+        affectedWords: ['think', 'authentication', 'method'],
+        tips: [
+          { title: '舌尖轻触上下齿之间', text: '舌尖放在上下门齿之间，轻轻接触' },
+          { title: '先送气再发声', text: '先让气流从齿间通过，再发出声音' },
+          { title: '不要读成「丝」', text: '避免舌尖离开或顶住上齿龈' },
+        ],
+        practice: { word: 'think', ipa: '/θɪŋk/', audioUrl: '' },
+      },
     }
   },
 }

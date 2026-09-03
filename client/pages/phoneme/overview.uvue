@@ -1,13 +1,28 @@
 <template>
   <view class="page">
-    <LessonProgress :current="8" :total="48" label="已掌握" />
+    <LessonProgress
+      :current="pageData.current"
+      :total="pageData.total"
+      :label="pageData.progressLabel"
+    />
     <view class="tabs">
-      <view class="tab active">元音</view>
-      <view class="tab">辅音</view>
+      <view
+        v-for="tab in pageData.tabs"
+        :key="tab.code"
+        class="tab"
+        :class="tab.active ? 'active' : ''"
+      >
+        {{ tab.name }}
+      </view>
     </view>
     <text class="section-title">单元音</text>
     <view class="phonemes">
-      <view v-for="item in singles" :key="item.ipa" class="phoneme-card" @click="openDetail">
+      <view
+        v-for="item in pageData.singleVowels"
+        :key="item.ipa"
+        class="phoneme-card"
+        @click="openDetail"
+      >
         <text class="dot" :class="item.done ? 'done' : ''">{{ item.done ? '✓' : '·' }}</text>
         <text class="phoneme">{{ item.ipa }}</text>
         <text>{{ item.word }}</text>
@@ -16,7 +31,7 @@
     </view>
     <text class="section-title">双元音</text>
     <view class="phonemes">
-      <view v-for="item in doubles" :key="item.ipa" class="phoneme-card">
+      <view v-for="item in pageData.diphthongs" :key="item.ipa" class="phoneme-card">
         <text class="phoneme">{{ item.ipa }}</text>
         <text>{{ item.word }}</text>
         <text class="muted">{{ item.zh }}</text>
@@ -31,34 +46,45 @@ export default {
   components: { LessonProgress },
   data() {
     return {
-      singles: [
-        { ipa: 'iː', word: 'see', zh: '看见', done: true },
-        { ipa: 'ɪ', word: 'sit', zh: '坐', done: true },
-        { ipa: 'e', word: 'bed', zh: '床', done: false },
-        { ipa: 'æ', word: 'cat', zh: '猫', done: false },
-        { ipa: 'ɑː', word: 'car', zh: '汽车', done: true },
-        { ipa: 'ɒ', word: 'hot', zh: '热的', done: false },
-        { ipa: 'ɔː', word: 'saw', zh: '看见', done: true },
-        { ipa: 'ʊ', word: 'book', zh: '书', done: false },
-        { ipa: 'uː', word: 'food', zh: '食物', done: true },
-        { ipa: 'ʌ', word: 'cup', zh: '杯子', done: false },
-        { ipa: 'ɜː', word: 'bird', zh: '鸟', done: false },
-        { ipa: 'ə', word: 'sofa', zh: '沙发', done: false },
-      ],
-      doubles: [
-        { ipa: 'eɪ', word: 'face', zh: '脸' },
-        { ipa: 'aɪ', word: 'like', zh: '喜欢' },
-        { ipa: 'ɔɪ', word: 'boy', zh: '男孩' },
-        { ipa: 'aʊ', word: 'house', zh: '房子' },
-      ],
+      pageData: {
+        current: 8,
+        total: 48,
+        progressLabel: '已掌握',
+        tabs: [
+          { code: 'vowel', name: '元音', active: true },
+          { code: 'consonant', name: '辅音', active: false },
+        ],
+        singleVowels: [
+          { ipa: 'iː', word: 'see', zh: '看见', done: true },
+          { ipa: 'ɪ', word: 'sit', zh: '坐', done: true },
+          { ipa: 'e', word: 'bed', zh: '床', done: false },
+          { ipa: 'æ', word: 'cat', zh: '猫', done: false },
+          { ipa: 'ɑː', word: 'car', zh: '汽车', done: true },
+          { ipa: 'ɒ', word: 'hot', zh: '热的', done: false },
+          { ipa: 'ɔː', word: 'saw', zh: '看见', done: true },
+          { ipa: 'ʊ', word: 'book', zh: '书', done: false },
+          { ipa: 'uː', word: 'food', zh: '食物', done: true },
+          { ipa: 'ʌ', word: 'cup', zh: '杯子', done: false },
+          { ipa: 'ɜː', word: 'bird', zh: '鸟', done: false },
+          { ipa: 'ə', word: 'sofa', zh: '沙发', done: false },
+        ],
+        diphthongs: [
+          { ipa: 'eɪ', word: 'face', zh: '脸' },
+          { ipa: 'aɪ', word: 'like', zh: '喜欢' },
+          { ipa: 'ɔɪ', word: 'boy', zh: '男孩' },
+          { ipa: 'aʊ', word: 'house', zh: '房子' },
+        ],
+        detailRoute: '/pages/phoneme/detail',
+        nextRoute: '/pages/syllable/index',
+      },
     }
   },
   methods: {
     openDetail() {
-      uni.navigateTo({ url: '/pages/phoneme/detail' })
+      uni.navigateTo({ url: this.pageData.detailRoute })
     },
     next() {
-      uni.navigateTo({ url: '/pages/syllable/index' })
+      uni.navigateTo({ url: this.pageData.nextRoute })
     },
   },
 }

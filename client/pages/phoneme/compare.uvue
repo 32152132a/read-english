@@ -1,40 +1,40 @@
 <template>
   <view class="page">
-    <LessonProgress :current="3" :total="20" />
-    <text class="label">短元音对比</text>
-    <text class="page-title">区分 /ɪ/ 和 /iː/</text>
-    <text class="muted intro">一个短促放松，一个稍长并向两侧展开</text>
-    <TipCard text="/ɪ/ 短而放松，/iː/ 像微笑一样向两侧拉开。" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" />
+    <text class="label">{{ pageData.category }}</text>
+    <text class="page-title">{{ pageData.title }}</text>
+    <text class="muted intro">{{ pageData.description }}</text>
+    <TipCard :text="pageData.tip" />
     <view class="compare-grid">
       <view
-        v-for="item in sounds"
+        v-for="item in pageData.sounds"
         :key="item.ipa"
         class="sound-card"
         :class="item.green ? 'green-card' : ''"
       >
         <text class="big-ipa">{{ item.ipa }}</text>
         <text class="sound-name">{{ item.name }}</text>
-        <view class="row listen-row"><PlayButton text="听发音" /></view>
+        <view class="row listen-row"><PlayButton :src="item.audioUrl" text="听发音" /></view>
         <text class="mouth-line">⌣</text>
         <text class="tip-line">{{ item.tip }}</text>
         <text class="examples">{{ item.examples }}</text>
       </view>
     </view>
-    <text class="section-title">听一听它们的区别</text>
+    <text class="section-title">{{ pageData.pairTitle }}</text>
     <view class="card pair">
-      <PlayButton size="mini" />
+      <PlayButton :src="pageData.wordPair[0].audioUrl" size="mini" />
       <view>
-        <text class="pair-word">ship</text>
-        <text class="muted">/ʃɪp/</text>
+        <text class="pair-word">{{ pageData.wordPair[0].word }}</text>
+        <text class="muted">{{ pageData.wordPair[0].ipa }}</text>
       </view>
       <text class="swap">⇄</text>
       <view>
-        <text class="pair-word">sheep</text>
-        <text class="muted">/ʃiːp/</text>
+        <text class="pair-word">{{ pageData.wordPair[1].word }}</text>
+        <text class="muted">{{ pageData.wordPair[1].ipa }}</text>
       </view>
-      <PlayButton size="mini" />
+      <PlayButton :src="pageData.wordPair[1].audioUrl" size="mini" />
     </view>
-    <StepActions :current="3" :total="20" @change="loadStep" />
+    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
@@ -46,34 +46,51 @@ export default {
   components: { LessonProgress, PlayButton, TipCard, StepActions },
   data() {
     return {
-      sounds: [
-        {
-          ipa: '/ɪ/',
-          name: '短促的「衣」',
-          tip: '嘴角放松，快速收音',
-          examples: 'ship · sit · live',
-          green: false,
-        },
-        {
-          ipa: '/iː/',
-          name: '拉长的「衣」',
-          tip: '嘴角向两侧，声音延长',
-          examples: 'sheep · seat · leave',
-          green: true,
-        },
-      ],
+      pageData: {
+        id: 'short-vowel-comparison',
+        current: 3,
+        total: 20,
+        category: '短元音对比',
+        title: '区分 /ɪ/ 和 /iː/',
+        description: '一个短促放松，一个稍长并向两侧展开',
+        tip: '/ɪ/ 短而放松，/iː/ 像微笑一样向两侧拉开。',
+        sounds: [
+          {
+            ipa: '/ɪ/',
+            name: '短促的「衣」',
+            tip: '嘴角放松，快速收音',
+            examples: 'ship · sit · live',
+            audioUrl: '',
+            green: false,
+          },
+          {
+            ipa: '/iː/',
+            name: '拉长的「衣」',
+            tip: '嘴角向两侧，声音延长',
+            examples: 'sheep · seat · leave',
+            audioUrl: '',
+            green: true,
+          },
+        ],
+        pairTitle: '听一听它们的区别',
+        wordPair: [
+          { word: 'ship', ipa: '/ʃɪp/', audioUrl: '' },
+          { word: 'sheep', ipa: '/ʃiːp/', audioUrl: '' },
+        ],
+        nextRoute: '/pages/phoneme/quiz',
+      },
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < 3) {
+      if (target < this.pageData.current) {
         uni.navigateBack()
         return
       }
       this.goQuiz()
     },
     goQuiz() {
-      uni.navigateTo({ url: '/pages/phoneme/quiz' })
+      uni.navigateTo({ url: this.pageData.nextRoute })
     },
   },
 }

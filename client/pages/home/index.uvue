@@ -3,57 +3,48 @@
     <view class="page home">
       <view class="home-head">
         <view>
-          <text class="greeting">下午好，永庆</text>
-          <text class="subtitle">看到陌生单词，也能试着读出来</text>
+          <text class="greeting">{{ pageData.greeting }}</text>
+          <text class="subtitle">{{ pageData.subtitle }}</text>
         </view>
         <text class="search">⌕</text>
       </view>
       <view class="card hero">
-        <text class="tag">今日学习</text>
-        <text class="hero-title">短元音 · 第 3 课</text>
-        <text class="hero-sub">区分 /ɪ/ 和 /iː/</text>
-        <text class="time">◷ 约 6 分钟</text>
+        <text class="tag">{{ pageData.todayTask.tag }}</text>
+        <text class="hero-title">{{ pageData.todayTask.title }}</text>
+        <text class="hero-sub">{{ pageData.todayTask.description }}</text>
+        <text class="time">◷ 约 {{ pageData.todayTask.durationMinutes }} 分钟</text>
         <view class="hero-bottom">
-          <button class="primary-button continue" @click="go('/pages/phoneme/compare')">
-            继续学习 ›
+          <button class="primary-button continue" @click="go(pageData.todayTask.route)">
+            {{ pageData.todayTask.actionText }} ›
           </button>
           <text class="muted">
-            基础学习
-            <text class="green">8</text>
-            / 20
+            {{ pageData.todayTask.progressLabel }}
+            <text class="green">{{ pageData.todayTask.current }}</text>
+            / {{ pageData.todayTask.total }}
           </text>
         </view>
       </view>
       <text class="section-title">学习路径</text>
       <view class="path">
-        <view v-for="(item, index) in paths" :key="item" class="path-item">
-          <view class="circle" :class="index === 0 ? 'active-circle' : ''">{{ index + 1 }}</view>
-          <text :class="index === 0 ? 'primary' : ''">{{ item }}</text>
+        <view v-for="(item, index) in pageData.learningPaths" :key="item.code" class="path-item">
+          <view class="circle" :class="item.active ? 'active-circle' : ''">{{ index + 1 }}</view>
+          <text :class="item.active ? 'primary' : ''">{{ item.name }}</text>
         </view>
       </view>
       <text class="current">
         当前：
-        <text class="primary">认识音标</text>
+        <text class="primary">{{ pageData.currentStageName }}</text>
       </text>
       <text class="section-title">下一阶段</text>
       <view class="card next-stage">
-        <view class="stage" @click="go('/pages/word-list/index')">
-          <text class="stage-icon">▢</text>
-          <text>专业词库</text>
-          <text class="muted small">实际应用</text>
-        </view>
-        <text>›</text>
-        <view class="stage" @click="go('/pages/evaluation/index')">
-          <text class="stage-icon">♧</text>
-          <text>跟读评测</text>
-          <text class="muted small">发现问题</text>
-        </view>
-        <text>›</text>
-        <view class="stage" @click="go('/pages/correction/index')">
-          <text class="stage-icon">≋</text>
-          <text>AI 纠音</text>
-          <text class="muted small">针对提升</text>
-        </view>
+        <template v-for="(stage, index) in pageData.nextStages" :key="stage.code">
+          <text v-if="index > 0">›</text>
+          <view class="stage" @click="go(stage.route)">
+            <text class="stage-icon">{{ stage.icon }}</text>
+            <text>{{ stage.name }}</text>
+            <text class="muted small">{{ stage.description }}</text>
+          </view>
+        </template>
       </view>
     </view>
     <BottomNav active="home" />
@@ -64,7 +55,53 @@ import BottomNav from '../../components/BottomNav/index.uvue'
 export default {
   components: { BottomNav },
   data() {
-    return { paths: ['认识音标', '音素与音节', '看音标拼读', '看单词拆读'] }
+    return {
+      pageData: {
+        greeting: '下午好，永庆',
+        subtitle: '看到陌生单词，也能试着读出来',
+        todayTask: {
+          tag: '今日学习',
+          title: '短元音 · 第 3 课',
+          description: '区分 /ɪ/ 和 /iː/',
+          durationMinutes: 6,
+          actionText: '继续学习',
+          route: '/pages/phoneme/compare',
+          progressLabel: '基础学习',
+          current: 8,
+          total: 20,
+        },
+        learningPaths: [
+          { code: 'phoneme', name: '认识音标', active: true },
+          { code: 'syllable', name: '音素与音节', active: false },
+          { code: 'ipa-decoding', name: '看音标拼读', active: false },
+          { code: 'word-decoding', name: '看单词拆读', active: false },
+        ],
+        currentStageName: '认识音标',
+        nextStages: [
+          {
+            code: 'word-list',
+            name: '专业词库',
+            description: '实际应用',
+            icon: '▢',
+            route: '/pages/word-list/index',
+          },
+          {
+            code: 'evaluation',
+            name: '跟读评测',
+            description: '发现问题',
+            icon: '♧',
+            route: '/pages/evaluation/index',
+          },
+          {
+            code: 'correction',
+            name: 'AI 纠音',
+            description: '针对提升',
+            icon: '≋',
+            route: '/pages/correction/index',
+          },
+        ],
+      },
+    }
   },
   methods: {
     go(url: string) {

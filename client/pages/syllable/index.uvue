@@ -1,25 +1,24 @@
 <template>
   <view class="page">
-    <LessonProgress :current="2" :total="8" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" />
     <view class="center">
-      <text class="page-title">一个元音音素，一个音节</text>
-      <text class="muted">每个音节都只有一个元音音素作为核心。</text>
+      <text class="page-title">{{ pageData.title }}</text>
+      <text class="muted">{{ pageData.description }}</text>
     </view>
-    <TipCard title="记忆小贴士" text="看元音音素，不是数元音字母。" />
+    <TipCard :title="pageData.tipTitle" :text="pageData.tip" />
     <view class="card word-card">
-      <text class="word">computer</text>
-      <text class="ipa">/kəmˈpjuːtər/</text>
+      <text class="word">{{ pageData.example.word }}</text>
+      <text class="ipa">{{ pageData.example.ipa }}</text>
       <view class="chunks">
-        <text class="blue">kəm</text>
-        <text>·</text>
-        <text class="green">pjuː</text>
-        <text>·</text>
-        <text class="purple">tər</text>
+        <template v-for="(chunk, index) in pageData.example.chunks" :key="chunk.text">
+          <text v-if="index > 0">·</text>
+          <text :class="chunk.colorClass">{{ chunk.text }}</text>
+        </template>
       </view>
     </view>
     <view class="card rules">
       <text class="section-title first">怎么判断</text>
-      <view v-for="(rule, index) in rules" :key="rule.title" class="rule">
+      <view v-for="(rule, index) in pageData.rules" :key="rule.title" class="rule">
         <text class="number">{{ index + 1 }}</text>
         <view>
           <text class="rule-title">{{ rule.title }}</text>
@@ -28,14 +27,18 @@
       </view>
     </view>
     <view class="card question">
-      <text>computer 有几个音节？</text>
+      <text>{{ pageData.question.text }}</text>
       <view class="answers">
-        <text>2</text>
-        <text class="chosen">3</text>
-        <text>4</text>
+        <text
+          v-for="option in pageData.question.options"
+          :key="option.value"
+          :class="option.selected ? 'chosen' : ''"
+        >
+          {{ option.value }}
+        </text>
       </view>
     </view>
-    <StepActions :current="2" :total="8" @change="loadStep" />
+    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
@@ -46,23 +49,50 @@ export default {
   components: { LessonProgress, TipCard, StepActions },
   data() {
     return {
-      rules: [
-        { title: '找元音音素', text: '找出单词中的元音音素。' },
-        { title: '数出元音数量', text: '元音音素的数量 = 音节的数量。' },
-        { title: '按发音节奏拆分', text: '每个元音音素为一个音节的核心。' },
-      ],
+      pageData: {
+        id: 'syllable-basic',
+        current: 2,
+        total: 8,
+        title: '一个元音音素，一个音节',
+        description: '每个音节都只有一个元音音素作为核心。',
+        tipTitle: '记忆小贴士',
+        tip: '看元音音素，不是数元音字母。',
+        example: {
+          word: 'computer',
+          ipa: '/kəmˈpjuːtər/',
+          chunks: [
+            { text: 'kəm', colorClass: 'blue' },
+            { text: 'pjuː', colorClass: 'green' },
+            { text: 'tər', colorClass: 'purple' },
+          ],
+        },
+        rules: [
+          { title: '找元音音素', text: '找出单词中的元音音素。' },
+          { title: '数出元音数量', text: '元音音素的数量 = 音节的数量。' },
+          { title: '按发音节奏拆分', text: '每个元音音素为一个音节的核心。' },
+        ],
+        question: {
+          text: 'computer 有几个音节？',
+          options: [
+            { value: 2, selected: false },
+            { value: 3, selected: true },
+            { value: 4, selected: false },
+          ],
+        },
+        nextRoute: '/pages/decoding/ipa',
+      },
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < 2) {
+      if (target < this.pageData.current) {
         uni.navigateBack()
         return
       }
       this.next()
     },
     next() {
-      uni.navigateTo({ url: '/pages/decoding/ipa' })
+      uni.navigateTo({ url: this.pageData.nextRoute })
     },
   },
 }

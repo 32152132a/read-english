@@ -1,34 +1,34 @@
 <template>
   <view class="page">
-    <LessonProgress :current="4" :total="20" />
-    <text class="label">短元音</text>
-    <text class="ipa">/æ/</text>
-    <text class="description">接近「爱」，嘴巴张得更大</text>
-    <TipCard text="像突然张嘴说「爱」，但声音更短、更扁。" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" />
+    <text class="label">{{ pageData.category }}</text>
+    <text class="ipa">{{ pageData.ipa }}</text>
+    <text class="description">{{ pageData.description }}</text>
+    <TipCard :text="pageData.memoryTip" />
     <view class="listen">
-      <PlayButton text="听发音" />
+      <PlayButton :src="pageData.audioUrl" text="听发音" />
       <text class="slow">◷ 慢速</text>
     </view>
     <view class="card mouth">
       <text class="card-title">怎么发音</text>
       <text class="mouth-symbol">◡</text>
       <view class="steps">
-        <text>❶　嘴巴自然张大</text>
-        <text>❷　舌尖靠近下齿</text>
-        <text>❸　声音短促，不要拖长</text>
+        <text v-for="(step, index) in pageData.mouthSteps" :key="step">
+          {{ index + 1 }}　{{ step }}
+        </text>
       </view>
     </view>
     <text class="section-title">放进单词里听</text>
     <view class="card words">
-      <view v-for="item in words" :key="item.word" class="word-row">
-        <PlayButton size="mini" />
+      <view v-for="item in pageData.examples" :key="item.word" class="word-row">
+        <PlayButton :src="item.audioUrl" size="mini" />
         <text class="word">{{ item.word }}</text>
         <text class="muted">{{ item.ipa }}</text>
         <text class="meaning">{{ item.zh }}</text>
       </view>
     </view>
-    <text class="compare" @click="goCompare">容易和哪个音混淆？对比 /e/　›</text>
-    <StepActions :current="4" :total="20" @change="loadStep" />
+    <text class="compare" @click="goCompare">{{ pageData.comparisonText }}　›</text>
+    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
@@ -40,23 +40,37 @@ export default {
   components: { LessonProgress, PlayButton, TipCard, StepActions },
   data() {
     return {
-      words: [
-        { word: 'cat', ipa: '/kæt/', zh: '猫' },
-        { word: 'map', ipa: '/mæp/', zh: '地图' },
-        { word: 'happy', ipa: "/'hæpi/", zh: '开心的' },
-      ],
+      pageData: {
+        id: 'phoneme-ae',
+        current: 4,
+        total: 20,
+        category: '短元音',
+        ipa: '/æ/',
+        description: '接近「爱」，嘴巴张得更大',
+        memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
+        audioUrl: '',
+        slowAudioUrl: '',
+        mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
+        examples: [
+          { word: 'cat', ipa: '/kæt/', zh: '猫', audioUrl: '' },
+          { word: 'map', ipa: '/mæp/', zh: '地图', audioUrl: '' },
+          { word: 'happy', ipa: "/'hæpi/", zh: '开心的', audioUrl: '' },
+        ],
+        comparisonText: '容易和哪个音混淆？对比 /e/',
+        comparisonRoute: '/pages/phoneme/compare',
+      },
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < 4) {
+      if (target < this.pageData.current) {
         uni.navigateBack()
         return
       }
       this.goCompare()
     },
     goCompare() {
-      uni.navigateTo({ url: '/pages/phoneme/compare' })
+      uni.navigateTo({ url: this.pageData.comparisonRoute })
     },
   },
 }

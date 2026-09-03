@@ -1,19 +1,18 @@
 <template>
   <view class="page">
-    <LessonProgress :current="3" :total="10" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" />
     <view class="card target">
-      <text class="word">component</text>
-      <text class="ipa">/kəmˈpəʊnənt/　🔊</text>
+      <text class="word">{{ pageData.word.word }}</text>
+      <text class="ipa">{{ pageData.word.ipa }}　🔊</text>
       <view class="syllables">
-        <text>com</text>
-        ·
-        <text class="stress">po</text>
-        ·
-        <text>nent</text>
+        <template v-for="(syllable, index) in pageData.word.syllables" :key="syllable.text">
+          <text v-if="index > 0">·</text>
+          <text :class="syllable.stressed ? 'stress' : ''">{{ syllable.text }}</text>
+        </template>
       </view>
       <text class="muted">
         重音在第
-        <text class="orange">2</text>
+        <text class="orange">{{ pageData.word.stressIndex }}</text>
         个音节
       </text>
       <button class="outline-button sample">🔊　听标准发音</button>
@@ -21,40 +20,59 @@
     <view class="record">
       <view class="waves">〰　〰　〰</view>
       <view class="mic">●</view>
-      <text class="primary record-title">按住跟读</text>
-      <text class="muted">读完整单词，松开后开始评测</text>
+      <text class="primary record-title">{{ pageData.recordTitle }}</text>
+      <text class="muted">{{ pageData.recordDescription }}</text>
     </view>
     <view class="card result">
       <view class="row space-between">
-        <text>上次评测结果</text>
+        <text>{{ pageData.resultTitle }}</text>
         <text class="primary">查看详情 ›</text>
       </view>
       <view class="scores">
-        <view>
-          <text>总分</text>
-          <b>82</b>
-        </view>
-        <view>
-          <text>准确度</text>
-          <b class="green-text">78</b>
-        </view>
-        <view>
-          <text>完整度</text>
-          <b class="orange">100</b>
-        </view>
-        <view>
-          <text>流利度</text>
-          <b class="green-text">84</b>
+        <view v-for="score in pageData.scores" :key="score.code">
+          <text>{{ score.label }}</text>
+          <b :class="score.colorClass">{{ score.value }}</b>
         </view>
       </view>
     </view>
-    <StepActions :current="3" :total="10" />
+    <StepActions :current="pageData.current" :total="pageData.total" />
   </view>
 </template>
 <script lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
-export default { components: { LessonProgress, StepActions } }
+export default {
+  components: { LessonProgress, StepActions },
+  data() {
+    return {
+      pageData: {
+        current: 3,
+        total: 10,
+        word: {
+          id: 'component',
+          word: 'component',
+          ipa: '/kəmˈpəʊnənt/',
+          audioUrl: '',
+          stressIndex: 2,
+          syllables: [
+            { text: 'com', stressed: false },
+            { text: 'po', stressed: true },
+            { text: 'nent', stressed: false },
+          ],
+        },
+        recordTitle: '按住跟读',
+        recordDescription: '读完整单词，松开后开始评测',
+        resultTitle: '上次评测结果',
+        scores: [
+          { code: 'overall', label: '总分', value: 82, colorClass: '' },
+          { code: 'accuracy', label: '准确度', value: 78, colorClass: 'green-text' },
+          { code: 'integrity', label: '完整度', value: 100, colorClass: 'orange' },
+          { code: 'fluency', label: '流利度', value: 84, colorClass: 'green-text' },
+        ],
+      },
+    }
+  },
+}
 </script>
 <style lang="scss">
 @import '../../uni.scss';

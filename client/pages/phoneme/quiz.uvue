@@ -1,26 +1,26 @@
 <template>
   <view class="page">
-    <LessonProgress :current="2" :total="6" />
-    <text class="muted kicker">短元音练习</text>
-    <text class="page-title">你听到的是哪个音？</text>
-    <text class="muted desc">先听发音，再选择对应的音标</text>
-    <TipCard text="注意声音是否短促，以及嘴巴张开的程度" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" />
+    <text class="muted kicker">{{ pageData.category }}</text>
+    <text class="page-title">{{ pageData.question }}</text>
+    <text class="muted desc">{{ pageData.description }}</text>
+    <TipCard :text="pageData.tip" />
     <view class="card audio-card">
-      <PlayButton text="点击播放" />
+      <PlayButton :src="pageData.audioUrl" text="点击播放" />
       <text class="again">↻　再听一次</text>
-      <text class="muted">可以反复播放</text>
+      <text class="muted">{{ pageData.replayTip }}</text>
     </view>
     <text class="section-title">请选择</text>
     <view class="options">
       <view
-        v-for="(item, index) in options"
-        :key="item"
+        v-for="(item, index) in pageData.options"
+        :key="item.ipa"
         class="option"
         :class="selected === index ? 'selected' : ''"
         @click="selected = index"
       >
-        <text class="letter">{{ letters[index] }}</text>
-        <text class="option-ipa">{{ item }}</text>
+        <text class="letter">{{ item.label }}</text>
+        <text class="option-ipa">{{ item.ipa }}</text>
       </view>
     </view>
     <button class="primary-button confirm" @click="confirm">确认答案</button>
@@ -34,14 +34,31 @@ export default {
   components: { LessonProgress, PlayButton, TipCard },
   data() {
     return {
-      options: ['/ɪ/', '/iː/', '/e/', '/æ/'],
-      letters: ['A', 'B', 'C', 'D'],
+      pageData: {
+        id: 'short-vowel-quiz-2',
+        current: 2,
+        total: 6,
+        category: '短元音练习',
+        question: '你听到的是哪个音？',
+        description: '先听发音，再选择对应的音标',
+        tip: '注意声音是否短促，以及嘴巴张开的程度',
+        replayTip: '可以反复播放',
+        audioUrl: '',
+        options: [
+          { label: 'A', ipa: '/ɪ/' },
+          { label: 'B', ipa: '/iː/' },
+          { label: 'C', ipa: '/e/' },
+          { label: 'D', ipa: '/æ/' },
+        ],
+        correctIndex: 3,
+        nextRoute: '/pages/phoneme/overview',
+      },
       selected: 3,
     }
   },
   methods: {
     confirm() {
-      uni.navigateTo({ url: '/pages/phoneme/overview' })
+      uni.navigateTo({ url: this.pageData.nextRoute })
     },
   },
 }
