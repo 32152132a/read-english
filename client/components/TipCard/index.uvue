@@ -1,3 +1,56 @@
-<template><view class="tip"><text class="bulb">♧</text><view class="content"><text class="title">{{ title }}</text><text class="text">{{ text }}</text></view></view></template>
-<script lang="uts">export default { props: { title: { type: String, default: '记忆技巧' }, text: { type: String, default: '' } } }</script>
-<style>.tip{margin-top:24rpx;padding:24rpx;border:1rpx solid #e5e9f2;border-radius:16rpx;background:#fff;display:flex}.bulb{margin-right:20rpx;color:#1f50ff;font-size:38rpx}.title{display:block;color:#174cff;font-size:26rpx;font-weight:600}.text{display:block;margin-top:8rpx;color:#26365f;font-size:24rpx;line-height:1.6}</style>
+<template>
+  <view class="tip-card">
+    <text class="tip-card__icon">!</text>
+    <text class="tip-card__content">
+      <text class="tip-card__title">{{ title }}</text>
+      <text>　{{ text }}</text>
+    </text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    title: { type: String, default: '提示' },
+    text: { type: String, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.tip-card {
+  margin-top: 20rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 14rpx;
+  background-color: #eef2ff;
+  display: grid;
+  grid-template-columns: 32rpx 1fr;
+  align-items: start;
+  gap: 12rpx;
+
+  &__icon {
+    width: 32rpx;
+    height: 32rpx;
+    border-radius: 50%;
+    background-color: $color-primary;
+    color: $color-surface;
+    text-align: center;
+    font-size: 22rpx;
+    font-weight: 600;
+    line-height: 32rpx;
+  }
+
+  &__content {
+    color: $color-text-secondary;
+    font-size: 24rpx;
+    line-height: 1.5;
+  }
+
+  &__title {
+    color: $color-primary;
+    font-weight: 600;
+  }
+}
+</style>
