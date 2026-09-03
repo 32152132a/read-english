@@ -14,13 +14,13 @@
     <view class="card split"><text>kəm</text><text class="primary">·</text><text>pəʊ</text><text class="primary">·</text><text>nənt</text></view>
     <view class="play-actions"><button class="outline-button">▶ 分段播放</button><button class="outline-button">▶ 完整播放</button></view>
     <view class="card answer"><text>🔒　对应单词</text><button class="outline-button small-btn">查看答案</button></view>
-    <StepActions @next="next" />
+    <StepActions :current="4" :total="10" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
-export default { components: {  LessonProgress, StepActions }, data() { return { stages: ['找元音', '分音节', '找重音', '连起来读'] } }, methods: { next() { uni.navigateTo({ url: '/pages/decoding/word' }) } } }
+export default { components: {  LessonProgress, StepActions }, data() { return { stages: ['找元音', '分音节', '找重音', '连起来读'] } }, methods: { loadStep(target: number) { if (target < 4) { uni.navigateBack(); return } this.next() }, next() { uni.navigateTo({ url: '/pages/decoding/word' }) } } }
 </script>
 <style lang="scss">
 @import '../../uni.scss';

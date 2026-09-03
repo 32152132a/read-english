@@ -1,3 +1,77 @@
-<template><view class="actions"><button class="outline-button half" @click="$emit('previous')">上一个</button><button class="primary-button half" @click="$emit('next')">下一个</button></view></template>
-<script lang="uts">export default { emits: ['previous', 'next'] }</script>
-<style lang="scss">@import '../../uni.scss';.actions{display:flex;gap:24rpx;margin-top:32rpx}.half{flex:1;margin:0}</style>
+<template>
+  <view class="step-actions">
+    <text v-if="hint.length > 0" class="step-actions__hint" @click="$emit('hint-click')">
+      {{ hint }}
+    </text>
+    <view class="step-actions__buttons">
+      <button
+        class="outline-button step-actions__button"
+        :disabled="isFirst"
+        @click="changeStep(-1)"
+      >
+        上一步
+      </button>
+      <button
+        class="primary-button step-actions__button"
+        :disabled="isLast"
+        @click="changeStep(1)"
+      >
+        下一步
+      </button>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    current: { type: Number, required: true },
+    total: { type: Number, required: true },
+    hint: { type: String, default: '' },
+  },
+  emits: ['change', 'hint-click'],
+  computed: {
+    isFirst(): boolean {
+      return this.total <= 0 || this.current <= 1
+    },
+    isLast(): boolean {
+      return this.total <= 0 || this.current >= this.total
+    },
+  },
+  methods: {
+    changeStep(offset: number) {
+      const target = this.current + offset
+      if (target < 1 || target > this.total) return
+
+      this.$emit('change', target)
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.step-actions {
+  margin-top: 32rpx;
+
+  &__hint {
+    display: block;
+    margin-bottom: 20rpx;
+    color: $color-primary;
+    text-align: center;
+    font-size: 24rpx;
+  }
+
+  &__buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24rpx;
+  }
+
+  &__button {
+    width: 100%;
+    margin: 0;
+  }
+}
+</style>
