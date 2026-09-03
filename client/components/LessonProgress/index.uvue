@@ -18,7 +18,7 @@ export default {
     progressPercent(): number {
       if (this.total <= 0) return 0
 
-      return Math.min(Math.max(this.current / this.total * 100, 0), 100)
+      return Math.min(Math.max((this.current / this.total) * 100, 0), 100)
     },
   },
 }

@@ -11,11 +11,7 @@
       >
         上一步
       </button>
-      <button
-        class="primary-button step-actions__button"
-        :disabled="isLast"
-        @click="changeStep(1)"
-      >
+      <button class="primary-button step-actions__button" :disabled="isLast" @click="changeStep(1)">
         下一步
       </button>
     </view>

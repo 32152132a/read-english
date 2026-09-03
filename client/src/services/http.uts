@@ -107,7 +107,9 @@ export function request<T>(options: HttpOptions): Promise<T> {
         }
 
         handleStatus(response.statusCode)
-        reject(new HttpError(response.statusCode, `请求失败（${response.statusCode}）`, response.data))
+        reject(
+          new HttpError(response.statusCode, `请求失败（${response.statusCode}）`, response.data)
+        )
       },
       fail: (error) => {
         uni.showToast({ title: '网络连接失败，请稍后重试', icon: 'none' })

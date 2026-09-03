@@ -1,19 +1,55 @@
 {
   "pages": [
     { "path": "pages/home/index", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/phoneme/detail", "style": { "navigationBarTitleText": "认识音标" } },
-    { "path": "pages/phoneme/compare", "style": { "navigationBarTitleText": "认识音标" } },
-    { "path": "pages/phoneme/quiz", "style": { "navigationBarTitleText": "听音辨认" } },
-    { "path": "pages/phoneme/overview", "style": { "navigationBarTitleText": "音标总览" } },
-    { "path": "pages/syllable/index", "style": { "navigationBarTitleText": "音素与音节" } },
-    { "path": "pages/decoding/ipa", "style": { "navigationBarTitleText": "看音标拼读" } },
-    { "path": "pages/decoding/word", "style": { "navigationBarTitleText": "看单词拆读" } },
-    { "path": "pages/word-list/index", "style": { "navigationBarTitleText": "专业词库" } },
-    { "path": "pages/evaluation/index", "style": { "navigationBarTitleText": "跟读评测" } },
-    { "path": "pages/correction/index", "style": { "navigationBarTitleText": "AI纠音" } },
+    {
+      "path": "pages/phoneme/detail",
+      "style": { "navigationBarTitleText": "认识音标" }
+    },
+    {
+      "path": "pages/phoneme/compare",
+      "style": { "navigationBarTitleText": "认识音标" }
+    },
+    {
+      "path": "pages/phoneme/quiz",
+      "style": { "navigationBarTitleText": "听音辨认" }
+    },
+    {
+      "path": "pages/phoneme/overview",
+      "style": { "navigationBarTitleText": "音标总览" }
+    },
+    {
+      "path": "pages/syllable/index",
+      "style": { "navigationBarTitleText": "音素与音节" }
+    },
+    {
+      "path": "pages/decoding/ipa",
+      "style": { "navigationBarTitleText": "看音标拼读" }
+    },
+    {
+      "path": "pages/decoding/word",
+      "style": { "navigationBarTitleText": "看单词拆读" }
+    },
+    {
+      "path": "pages/word-list/index",
+      "style": { "navigationBarTitleText": "专业词库" }
+    },
+    {
+      "path": "pages/evaluation/index",
+      "style": { "navigationBarTitleText": "跟读评测" }
+    },
+    {
+      "path": "pages/correction/index",
+      "style": { "navigationBarTitleText": "AI纠音" }
+    },
     { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/error/404", "style": { "navigationBarTitleText": "页面不存在" } },
-    { "path": "pages/error/500", "style": { "navigationBarTitleText": "服务异常" } }
+    {
+      "path": "pages/error/404",
+      "style": { "navigationBarTitleText": "页面不存在" }
+    },
+    {
+      "path": "pages/error/500",
+      "style": { "navigationBarTitleText": "服务异常" }
+    }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

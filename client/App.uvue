@@ -2,7 +2,7 @@
 export default {
   onLaunch() {
     console.log('永庆发音学习启动')
-  }
+  },
 }
 </script>
 

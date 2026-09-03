@@ -1,6 +1,5 @@
 <template>
   <view class="page">
-
     <LessonProgress :current="4" :total="10" />
     <text class="page-title task">把音标分段读出来</text>
     <text class="main-ipa">/kəmˈpəʊnənt/</text>
@@ -11,18 +10,116 @@
       </view>
     </view>
     <text class="muted hint">拖动分隔符，调整音节划分</text>
-    <view class="card split"><text>kəm</text><text class="primary">·</text><text>pəʊ</text><text class="primary">·</text><text>nənt</text></view>
-    <view class="play-actions"><button class="outline-button">▶ 分段播放</button><button class="outline-button">▶ 完整播放</button></view>
-    <view class="card answer"><text>🔒　对应单词</text><button class="outline-button small-btn">查看答案</button></view>
+    <view class="card split">
+      <text>kəm</text>
+      <text class="primary">·</text>
+      <text>pəʊ</text>
+      <text class="primary">·</text>
+      <text>nənt</text>
+    </view>
+    <view class="play-actions">
+      <button class="outline-button">▶ 分段播放</button>
+      <button class="outline-button">▶ 完整播放</button>
+    </view>
+    <view class="card answer">
+      <text>🔒　对应单词</text>
+      <button class="outline-button small-btn">查看答案</button>
+    </view>
     <StepActions :current="4" :total="10" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
-export default { components: {  LessonProgress, StepActions }, data() { return { stages: ['找元音', '分音节', '找重音', '连起来读'] } }, methods: { loadStep(target: number) { if (target < 4) { uni.navigateBack(); return } this.next() }, next() { uni.navigateTo({ url: '/pages/decoding/word' }) } } }
+export default {
+  components: { LessonProgress, StepActions },
+  data() {
+    return { stages: ['找元音', '分音节', '找重音', '连起来读'] }
+  },
+  methods: {
+    loadStep(target: number) {
+      if (target < 4) {
+        uni.navigateBack()
+        return
+      }
+      this.next()
+    },
+    next() {
+      uni.navigateTo({ url: '/pages/decoding/word' })
+    },
+  },
+}
 </script>
 <style lang="scss">
 @import '../../uni.scss';
-.task{display:block;margin-top:54rpx}.main-ipa{display:block;margin:30rpx 0;text-align:center;color:$color-primary;font-size:66rpx}.stages{display:flex;justify-content:space-around}.stage-item{display:flex;flex-direction:column;align-items:center;gap:14rpx}.stage-number{width:58rpx;height:58rpx;border-radius:50%;background:#c8cdd9;color:#fff;text-align:center;line-height:58rpx}.stage-label{color:$color-text-secondary;font-size:20rpx}.active-stage{background:$color-primary}.active-label{color:$color-primary}.hint{display:block;margin:50rpx 0 30rpx;text-align:center}.split{height:210rpx;display:flex;align-items:center;justify-content:space-around;font-size:54rpx}.play-actions{display:flex;gap:24rpx;margin:30rpx 0}.play-actions button{flex:1}.answer{display:flex;align-items:center;justify-content:space-between}.small-btn{min-height:70rpx;margin:0;font-size:24rpx}
+.task {
+  display: block;
+  margin-top: 54rpx;
+}
+.main-ipa {
+  display: block;
+  margin: 30rpx 0;
+  text-align: center;
+  color: $color-primary;
+  font-size: 66rpx;
+}
+.stages {
+  display: flex;
+  justify-content: space-around;
+}
+.stage-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+}
+.stage-number {
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 50%;
+  background: #c8cdd9;
+  color: #fff;
+  text-align: center;
+  line-height: 58rpx;
+}
+.stage-label {
+  color: $color-text-secondary;
+  font-size: 20rpx;
+}
+.active-stage {
+  background: $color-primary;
+}
+.active-label {
+  color: $color-primary;
+}
+.hint {
+  display: block;
+  margin: 50rpx 0 30rpx;
+  text-align: center;
+}
+.split {
+  height: 210rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 54rpx;
+}
+.play-actions {
+  display: flex;
+  gap: 24rpx;
+  margin: 30rpx 0;
+}
+.play-actions button {
+  flex: 1;
+}
+.answer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.small-btn {
+  min-height: 70rpx;
+  margin: 0;
+  font-size: 24rpx;
+}
 </style>

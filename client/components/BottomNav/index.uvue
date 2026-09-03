@@ -1,3 +1,50 @@
-<template><view class="nav"><view class="item" @click="openHome"><text class="icon">⌂</text><text :class="active === 'home' ? 'active' : ''">首页</text></view><view class="item" @click="openProfile"><text class="icon">♙</text><text :class="active === 'profile' ? 'active' : ''">我的</text></view></view></template>
-<script lang="uts">export default { props: { active: { type: String, default: 'home' } }, methods: { openHome(){uni.reLaunch({url:'/pages/home/index'})}, openProfile(){uni.reLaunch({url:'/pages/profile/index'})} } }</script>
-<style>.nav{height:132rpx;padding-bottom:24rpx;border-top:1rpx solid #e6e9f1;background:#fff;display:flex;align-items:center;justify-content:space-around}.item{display:flex;flex-direction:column;align-items:center;gap:8rpx;color:#6b7496;font-size:24rpx}.icon{font-size:42rpx}.active{color:#174cff}</style>
+<template>
+  <view class="nav">
+    <view class="item" @click="openHome">
+      <text class="icon">⌂</text>
+      <text :class="active === 'home' ? 'active' : ''">首页</text>
+    </view>
+    <view class="item" @click="openProfile">
+      <text class="icon">♙</text>
+      <text :class="active === 'profile' ? 'active' : ''">我的</text>
+    </view>
+  </view>
+</template>
+<script lang="uts">
+export default {
+  props: { active: { type: String, default: 'home' } },
+  methods: {
+    openHome() {
+      uni.reLaunch({ url: '/pages/home/index' })
+    },
+    openProfile() {
+      uni.reLaunch({ url: '/pages/profile/index' })
+    },
+  },
+}
+</script>
+<style>
+.nav {
+  height: 132rpx;
+  padding-bottom: 24rpx;
+  border-top: 1rpx solid #e6e9f1;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  color: #6b7496;
+  font-size: 24rpx;
+}
+.icon {
+  font-size: 42rpx;
+}
+.active {
+  color: #174cff;
+}
+</style>

@@ -17,8 +17,24 @@ export default {
 
 <style lang="scss">
 @import '../../uni.scss';
-.placeholder-page { display: flex; align-items: center; justify-content: center; }
-.placeholder-card { width: 100%; text-align: center; }
-.title { display: block; font-size: 40rpx; font-weight: 700; }
-.description { display: block; margin-top: 20rpx; color: $color-text-secondary; font-size: 28rpx; }
+.placeholder-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placeholder-card {
+  width: 100%;
+  text-align: center;
+}
+.title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+.description {
+  display: block;
+  margin-top: 20rpx;
+  color: $color-text-secondary;
+  font-size: 28rpx;
+}
 </style>

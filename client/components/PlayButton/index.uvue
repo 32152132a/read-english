@@ -5,13 +5,24 @@
     @click="play"
   >
     <view class="play-button__circle" :style="{ borderColor: color }">
-      <view v-if="status === 'loading'" class="play-button__loading" :style="{ borderTopColor: color }" />
+      <view
+        v-if="status === 'loading'"
+        class="play-button__loading"
+        :style="{ borderTopColor: color }"
+      />
       <view v-else-if="status === 'playing'" class="play-button__playing">
-        <view v-for="index in 3" :key="index" class="play-button__bar" :style="{ backgroundColor: color }" />
+        <view
+          v-for="index in 3"
+          :key="index"
+          class="play-button__bar"
+          :style="{ backgroundColor: color }"
+        />
       </view>
       <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
     </view>
-    <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">{{ text }}</text>
+    <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">
+      {{ text }}
+    </text>
   </view>
 </template>
 

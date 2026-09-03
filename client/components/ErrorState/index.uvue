@@ -4,8 +4,12 @@
     <text class="error-state__title">{{ title }}</text>
     <text class="error-state__description">{{ description }}</text>
     <view class="error-state__actions">
-      <button class="primary-button error-state__button" @click="$emit('primary')">{{ primaryText }}</button>
-      <button class="outline-button error-state__button" @click="$emit('secondary')">{{ secondaryText }}</button>
+      <button class="primary-button error-state__button" @click="$emit('primary')">
+        {{ primaryText }}
+      </button>
+      <button class="outline-button error-state__button" @click="$emit('secondary')">
+        {{ secondaryText }}
+      </button>
     </view>
   </view>
 </template>
