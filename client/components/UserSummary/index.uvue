@@ -1,0 +1,65 @@
+<template>
+  <view class="user-summary" @click="$emit('select')">
+    <view class="user-summary__avatar">{{ data.avatarText }}</view>
+    <view>
+      <text class="user-summary__name">{{ data.nickname }}</text>
+      <text class="user-summary__status">{{ data.learningStatus }}</text>
+    </view>
+    <text class="user-summary__arrow">›</text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: { data: { type: Object, required: true } },
+  emits: ['select'],
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.user-summary {
+  display: grid;
+  grid-template-columns: 108rpx 1fr auto;
+  align-items: center;
+  gap: 26rpx;
+  margin-top: 30rpx;
+  padding: 28rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__avatar {
+    width: 108rpx;
+    height: 108rpx;
+    border-radius: 50%;
+    background: #e7ebff;
+    color: $color-primary;
+    font-size: 38rpx;
+    font-weight: 700;
+    line-height: 108rpx;
+    text-align: center;
+  }
+
+  &__name,
+  &__status {
+    display: block;
+  }
+
+  &__name {
+    font-size: 32rpx;
+    font-weight: 700;
+  }
+
+  &__status {
+    margin-top: 8rpx;
+    color: $color-text-secondary;
+  }
+
+  &__arrow {
+    color: $color-text-secondary;
+    font-size: 48rpx;
+  }
+}
+</style>

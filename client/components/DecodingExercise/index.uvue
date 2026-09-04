@@ -1,0 +1,72 @@
+<template>
+  <view class="decoding-exercise">
+    <text class="decoding-exercise__hint">{{ data.hint }}</text>
+    <SegmentedWord :parts="data.parts" separator="·" />
+    <view class="decoding-exercise__audio">
+      <PlayButton text="分段播放" :src="data.segmentedAudioUrl" />
+      <PlayButton text="完整播放" :src="data.fullAudioUrl" />
+    </view>
+    <view class="decoding-exercise__answer">
+      <text>{{ answerVisible ? data.answerWord : '🔒　对应单词' }}</text>
+      <button class="outline-button decoding-exercise__answer-button" @click="showAnswer">
+        {{ answerVisible ? '已显示' : '查看答案' }}
+      </button>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+import SegmentedWord from '../SegmentedWord/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+
+export default {
+  components: { SegmentedWord, PlayButton },
+  props: { data: { type: Object, required: true } },
+  data() {
+    return { answerVisible: false }
+  },
+  methods: {
+    showAnswer() {
+      this.answerVisible = true
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.decoding-exercise {
+  display: grid;
+  gap: 26rpx;
+  margin-top: 44rpx;
+
+  &__hint {
+    color: $color-text-secondary;
+    text-align: center;
+  }
+
+  &__audio {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20rpx;
+  }
+
+  &__answer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 18rpx;
+    background: #fff;
+  }
+
+  &__answer-button {
+    min-height: 68rpx;
+    margin: 0;
+    font-size: 24rpx;
+  }
+}
+</style>

@@ -2,40 +2,20 @@
   <view class="page">
     <LessonProgress :current="pageData.current" :total="pageData.total" />
     <text class="page-title task">{{ pageData.title }}</text>
-    <text class="main-ipa">{{ pageData.ipa }}</text>
-    <view class="stages">
-      <view v-for="(stage, index) in pageData.stages" :key="stage.name" class="stage-item">
-        <text class="stage-number" :class="stage.active ? 'active-stage' : ''">
-          {{ index + 1 }}
-        </text>
-        <text class="stage-label" :class="stage.active ? 'active-label' : ''">
-          {{ stage.name }}
-        </text>
-      </view>
-    </view>
-    <text class="muted hint">{{ pageData.hint }}</text>
-    <view class="card split">
-      <template v-for="(part, index) in pageData.parts" :key="part">
-        <text v-if="index > 0" class="primary">·</text>
-        <text>{{ part }}</text>
-      </template>
-    </view>
-    <view class="play-actions">
-      <button class="outline-button">▶ 分段播放</button>
-      <button class="outline-button">▶ 完整播放</button>
-    </view>
-    <view class="card answer">
-      <text>🔒　对应单词</text>
-      <button class="outline-button small-btn">查看答案</button>
-    </view>
+    <PhonemeDisplay :segments="pageData.ipaSegments" size="large" />
+    <StageProgress :steps="pageData.stages" />
+    <DecodingExercise :data="pageData.exercise" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
 </template>
 <script lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
+import StageProgress from '../../components/StageProgress/index.uvue'
+import DecodingExercise from '../../components/DecodingExercise/index.uvue'
 export default {
-  components: { LessonProgress, StepActions },
+  components: { LessonProgress, StepActions, PhonemeDisplay, StageProgress, DecodingExercise },
   data() {
     return {
       pageData: {
@@ -44,17 +24,24 @@ export default {
         total: 10,
         title: '把音标分段读出来',
         ipa: '/kəmˈpəʊnənt/',
-        hint: '拖动分隔符，调整音节划分',
+        ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
         stages: [
-          { name: '找元音', active: false },
-          { name: '分音节', active: true },
-          { name: '找重音', active: false },
-          { name: '连起来读', active: false },
+          { code: 'vowels', name: '找元音', state: 'completed' },
+          { code: 'syllables', name: '分音节', state: 'active' },
+          { code: 'stress', name: '找重音', state: 'pending' },
+          { code: 'read', name: '连起来读', state: 'pending' },
         ],
-        parts: ['kəm', 'pəʊ', 'nənt'],
-        segmentedAudioUrl: '',
-        fullAudioUrl: '',
-        answerWord: 'component',
+        exercise: {
+          hint: '拖动分隔符，调整音节划分',
+          parts: [
+            { text: 'kəm', emphasized: false },
+            { text: 'pəʊ', emphasized: true },
+            { text: 'nənt', emphasized: false },
+          ],
+          segmentedAudioUrl: '',
+          fullAudioUrl: '',
+          answerWord: 'component',
+        },
         nextRoute: '/pages/decoding/word',
       },
     }
@@ -78,71 +65,5 @@ export default {
 .task {
   display: block;
   margin-top: 54rpx;
-}
-.main-ipa {
-  display: block;
-  margin: 30rpx 0;
-  text-align: center;
-  color: $color-primary;
-  font-size: 66rpx;
-}
-.stages {
-  display: flex;
-  justify-content: space-around;
-}
-.stage-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14rpx;
-}
-.stage-number {
-  width: 58rpx;
-  height: 58rpx;
-  border-radius: 50%;
-  background: #c8cdd9;
-  color: #fff;
-  text-align: center;
-  line-height: 58rpx;
-}
-.stage-label {
-  color: $color-text-secondary;
-  font-size: 20rpx;
-}
-.active-stage {
-  background: $color-primary;
-}
-.active-label {
-  color: $color-primary;
-}
-.hint {
-  display: block;
-  margin: 50rpx 0 30rpx;
-  text-align: center;
-}
-.split {
-  height: 210rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  font-size: 54rpx;
-}
-.play-actions {
-  display: flex;
-  gap: 24rpx;
-  margin: 30rpx 0;
-}
-.play-actions button {
-  flex: 1;
-}
-.answer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.small-btn {
-  min-height: 70rpx;
-  margin: 0;
-  font-size: 24rpx;
 }
 </style>

@@ -1,0 +1,80 @@
+<template>
+  <view class="choice-group">
+    <view
+      v-for="option in options"
+      :key="option.value"
+      class="choice-group__option"
+      :class="selectedValue === option.value ? 'is-selected' : ''"
+      @click="selectOption(option.value)"
+    >
+      <text v-if="option.label.length > 0" class="choice-group__label">{{ option.label }}</text>
+      <text class="choice-group__content">{{ option.text }}</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    options: { type: Array, required: true },
+    initialValue: { type: String, default: '' },
+  },
+  emits: ['change'],
+  data() {
+    return { selectedValue: this.initialValue }
+  },
+  methods: {
+    selectOption(value: string) {
+      this.selectedValue = value
+      this.$emit('change', value)
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.choice-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20rpx;
+
+  &__option {
+    min-height: 150rpx;
+    padding: 16rpx;
+    box-sizing: border-box;
+    border: 2rpx solid $color-border;
+    border-radius: 18rpx;
+    background-color: $color-surface;
+    display: grid;
+    grid-template-columns: 42rpx 1fr 42rpx;
+    grid-template-rows: 42rpx 1fr;
+
+    &.is-selected {
+      border-color: $color-primary;
+      background-color: #f5f7ff;
+    }
+  }
+
+  &__label {
+    border-radius: 50%;
+    background-color: #f0f2f8;
+    text-align: center;
+    line-height: 42rpx;
+  }
+
+  .is-selected &__label {
+    background-color: $color-primary;
+    color: $color-surface;
+  }
+
+  &__content {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    justify-self: center;
+    font-size: 42rpx;
+  }
+}
+</style>

@@ -1,0 +1,37 @@
+<template>
+  <view class="learning-path">
+    <StageProgress :steps="steps" />
+    <text class="learning-path__current">
+      当前：
+      <text class="learning-path__name">{{ currentName }}</text>
+    </text>
+  </view>
+</template>
+
+<script lang="uts">
+import StageProgress from '../StageProgress/index.uvue'
+
+export default {
+  components: { StageProgress },
+  props: {
+    steps: { type: Array, required: true },
+    currentName: { type: String, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.learning-path {
+  &__current {
+    display: block;
+    margin: 36rpx 12rpx 0;
+    color: $color-text-secondary;
+  }
+
+  &__name {
+    color: $color-primary;
+  }
+}
+</style>

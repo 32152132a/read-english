@@ -1,0 +1,67 @@
+<template>
+  <view class="segmented-word">
+    <text v-if="word" class="segmented-word__word">{{ word }}</text>
+    <PhonemeDisplay v-if="ipaSegments.length > 0" :segments="ipaSegments" size="default" />
+    <view class="segmented-word__parts">
+      <template v-for="(part, index) in parts" :key="part.text">
+        <text v-if="separator && index > 0" class="segmented-word__separator">{{ separator }}</text>
+        <text :class="part.emphasized ? 'segmented-word__part--emphasized' : ''">
+          {{ part.text }}
+        </text>
+      </template>
+    </view>
+    <text v-if="hint" class="segmented-word__hint">{{ hint }}</text>
+  </view>
+</template>
+
+<script lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+
+export default {
+  components: { PhonemeDisplay },
+  props: {
+    word: { type: String, default: '' },
+    ipaSegments: { type: Array, default: () => [] },
+    parts: { type: Array, default: () => [] },
+    separator: { type: String, default: '' },
+    hint: { type: String, default: '' },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.segmented-word {
+  display: grid;
+  justify-items: center;
+  gap: 20rpx;
+  padding: 32rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__word {
+    font-size: 58rpx;
+    font-weight: 700;
+  }
+
+  &__parts {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: #91a5e8;
+    font-size: 42rpx;
+  }
+
+  &__part--emphasized {
+    color: $color-primary;
+    font-weight: 700;
+  }
+
+  &__separator,
+  &__hint {
+    color: $color-text-secondary;
+  }
+}
+</style>

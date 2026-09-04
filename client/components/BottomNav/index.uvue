@@ -30,6 +30,7 @@ export default {
   border-top: 1rpx solid #e6e9f1;
   background: #fff;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-around;
 }

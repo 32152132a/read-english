@@ -1,0 +1,71 @@
+<template>
+  <view class="info-steps">
+    <text v-if="title" class="info-steps__title">{{ title }}</text>
+    <view v-for="(item, index) in items" :key="item.title" class="info-steps__item">
+      <text class="info-steps__number">{{ index + 1 }}</text>
+      <view>
+        <text class="info-steps__item-title">{{ item.title }}</text>
+        <text class="info-steps__text">{{ item.text }}</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    title: { type: String, default: '' },
+    items: { type: Array, default: () => [] },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.info-steps {
+  margin-top: 28rpx;
+  padding: 28rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__title {
+    display: block;
+    margin-bottom: 24rpx;
+    font-size: 32rpx;
+    font-weight: 700;
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: 48rpx 1fr;
+    gap: 18rpx;
+    margin-top: 22rpx;
+  }
+
+  &__number {
+    width: 46rpx;
+    height: 46rpx;
+    border-radius: 50%;
+    background: $color-primary;
+    color: #fff;
+    line-height: 46rpx;
+    text-align: center;
+  }
+
+  &__item-title,
+  &__text {
+    display: block;
+  }
+
+  &__item-title {
+    font-weight: 600;
+  }
+
+  &__text {
+    margin-top: 6rpx;
+    color: $color-text-secondary;
+  }
+}
+</style>

@@ -1,0 +1,71 @@
+<template>
+  <view class="evaluation-result">
+    <view class="evaluation-result__header">
+      <text>{{ title }}</text>
+      <text class="evaluation-result__detail" @click="$emit('detail')">查看详情 ›</text>
+    </view>
+    <view class="evaluation-result__scores">
+      <view v-for="score in scores" :key="score.code" class="evaluation-result__score">
+        <text>{{ score.label }}</text>
+        <text class="evaluation-result__value" :class="'is-' + score.tone">{{ score.value }}</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    title: { type: String, default: '' },
+    scores: { type: Array, default: () => [] },
+  },
+  emits: ['detail'],
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.evaluation-result {
+  padding: 28rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &__detail,
+  &__value {
+    color: $color-primary;
+  }
+
+  &__scores {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 30rpx;
+  }
+
+  &__score {
+    display: grid;
+    justify-items: center;
+    gap: 12rpx;
+    color: $color-text-secondary;
+  }
+
+  &__value {
+    font-size: 44rpx;
+
+    &.is-success {
+      color: $color-success;
+    }
+
+    &.is-warning {
+      color: #f29b00;
+    }
+  }
+}
+</style>

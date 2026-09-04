@@ -1,0 +1,45 @@
+<template>
+  <view class="pronunciation-guide card">
+    <text class="pronunciation-guide__title">怎么发音</text>
+    <text class="pronunciation-guide__symbol">{{ symbol }}</text>
+    <view class="pronunciation-guide__steps">
+      <text v-for="(step, index) in steps" :key="step">{{ index + 1 }}　{{ step }}</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    symbol: { type: String, default: '◡' },
+    steps: { type: Array, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.pronunciation-guide {
+  &__title {
+    font-size: 28rpx;
+    font-weight: 700;
+  }
+
+  &__symbol {
+    display: block;
+    color: $color-primary;
+    text-align: center;
+    font-size: 150rpx;
+    line-height: 170rpx;
+  }
+
+  &__steps {
+    width: 330rpx;
+    margin: auto;
+    display: grid;
+    gap: 16rpx;
+    font-size: 25rpx;
+  }
+}
+</style>

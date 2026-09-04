@@ -5,33 +5,23 @@
     <text class="page-title">{{ pageData.question }}</text>
     <text class="muted desc">{{ pageData.description }}</text>
     <TipCard :text="pageData.tip" />
-    <view class="card audio-card">
-      <PlayButton :src="pageData.audioUrl" text="点击播放" />
-      <text class="again">↻　再听一次</text>
-      <text class="muted">{{ pageData.replayTip }}</text>
-    </view>
+    <ListeningPrompt :audio-url="pageData.audioUrl" :description="pageData.replayTip" />
     <text class="section-title">请选择</text>
-    <view class="options">
-      <view
-        v-for="(item, index) in pageData.options"
-        :key="item.ipa"
-        class="option"
-        :class="selected === index ? 'selected' : ''"
-        @click="selected = index"
-      >
-        <text class="letter">{{ item.label }}</text>
-        <text class="option-ipa">{{ item.ipa }}</text>
-      </view>
-    </view>
+    <ChoiceGroup
+      :options="pageData.options"
+      :initial-value="pageData.selectedValue"
+      @change="selectAnswer"
+    />
     <button class="primary-button confirm" @click="confirm">确认答案</button>
   </view>
 </template>
 <script lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
-import PlayButton from '../../components/PlayButton/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
+import ListeningPrompt from '../../components/ListeningPrompt/index.uvue'
+import ChoiceGroup from '../../components/ChoiceGroup/index.uvue'
 export default {
-  components: { LessonProgress, PlayButton, TipCard },
+  components: { LessonProgress, TipCard, ListeningPrompt, ChoiceGroup },
   data() {
     return {
       pageData: {
@@ -45,18 +35,22 @@ export default {
         replayTip: '可以反复播放',
         audioUrl: '',
         options: [
-          { label: 'A', ipa: '/ɪ/' },
-          { label: 'B', ipa: '/iː/' },
-          { label: 'C', ipa: '/e/' },
-          { label: 'D', ipa: '/æ/' },
+          { label: 'A', text: '/ɪ/', value: 'short-i' },
+          { label: 'B', text: '/iː/', value: 'long-i' },
+          { label: 'C', text: '/e/', value: 'e' },
+          { label: 'D', text: '/æ/', value: 'ae' },
         ],
-        correctIndex: 3,
+        selectedValue: 'ae',
+        correctValue: 'ae',
         nextRoute: '/pages/phoneme/overview',
       },
-      selected: 3,
+      selectedAnswer: 'ae',
     }
   },
   methods: {
+    selectAnswer(value: string) {
+      this.selectedAnswer = value
+    },
     confirm() {
       uni.navigateTo({ url: this.pageData.nextRoute })
     },
@@ -73,62 +67,6 @@ export default {
 .desc {
   display: block;
   margin-top: 10rpx;
-}
-
-.audio-card {
-  height: 400rpx;
-  margin-top: 34rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20rpx;
-
-  .again {
-    padding: 13rpx 24rpx;
-    border: 1rpx solid $color-border;
-    border-radius: 32rpx;
-  }
-}
-
-.options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
-
-  .option {
-    height: 190rpx;
-    padding: 16rpx;
-    border: 2rpx solid $color-border;
-    border-radius: 18rpx;
-    background: #fff;
-    display: grid;
-    grid-template-columns: 42rpx 1fr 42rpx;
-    grid-template-rows: 42rpx 1fr;
-
-    &.selected {
-      border-color: $color-primary;
-      background: #f5f7ff;
-    }
-  }
-
-  .letter {
-    border-radius: 50%;
-    background: #f0f2f8;
-    text-align: center;
-    line-height: 42rpx;
-  }
-  .selected .letter {
-    background: $color-primary;
-    color: #fff;
-  }
-  .option-ipa {
-    grid-column: 2;
-    grid-row: 2;
-    align-self: center;
-    justify-self: center;
-    font-size: 46rpx;
-  }
 }
 
 .confirm {

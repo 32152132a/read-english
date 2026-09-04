@@ -1,0 +1,52 @@
+<template>
+  <view class="example-word-list card">
+    <view v-for="item in items" :key="item.word" class="example-word-list__item">
+      <PlayButton :src="item.audioUrl" size="mini" />
+      <text class="example-word-list__word">{{ item.word }}</text>
+      <PhonemeDisplay :segments="item.segments" size="mini" />
+      <text class="example-word-list__meaning">{{ item.zh }}</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+
+export default {
+  components: { PhonemeDisplay, PlayButton },
+  props: {
+    items: { type: Array, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.example-word-list {
+  padding: 0;
+
+  &__item {
+    min-height: 78rpx;
+    padding: 0 26rpx;
+    border-bottom: 1rpx solid $color-border;
+    display: grid;
+    grid-template-columns: auto 100rpx 1fr auto;
+    align-items: center;
+    gap: 20rpx;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__word {
+    font-weight: 600;
+  }
+
+  &__meaning {
+    color: $color-text-secondary;
+  }
+}
+</style>

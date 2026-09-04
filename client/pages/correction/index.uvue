@@ -7,41 +7,32 @@
       需要加强
     </text>
     <text class="muted sub">{{ pageData.summary }}</text>
-    <view class="card issue">
-      <text class="muted">常见问题</text>
-      <text class="issue-title">{{ pageData.issue }}</text>
-      <text class="muted">受影响的单词</text>
-      <text>{{ pageData.affectedWords.join('，') }}</text>
-      <text class="mouth">≋</text>
-    </view>
+    <CorrectionIssue
+      :issue="pageData.issue"
+      :words="pageData.affectedWords"
+      :segments="pageData.phonemeSegments"
+    />
     <text class="section-title">纠音要点</text>
-    <view v-for="(tip, index) in pageData.tips" :key="tip.title" class="card correction">
-      <text class="number">{{ index + 1 }}</text>
-      <view>
-        <text class="tip-title">{{ tip.title }}</text>
-        <text class="muted">{{ tip.text }}</text>
-      </view>
-    </view>
+    <InfoSteps :items="pageData.tips" />
     <text class="section-title">迷你练习</text>
-    <view class="card practice">
-      <text class="practice-word">
-        🔊　{{ pageData.practice.word }}　
-        <text class="muted">{{ pageData.practice.ipa }}</text>
-      </text>
-      <view class="record-box">🎙　点击录音跟读</view>
-    </view>
+    <CorrectionPractice :data="pageData.practice" />
     <button class="primary-button full">开始专项练习</button>
     <button class="outline-button full">稍后复习</button>
   </view>
 </template>
 <script lang="uts">
+import CorrectionIssue from '../../components/CorrectionIssue/index.uvue'
+import InfoSteps from '../../components/InfoSteps/index.uvue'
+import CorrectionPractice from '../../components/CorrectionPractice/index.uvue'
+
 export default {
-  components: {},
+  components: { CorrectionIssue, InfoSteps, CorrectionPractice },
   data() {
     return {
       pageData: {
         badge: '✦ AI 建议',
         phoneme: '/θ/',
+        phonemeSegments: [{ text: '/θ/', tone: 'primary' }],
         summary: '根据最近 6 次跟读结果生成',
         issue: '容易读成 /s/',
         affectedWords: ['think', 'authentication', 'method'],
@@ -50,7 +41,11 @@ export default {
           { title: '先送气再发声', text: '先让气流从齿间通过，再发出声音' },
           { title: '不要读成「丝」', text: '避免舌尖离开或顶住上齿龈' },
         ],
-        practice: { word: 'think', ipa: '/θɪŋk/', audioUrl: '' },
+        practice: {
+          word: 'think',
+          ipaSegments: [{ text: '/θɪŋk/', tone: 'muted' }],
+          audioUrl: '',
+        },
       },
     }
   },
@@ -76,52 +71,6 @@ export default {
   margin: 14rpx 0 34rpx;
 }
 
-.issue {
-  display: grid;
-  grid-template-columns: 1fr 180rpx;
-  gap: 20rpx;
-
-  .mouth {
-    grid-column: 2;
-    grid-row: 1 / span 4;
-    align-self: center;
-    color: $color-primary;
-    font-size: 100rpx;
-  }
-  .issue-title {
-    font-size: 34rpx;
-    font-weight: 700;
-  }
-}
-
-.correction {
-  margin-bottom: 14rpx;
-  display: grid;
-  grid-template-columns: 52rpx 1fr;
-  gap: 20rpx;
-
-  .number {
-    width: 52rpx;
-    height: 52rpx;
-    border-radius: 50%;
-    background: $color-primary;
-    color: #fff;
-    text-align: center;
-    line-height: 52rpx;
-  }
-  .tip-title {
-    display: block;
-    font-weight: 600;
-  }
-}
-
-.record-box {
-  margin-top: 24rpx;
-  padding: 26rpx;
-  border-radius: 14rpx;
-  background: #f4f6ff;
-  text-align: center;
-}
 .full {
   width: 100%;
   margin-top: 18rpx;

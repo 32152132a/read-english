@@ -1,0 +1,63 @@
+<template>
+  <view class="phoneme-display" :class="'phoneme-display--' + displaySize">
+    <text
+      v-for="(segment, index) in segments"
+      :key="index"
+      class="phoneme-display__segment"
+      :class="'is-' + segment.tone"
+    >
+      {{ segment.text }}
+    </text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    segments: { type: Array, required: true },
+    size: { type: String, default: 'default' },
+  },
+  computed: {
+    displaySize(): string {
+      return ['mini', 'large'].includes(this.size) ? this.size : 'default'
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.phoneme-display {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  font-size: 34rpx;
+
+  &--mini {
+    font-size: 24rpx;
+  }
+
+  &--large {
+    font-size: 66rpx;
+  }
+
+  &__segment {
+    color: $color-text-primary;
+
+    &.is-primary {
+      color: $color-primary;
+    }
+
+    &.is-stress {
+      color: #f29b00;
+      font-weight: 700;
+    }
+
+    &.is-muted {
+      color: $color-text-secondary;
+    }
+  }
+}
+</style>

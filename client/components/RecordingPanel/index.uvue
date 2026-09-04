@@ -1,0 +1,87 @@
+<template>
+  <view class="recording-panel">
+    <text class="recording-panel__wave" :class="recording ? 'is-recording' : ''">〰　〰　〰</text>
+    <view
+      class="recording-panel__button"
+      :class="recording ? 'is-recording' : ''"
+      @touchstart="startRecording"
+      @touchend="stopRecording"
+    >
+      <text>●</text>
+    </view>
+    <text class="recording-panel__title">{{ recording ? activeText : title }}</text>
+    <text class="recording-panel__description">{{ description }}</text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    title: { type: String, default: '按住跟读' },
+    activeText: { type: String, default: '正在录音' },
+    description: { type: String, default: '' },
+  },
+  emits: ['start', 'finish'],
+  data() {
+    return { recording: false }
+  },
+  methods: {
+    startRecording() {
+      if (this.recording) return
+      this.recording = true
+      this.$emit('start')
+    },
+    stopRecording() {
+      if (!this.recording) return
+      this.recording = false
+      this.$emit('finish')
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.recording-panel {
+  min-height: 430rpx;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 24rpx;
+
+  &__wave {
+    color: #8ba4ff;
+    font-size: 54rpx;
+
+    &.is-recording {
+      color: $color-primary;
+    }
+  }
+
+  &__button {
+    width: 150rpx;
+    height: 150rpx;
+    border: 24rpx solid #e7ecff;
+    border-radius: 50%;
+    background: $color-primary;
+    color: #fff;
+    line-height: 150rpx;
+    text-align: center;
+
+    &.is-recording {
+      border-color: #d8e0ff;
+      background: #e95757;
+    }
+  }
+
+  &__title {
+    color: $color-primary;
+    font-size: 32rpx;
+  }
+
+  &__description {
+    color: $color-text-secondary;
+  }
+}
+</style>

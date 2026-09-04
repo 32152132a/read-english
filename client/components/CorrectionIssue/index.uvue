@@ -1,0 +1,54 @@
+<template>
+  <view class="correction-issue">
+    <view>
+      <text class="correction-issue__label">常见问题</text>
+      <text class="correction-issue__title">{{ issue }}</text>
+      <text class="correction-issue__label">受影响的单词</text>
+      <text>{{ words.join('，') }}</text>
+    </view>
+    <PhonemeDisplay :segments="segments" size="large" />
+  </view>
+</template>
+
+<script lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+
+export default {
+  components: { PhonemeDisplay },
+  props: {
+    issue: { type: String, default: '' },
+    words: { type: Array, default: () => [] },
+    segments: { type: Array, default: () => [] },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.correction-issue {
+  display: grid;
+  grid-template-columns: 1fr 180rpx;
+  align-items: center;
+  gap: 20rpx;
+  padding: 28rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__label,
+  &__title {
+    display: block;
+  }
+
+  &__label {
+    margin: 10rpx 0;
+    color: $color-text-secondary;
+  }
+
+  &__title {
+    font-size: 34rpx;
+    font-weight: 700;
+  }
+}
+</style>

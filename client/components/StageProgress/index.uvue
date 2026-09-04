@@ -1,0 +1,66 @@
+<template>
+  <view class="stage-progress">
+    <view v-for="(step, index) in steps" :key="step.code" class="stage-progress__item">
+      <text class="stage-progress__number" :class="step.state === 'active' ? 'is-active' : ''">
+        {{ step.state === 'completed' ? '✓' : index + 1 }}
+      </text>
+      <text class="stage-progress__label" :class="step.state === 'active' ? 'is-active' : ''">
+        {{ step.name }}
+      </text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    steps: { type: Array, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.stage-progress {
+  width: 662rpx;
+  max-width: 100%;
+  margin: 0 auto;
+  align-self: center;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+
+  &__item {
+    min-width: 0;
+    display: grid;
+    justify-items: center;
+    gap: 12rpx;
+  }
+
+  &__number {
+    width: 58rpx;
+    height: 58rpx;
+    border-radius: 50%;
+    background-color: #c8cdd9;
+    color: $color-surface;
+    text-align: center;
+    line-height: 58rpx;
+
+    &.is-active {
+      background-color: $color-primary;
+    }
+  }
+
+  &__label {
+    color: $color-text-secondary;
+    text-align: center;
+    font-size: 22rpx;
+
+    &.is-active {
+      color: $color-primary;
+    }
+  }
+}
+</style>

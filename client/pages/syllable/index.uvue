@@ -6,37 +6,20 @@
       <text class="muted">{{ pageData.description }}</text>
     </view>
     <TipCard :title="pageData.tipTitle" :text="pageData.tip" />
-    <view class="card word-card">
-      <text class="word">{{ pageData.example.word }}</text>
-      <text class="ipa">{{ pageData.example.ipa }}</text>
-      <view class="chunks">
-        <template v-for="(chunk, index) in pageData.example.chunks" :key="chunk.text">
-          <text v-if="index > 0">·</text>
-          <text :class="chunk.colorClass">{{ chunk.text }}</text>
-        </template>
-      </view>
-    </view>
-    <view class="card rules">
-      <text class="section-title first">怎么判断</text>
-      <view v-for="(rule, index) in pageData.rules" :key="rule.title" class="rule">
-        <text class="number">{{ index + 1 }}</text>
-        <view>
-          <text class="rule-title">{{ rule.title }}</text>
-          <text class="muted rule-text">{{ rule.text }}</text>
-        </view>
-      </view>
-    </view>
+    <SegmentedWord
+      :word="pageData.example.word"
+      :ipa-segments="pageData.example.ipaSegments"
+      :parts="pageData.example.chunks"
+      separator="·"
+    />
+    <InfoSteps title="怎么判断" :items="pageData.rules" />
     <view class="card question">
       <text>{{ pageData.question.text }}</text>
-      <view class="answers">
-        <text
-          v-for="option in pageData.question.options"
-          :key="option.value"
-          :class="option.selected ? 'chosen' : ''"
-        >
-          {{ option.value }}
-        </text>
-      </view>
+      <ChoiceGroup
+        :options="pageData.question.options"
+        :initial-value="pageData.question.answer"
+        @change="selectAnswer"
+      />
     </view>
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
@@ -45,8 +28,11 @@
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import SegmentedWord from '../../components/SegmentedWord/index.uvue'
+import InfoSteps from '../../components/InfoSteps/index.uvue'
+import ChoiceGroup from '../../components/ChoiceGroup/index.uvue'
 export default {
-  components: { LessonProgress, TipCard, StepActions },
+  components: { LessonProgress, TipCard, StepActions, SegmentedWord, InfoSteps, ChoiceGroup },
   data() {
     return {
       pageData: {
@@ -59,11 +45,11 @@ export default {
         tip: '看元音音素，不是数元音字母。',
         example: {
           word: 'computer',
-          ipa: '/kəmˈpjuːtər/',
+          ipaSegments: [{ text: '/kəmˈpjuːtər/', tone: 'muted' }],
           chunks: [
-            { text: 'kəm', colorClass: 'blue' },
-            { text: 'pjuː', colorClass: 'green' },
-            { text: 'tər', colorClass: 'purple' },
+            { text: 'kəm', emphasized: false },
+            { text: 'pjuː', emphasized: true },
+            { text: 'tər', emphasized: false },
           ],
         },
         rules: [
@@ -74,16 +60,20 @@ export default {
         question: {
           text: 'computer 有几个音节？',
           options: [
-            { value: 2, selected: false },
-            { value: 3, selected: true },
-            { value: 4, selected: false },
+            { value: '2', label: '', text: '2' },
+            { value: '3', label: '', text: '3' },
+            { value: '4', label: '', text: '4' },
           ],
+          answer: '3',
         },
         nextRoute: '/pages/decoding/ipa',
       },
     }
   },
   methods: {
+    selectAnswer(value: string) {
+      this.pageData.question.answer = value
+    },
     loadStep(target: number) {
       if (target < this.pageData.current) {
         uni.navigateBack()
@@ -107,82 +97,13 @@ export default {
   display: block;
   margin-top: 12rpx;
 }
-.word-card {
-  text-align: center;
-}
-.word {
-  display: block;
-  font-size: 58rpx;
-  font-weight: 700;
-}
-.ipa {
-  display: block;
-  margin: 18rpx;
-  color: $color-text-secondary;
-  font-size: 34rpx;
-}
-.chunks {
-  font-size: 42rpx;
-}
-.blue {
-  color: #1451ff;
-}
-.green {
-  color: #14a76c;
-}
-.purple {
-  color: #7c3cff;
-}
-.rules {
-  margin-top: 28rpx;
-}
-.first {
-  margin-top: 0;
-}
-.rule {
-  display: flex;
-  gap: 20rpx;
-  margin: 24rpx 0;
-}
-.number {
-  width: 46rpx;
-  height: 46rpx;
-  border-radius: 50%;
-  background: $color-primary;
-  color: #fff;
-  text-align: center;
-  line-height: 46rpx;
-}
-.rule-title,
-.rule-text {
-  display: block;
-}
-.rule-title {
-  font-weight: 600;
-}
-.rule-text {
-  margin-top: 6rpx;
-}
 .question {
   margin-top: 28rpx;
   text-align: center;
   font-size: 28rpx;
   font-weight: 600;
 }
-.answers {
-  display: flex;
-  gap: 18rpx;
+.question .choice-group {
   margin-top: 24rpx;
-}
-.answers text {
-  flex: 1;
-  padding: 18rpx;
-  border: 1rpx solid $color-border;
-  border-radius: 10rpx;
-}
-.answers .chosen {
-  border-color: $color-primary;
-  color: $color-primary;
-  background: #f3f6ff;
 }
 </style>

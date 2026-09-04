@@ -3,24 +3,13 @@
     <LessonProgress :current="pageData.current" :total="pageData.total" />
     <text class="page-title centered">{{ pageData.title }}</text>
     <TipCard :text="pageData.tip" />
-    <view class="word-parts">
-      <text v-for="part in pageData.parts" :key="part.text" :class="part.stressed ? 'focus' : ''">
-        {{ part.text }}
-      </text>
-    </view>
-    <view class="tiles">
-      <text v-for="part in pageData.parts" :key="part.text">{{ part.text }}</text>
-    </view>
-    <text class="muted centered">拖动分隔符调整拆分</text>
+    <SegmentedWord
+      :parts="pageData.parts"
+      :ipa-segments="pageData.ipaSegments"
+      :hint="pageData.hint"
+    />
     <text class="section-title">字母与发音</text>
-    <view class="card mappings">
-      <view v-for="m in pageData.mappings" :key="m.part">
-        <text class="part">{{ m.part }}</text>
-        <text>→</text>
-        <text>{{ m.ipa }}</text>
-        <text class="muted">{{ m.tip }}</text>
-      </view>
-    </view>
+    <PronunciationMappings :items="pageData.mappings" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
   </view>
 </template>
@@ -28,8 +17,10 @@
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import SegmentedWord from '../../components/SegmentedWord/index.uvue'
+import PronunciationMappings from '../../components/PronunciationMappings/index.uvue'
 export default {
-  components: { LessonProgress, TipCard, StepActions },
+  components: { LessonProgress, TipCard, StepActions, SegmentedWord, PronunciationMappings },
   data() {
     return {
       pageData: {
@@ -40,16 +31,18 @@ export default {
         tip: '非重读音节中的 o 常弱读为 /ə/',
         word: 'component',
         ipa: '/kəmˈpəʊnənt/',
+        ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
+        hint: '拖动分隔符调整拆分',
         audioUrl: '',
         parts: [
-          { text: 'com', stressed: false },
-          { text: 'po', stressed: true },
-          { text: 'nent', stressed: false },
+          { text: 'com', emphasized: false },
+          { text: 'po', emphasized: true },
+          { text: 'nent', emphasized: false },
         ],
         mappings: [
-          { part: 'com', ipa: '/kəm/', tip: '辅音 + o 弱读 /ə/' },
-          { part: 'po', ipa: '/pəʊ/', tip: '开音节 o 发 /əʊ/' },
-          { part: 'nent', ipa: '/nənt/', tip: '结尾 t 不发音' },
+          { part: 'com', segments: [{ text: '/kəm/', tone: 'normal' }], tip: '辅音 + o 弱读 /ə/' },
+          { part: 'po', segments: [{ text: '/pəʊ/', tone: 'stress' }], tip: '开音节 o 发 /əʊ/' },
+          { part: 'nent', segments: [{ text: '/nənt/', tone: 'normal' }], tip: '结尾 t 不发音' },
         ],
       },
     }
@@ -67,44 +60,5 @@ export default {
   display: block;
   text-align: center;
   margin-top: 48rpx;
-}
-.word-parts {
-  display: flex;
-  justify-content: center;
-  margin: 50rpx 0;
-  font-size: 66rpx;
-  color: #91a5e8;
-}
-.focus {
-  color: $color-primary;
-  font-weight: 700;
-}
-.tiles {
-  display: flex;
-  gap: 28rpx;
-  justify-content: center;
-}
-.tiles text {
-  padding: 26rpx 46rpx;
-  border: 1rpx solid #cbd4ef;
-  border-radius: 18rpx;
-  color: $color-primary;
-  font-size: 30rpx;
-}
-.mappings {
-  padding: 0;
-}
-.mappings view {
-  padding: 24rpx;
-  border-bottom: 1rpx solid $color-border;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.part {
-  padding: 10rpx;
-  background: #f1f4ff;
-  color: $color-primary;
-  border-radius: 8rpx;
 }
 </style>

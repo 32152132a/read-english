@@ -2,35 +2,12 @@
   <view class="screen">
     <view class="page profile">
       <text class="title">{{ pageData.title }}</text>
-      <view class="card user">
-        <view class="avatar">{{ pageData.user.avatarText }}</view>
-        <view>
-          <text class="name">{{ pageData.user.nickname }}</text>
-          <text class="muted">{{ pageData.user.learningStatus }}</text>
-        </view>
-        <text class="arrow">›</text>
-      </view>
-      <view class="card stats">
-        <view v-for="stat in pageData.stats" :key="stat.code">
-          <text>{{ stat.label }}</text>
-          <b>{{ stat.value }}</b>
-          <text>{{ stat.suffix }}</text>
-        </view>
-      </view>
+      <UserSummary :data="pageData.user" />
+      <LearningStats :items="pageData.stats" />
       <text class="section-title">学习记录</text>
-      <view class="card menu">
-        <view v-for="item in pageData.records" :key="item.code">
-          {{ item.label }}
-          <text>›</text>
-        </view>
-      </view>
+      <ProfileMenu :items="pageData.records" />
       <text class="section-title">设置</text>
-      <view class="card menu">
-        <view v-for="item in pageData.settings" :key="item.code">
-          {{ item.label }}
-          <text>›</text>
-        </view>
-      </view>
+      <ProfileMenu :items="pageData.settings" />
       <text class="version">{{ pageData.version }}</text>
     </view>
     <BottomNav active="profile" />
@@ -38,8 +15,11 @@
 </template>
 <script lang="uts">
 import BottomNav from '../../components/BottomNav/index.uvue'
+import UserSummary from '../../components/UserSummary/index.uvue'
+import LearningStats from '../../components/LearningStats/index.uvue'
+import ProfileMenu from '../../components/ProfileMenu/index.uvue'
 export default {
-  components: { BottomNav },
+  components: { BottomNav, UserSummary, LearningStats, ProfileMenu },
   data() {
     return {
       pageData: {
@@ -56,7 +36,7 @@ export default {
           { code: 'favorites', label: '☆　收藏单词' },
         ],
         settings: [
-          { code: 'accent', label: '🔊　发音偏好　　　　　　　 美式英语' },
+          { code: 'accent', label: '🔊　发音偏好', value: '美式英语' },
           { code: 'audio-cache', label: '⇩　音频缓存' },
           { code: 'feedback', label: '□　意见反馈' },
           { code: 'about', label: 'ⓘ　关于产品' },
@@ -75,61 +55,6 @@ export default {
 .title {
   font-size: 54rpx;
   font-weight: 700;
-}
-.user {
-  margin-top: 30rpx;
-  display: flex;
-  align-items: center;
-  gap: 26rpx;
-}
-.avatar {
-  width: 108rpx;
-  height: 108rpx;
-  border-radius: 50%;
-  background: #e7ebff;
-  color: $color-primary;
-  font-size: 38rpx;
-  font-weight: 700;
-  text-align: center;
-  line-height: 108rpx;
-}
-.name {
-  display: block;
-  font-size: 32rpx;
-  font-weight: 700;
-}
-.arrow {
-  margin-left: auto;
-  font-size: 48rpx;
-  color: $color-text-secondary;
-}
-.stats {
-  margin-top: 26rpx;
-  display: flex;
-  justify-content: space-around;
-}
-.stats view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: $color-text-secondary;
-}
-.stats b {
-  margin: 12rpx;
-  font-size: 42rpx;
-  color: $color-text-primary;
-}
-.menu {
-  padding: 0 28rpx;
-}
-.menu view {
-  padding: 26rpx 6rpx;
-  border-bottom: 1rpx solid $color-border;
-  display: flex;
-  justify-content: space-between;
-}
-.menu view:last-child {
-  border: 0;
 }
 .version {
   display: block;

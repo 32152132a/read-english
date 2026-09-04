@@ -1,0 +1,75 @@
+<template>
+  <view class="phoneme-comparison">
+    <view
+      v-for="item in items"
+      :key="item.ipa"
+      class="phoneme-comparison__card"
+      :class="item.tone === 'success' ? 'is-success' : ''"
+    >
+      <PhonemeDisplay :segments="item.segments" size="large" />
+      <text class="phoneme-comparison__name">{{ item.name }}</text>
+      <PlayButton :src="item.audioUrl" text="听发音" />
+      <text class="phoneme-comparison__mouth">⌣</text>
+      <text class="phoneme-comparison__tip">{{ item.tip }}</text>
+      <text class="phoneme-comparison__examples">{{ item.examples }}</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+
+export default {
+  components: { PhonemeDisplay, PlayButton },
+  props: {
+    items: { type: Array, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.phoneme-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24rpx;
+
+  &__card {
+    min-width: 0;
+    padding: 28rpx 18rpx;
+    border: 2rpx solid #91a8ff;
+    border-radius: 18rpx;
+    display: grid;
+    justify-items: center;
+    gap: 18rpx;
+    color: $color-primary;
+
+    &.is-success {
+      border-color: #9edbd5;
+    }
+  }
+
+  &__name {
+    font-size: 26rpx;
+    font-weight: 600;
+  }
+
+  &__mouth {
+    font-size: 72rpx;
+  }
+
+  &__tip,
+  &__examples {
+    text-align: center;
+    font-size: 22rpx;
+  }
+
+  &__examples {
+    width: 100%;
+    padding-top: 18rpx;
+    border-top: 1rpx solid $color-border;
+  }
+}
+</style>

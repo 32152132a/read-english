@@ -1,48 +1,24 @@
 <template>
   <view class="page">
     <LessonProgress :current="pageData.current" :total="pageData.total" />
-    <view class="card target">
-      <text class="word">{{ pageData.word.word }}</text>
-      <text class="ipa">{{ pageData.word.ipa }}　🔊</text>
-      <view class="syllables">
-        <template v-for="(syllable, index) in pageData.word.syllables" :key="syllable.text">
-          <text v-if="index > 0">·</text>
-          <text :class="syllable.stressed ? 'stress' : ''">{{ syllable.text }}</text>
-        </template>
-      </view>
-      <text class="muted">
-        重音在第
-        <text class="orange">{{ pageData.word.stressIndex }}</text>
-        个音节
-      </text>
-      <button class="outline-button sample">🔊　听标准发音</button>
-    </view>
-    <view class="record">
-      <view class="waves">〰　〰　〰</view>
-      <view class="mic">●</view>
-      <text class="primary record-title">{{ pageData.recordTitle }}</text>
-      <text class="muted">{{ pageData.recordDescription }}</text>
-    </view>
-    <view class="card result">
-      <view class="row space-between">
-        <text>{{ pageData.resultTitle }}</text>
-        <text class="primary">查看详情 ›</text>
-      </view>
-      <view class="scores">
-        <view v-for="score in pageData.scores" :key="score.code">
-          <text>{{ score.label }}</text>
-          <b :class="score.colorClass">{{ score.value }}</b>
-        </view>
-      </view>
-    </view>
+    <EvaluationTarget :data="pageData.word" />
+    <RecordingPanel
+      :title="pageData.recordTitle"
+      :description="pageData.recordDescription"
+      @finish="evaluateRecording"
+    />
+    <EvaluationResult :title="pageData.resultTitle" :scores="pageData.scores" />
     <StepActions :current="pageData.current" :total="pageData.total" />
   </view>
 </template>
 <script lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import EvaluationTarget from '../../components/EvaluationTarget/index.uvue'
+import RecordingPanel from '../../components/RecordingPanel/index.uvue'
+import EvaluationResult from '../../components/EvaluationResult/index.uvue'
 export default {
-  components: { LessonProgress, StepActions },
+  components: { LessonProgress, StepActions, EvaluationTarget, RecordingPanel, EvaluationResult },
   data() {
     return {
       pageData: {
@@ -52,100 +28,34 @@ export default {
           id: 'component',
           word: 'component',
           ipa: '/kəmˈpəʊnənt/',
+          ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
           audioUrl: '',
           stressIndex: 2,
           syllables: [
-            { text: 'com', stressed: false },
-            { text: 'po', stressed: true },
-            { text: 'nent', stressed: false },
+            { text: 'com', emphasized: false },
+            { text: 'po', emphasized: true },
+            { text: 'nent', emphasized: false },
           ],
         },
         recordTitle: '按住跟读',
         recordDescription: '读完整单词，松开后开始评测',
         resultTitle: '上次评测结果',
         scores: [
-          { code: 'overall', label: '总分', value: 82, colorClass: '' },
-          { code: 'accuracy', label: '准确度', value: 78, colorClass: 'green-text' },
-          { code: 'integrity', label: '完整度', value: 100, colorClass: 'orange' },
-          { code: 'fluency', label: '流利度', value: 84, colorClass: 'green-text' },
+          { code: 'overall', label: '总分', value: 82, tone: 'primary' },
+          { code: 'accuracy', label: '准确度', value: 78, tone: 'success' },
+          { code: 'integrity', label: '完整度', value: 100, tone: 'warning' },
+          { code: 'fluency', label: '流利度', value: 84, tone: 'success' },
         ],
       },
     }
+  },
+  methods: {
+    evaluateRecording() {
+      // 后续在这里提交录音文件并更新评测结果。
+    },
   },
 }
 </script>
 <style lang="scss">
 @import '../../uni.scss';
-.target {
-  margin-top: 20rpx;
-  text-align: center;
-  padding: 56rpx;
-}
-.word {
-  display: block;
-  font-size: 60rpx;
-  font-weight: 700;
-}
-.ipa {
-  display: block;
-  margin: 22rpx;
-  color: $color-text-secondary;
-  font-size: 28rpx;
-}
-.syllables {
-  margin: 26rpx;
-  font-size: 30rpx;
-  color: $color-success;
-}
-.stress,
-.orange {
-  color: #f29b00;
-}
-.sample {
-  margin-top: 34rpx;
-}
-.record {
-  height: 500rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24rpx;
-}
-.waves {
-  color: #8ba4ff;
-  font-size: 54rpx;
-}
-.mic {
-  width: 160rpx;
-  height: 160rpx;
-  border: 26rpx solid #e7ecff;
-  border-radius: 50%;
-  background: $color-primary;
-  color: #fff;
-  text-align: center;
-  line-height: 160rpx;
-}
-.record-title {
-  font-size: 32rpx;
-}
-.scores {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 36rpx;
-}
-.scores view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: $color-text-secondary;
-}
-.scores b {
-  margin-top: 14rpx;
-  color: $color-primary;
-  font-size: 44rpx;
-}
-.scores .green-text {
-  color: $color-success;
-}
 </style>

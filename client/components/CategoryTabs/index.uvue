@@ -1,0 +1,49 @@
+<template>
+  <view class="category-tabs">
+    <text
+      v-for="item in items"
+      :key="item.value"
+      class="category-tabs__item"
+      :class="item.value == modelValue ? 'category-tabs__item--active' : ''"
+      @click="$emit('change', item.value)"
+    >
+      {{ item.label }}
+    </text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    items: { type: Array, default: () => [] },
+    modelValue: { type: String, default: '' },
+  },
+  emits: ['change'],
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.category-tabs {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  margin: 32rpx 0;
+  overflow-x: auto;
+
+  &__item {
+    flex-shrink: 0;
+    padding: 14rpx 24rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 30rpx;
+    color: $color-text-secondary;
+
+    &--active {
+      border-color: $color-primary;
+      background: #f3f6ff;
+      color: $color-primary;
+    }
+  }
+}
+</style>

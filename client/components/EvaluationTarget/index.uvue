@@ -1,0 +1,49 @@
+<template>
+  <view class="evaluation-target">
+    <text class="evaluation-target__word">{{ data.word }}</text>
+    <PhonemeDisplay :segments="data.ipaSegments" />
+    <SegmentedWord :parts="data.syllables" separator="·" />
+    <text class="evaluation-target__hint">重音在第 {{ data.stressIndex }} 个音节</text>
+    <PlayButton text="听标准发音" :src="data.audioUrl" />
+  </view>
+</template>
+
+<script lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import SegmentedWord from '../SegmentedWord/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+
+export default {
+  components: { PhonemeDisplay, SegmentedWord, PlayButton },
+  props: { data: { type: Object, required: true } },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.evaluation-target {
+  display: grid;
+  justify-items: center;
+  gap: 22rpx;
+  margin-top: 20rpx;
+  padding: 42rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__word {
+    font-size: 60rpx;
+    font-weight: 700;
+  }
+
+  &__hint {
+    color: $color-text-secondary;
+  }
+
+  .segmented-word {
+    padding: 0;
+    border: 0;
+  }
+}
+</style>

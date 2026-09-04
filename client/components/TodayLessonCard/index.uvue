@@ -1,0 +1,79 @@
+<template>
+  <view class="today-lesson-card card">
+    <text class="today-lesson-card__tag">{{ data.tag }}</text>
+    <text class="today-lesson-card__title">{{ data.title }}</text>
+    <text class="today-lesson-card__description">{{ data.description }}</text>
+    <text class="today-lesson-card__duration">◷ 约 {{ data.durationMinutes }} 分钟</text>
+    <view class="today-lesson-card__footer">
+      <button class="primary-button today-lesson-card__button" @click="$emit('continue')">
+        {{ data.actionText }} ›
+      </button>
+      <view class="today-lesson-card__progress">
+        <text>{{ data.progressLabel }} {{ data.current }} / {{ data.total }}</text>
+        <ProgressBar :current="data.current" :total="data.total" />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+import ProgressBar from '../ProgressBar/index.uvue'
+
+export default {
+  components: { ProgressBar },
+  props: {
+    data: { type: Object, required: true },
+  },
+  emits: ['continue'],
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.today-lesson-card {
+  margin-top: 46rpx;
+  padding: 34rpx;
+
+  &__tag {
+    padding: 8rpx 12rpx;
+    border-radius: 10rpx;
+    background-color: #eef0ff;
+    color: $color-primary;
+  }
+
+  &__title {
+    display: block;
+    margin-top: 38rpx;
+    font-size: 40rpx;
+    font-weight: 700;
+  }
+
+  &__description,
+  &__duration {
+    display: block;
+    margin-top: 16rpx;
+    color: $color-text-secondary;
+  }
+
+  &__footer {
+    margin-top: 40rpx;
+    display: grid;
+    grid-template-columns: 238rpx 1fr;
+    align-items: center;
+    gap: 24rpx;
+  }
+
+  &__button {
+    width: 100%;
+    margin: 0;
+  }
+
+  &__progress {
+    display: grid;
+    gap: 10rpx;
+    color: $color-text-secondary;
+    font-size: 22rpx;
+  }
+}
+</style>

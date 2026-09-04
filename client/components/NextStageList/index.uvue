@@ -1,0 +1,53 @@
+<template>
+  <view class="next-stage-list card">
+    <template v-for="(stage, index) in stages" :key="stage.code">
+      <text v-if="index > 0" class="next-stage-list__arrow">›</text>
+      <view class="next-stage-list__item" @click="$emit('select', stage.route)">
+        <text class="next-stage-list__icon">{{ stage.icon }}</text>
+        <text>{{ stage.name }}</text>
+        <text class="next-stage-list__description">{{ stage.description }}</text>
+      </view>
+    </template>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    stages: { type: Array, required: true },
+  },
+  emits: ['select'],
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.next-stage-list {
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+
+  &__item {
+    display: grid;
+    justify-items: center;
+    gap: 8rpx;
+  }
+
+  &__icon {
+    color: $color-primary;
+    font-size: 46rpx;
+  }
+
+  &__description {
+    color: $color-text-secondary;
+    font-size: 21rpx;
+  }
+
+  &__arrow {
+    color: $color-text-secondary;
+  }
+}
+</style>

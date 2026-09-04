@@ -1,0 +1,49 @@
+<template>
+  <view class="correction-practice">
+    <view class="correction-practice__word">
+      <PlayButton :src="data.audioUrl" size="mini" />
+      <text>{{ data.word }}</text>
+      <PhonemeDisplay :segments="data.ipaSegments" size="mini" />
+    </view>
+    <button class="outline-button correction-practice__record" @click="$emit('record')">
+      🎙　点击录音跟读
+    </button>
+  </view>
+</template>
+
+<script lang="uts">
+import PlayButton from '../PlayButton/index.uvue'
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+
+export default {
+  components: { PlayButton, PhonemeDisplay },
+  props: { data: { type: Object, required: true } },
+  emits: ['record'],
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.correction-practice {
+  display: grid;
+  gap: 22rpx;
+  padding: 26rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background: #fff;
+
+  &__word {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16rpx;
+    font-size: 30rpx;
+  }
+
+  &__record {
+    width: 100%;
+    margin: 0;
+  }
+}
+</style>

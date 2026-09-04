@@ -8,52 +8,22 @@
         </view>
         <text class="search">⌕</text>
       </view>
-      <view class="card hero">
-        <text class="tag">{{ pageData.todayTask.tag }}</text>
-        <text class="hero-title">{{ pageData.todayTask.title }}</text>
-        <text class="hero-sub">{{ pageData.todayTask.description }}</text>
-        <text class="time">◷ 约 {{ pageData.todayTask.durationMinutes }} 分钟</text>
-        <view class="hero-bottom">
-          <button class="primary-button continue" @click="go(pageData.todayTask.route)">
-            {{ pageData.todayTask.actionText }} ›
-          </button>
-          <text class="muted">
-            {{ pageData.todayTask.progressLabel }}
-            <text class="green">{{ pageData.todayTask.current }}</text>
-            / {{ pageData.todayTask.total }}
-          </text>
-        </view>
-      </view>
+      <TodayLessonCard :data="pageData.todayTask" @continue="go(pageData.todayTask.route)" />
       <text class="section-title">学习路径</text>
-      <view class="path">
-        <view v-for="(item, index) in pageData.learningPaths" :key="item.code" class="path-item">
-          <view class="circle" :class="item.active ? 'active-circle' : ''">{{ index + 1 }}</view>
-          <text :class="item.active ? 'primary' : ''">{{ item.name }}</text>
-        </view>
-      </view>
-      <text class="current">
-        当前：
-        <text class="primary">{{ pageData.currentStageName }}</text>
-      </text>
+      <LearningPath :steps="pageData.learningPaths" :current-name="pageData.currentStageName" />
       <text class="section-title">下一阶段</text>
-      <view class="card next-stage">
-        <template v-for="(stage, index) in pageData.nextStages" :key="stage.code">
-          <text v-if="index > 0">›</text>
-          <view class="stage" @click="go(stage.route)">
-            <text class="stage-icon">{{ stage.icon }}</text>
-            <text>{{ stage.name }}</text>
-            <text class="muted small">{{ stage.description }}</text>
-          </view>
-        </template>
-      </view>
+      <NextStageList :stages="pageData.nextStages" @select="go" />
     </view>
     <BottomNav active="home" />
   </view>
 </template>
 <script lang="uts">
 import BottomNav from '../../components/BottomNav/index.uvue'
+import TodayLessonCard from '../../components/TodayLessonCard/index.uvue'
+import LearningPath from '../../components/LearningPath/index.uvue'
+import NextStageList from '../../components/NextStageList/index.uvue'
 export default {
-  components: { BottomNav },
+  components: { BottomNav, TodayLessonCard, LearningPath, NextStageList },
   data() {
     return {
       pageData: {
@@ -71,10 +41,10 @@ export default {
           total: 20,
         },
         learningPaths: [
-          { code: 'phoneme', name: '认识音标', active: true },
-          { code: 'syllable', name: '音素与音节', active: false },
-          { code: 'ipa-decoding', name: '看音标拼读', active: false },
-          { code: 'word-decoding', name: '看单词拆读', active: false },
+          { code: 'phoneme', name: '认识音标', state: 'active' },
+          { code: 'syllable', name: '音素与音节', state: 'pending' },
+          { code: 'ipa-decoding', name: '看音标拼读', state: 'pending' },
+          { code: 'word-decoding', name: '看单词拆读', state: 'pending' },
         ],
         currentStageName: '认识音标',
         nextStages: [
@@ -138,98 +108,5 @@ export default {
   .search {
     font-size: 52rpx;
   }
-}
-
-.hero {
-  margin-top: 46rpx;
-  padding: 34rpx;
-
-  .tag {
-    padding: 8rpx 12rpx;
-    border-radius: 10rpx;
-    background: #eef0ff;
-    color: $color-primary;
-  }
-  .hero-title {
-    display: block;
-    margin-top: 42rpx;
-    font-size: 40rpx;
-    font-weight: 700;
-  }
-  .hero-sub,
-  .time {
-    display: block;
-    margin-top: 20rpx;
-    color: $color-text-secondary;
-  }
-  .hero-bottom {
-    margin-top: 48rpx;
-    display: grid;
-    grid-template-columns: 238rpx 1fr;
-    align-items: center;
-    gap: 24rpx;
-  }
-  .continue {
-    width: 100%;
-    margin: 0;
-  }
-  .green {
-    color: $color-success;
-  }
-}
-
-.path {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12rpx;
-
-  .path-item {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 16rpx;
-    text-align: center;
-    color: $color-text-secondary;
-  }
-  .circle {
-    width: 60rpx;
-    height: 60rpx;
-    border: 2rpx solid #dfe3ed;
-    border-radius: 50%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .active-circle {
-    border-color: $color-primary;
-    background: $color-primary;
-    color: #fff;
-  }
-}
-
-.current {
-  display: block;
-  margin: 42rpx 12rpx;
-  color: $color-text-secondary;
-}
-.next-stage {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: center;
-}
-.stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-}
-.stage-icon {
-  color: $color-primary;
-  font-size: 46rpx;
-}
-.small {
-  font-size: 21rpx;
 }
 </style>

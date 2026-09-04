@@ -1,33 +1,14 @@
 <template>
   <view class="page">
     <text class="muted intro">{{ pageData.description }}</text>
-    <view class="chips">
-      <text
-        v-for="category in pageData.categories"
-        :key="category.code"
-        :class="category.active ? 'selected' : ''"
-      >
-        {{ category.name }}
-      </text>
-    </view>
-    <view v-for="list in pageData.lists" :key="list.id" class="card list-card">
-      <view class="list-icon" :class="list.color">{{ list.icon }}</view>
-      <view class="list-main">
-        <text class="list-title">{{ list.title }}</text>
-        <text class="muted">{{ list.desc }}</text>
-        <text class="progress">{{ list.done }} / {{ list.total }}</text>
-        <view class="mini-track"><view :style="{ width: list.percent + '%' }"></view></view>
-      </view>
-      <button class="outline-button study">
-        {{ list.done > 0 ? '继续学习' : '开始学习' }}
-      </button>
-    </view>
+    <CategoryTabs
+      :items="pageData.categories"
+      :model-value="activeCategory"
+      @change="changeCategory"
+    />
+    <WordListCards :items="pageData.lists" @select="openList" />
     <text class="section-title">最近学习</text>
-    <view class="card recent">
-      <text v-for="item in pageData.recentWords" :key="item.word">
-        {{ item.word }}　 ◷ {{ item.learnedAt }}
-      </text>
-    </view>
+    <RecentLearning :items="pageData.recentWords" />
     <view class="card custom">
       {{ pageData.customList.title }}
       <text class="muted">　{{ pageData.customList.statusText }}</text>
@@ -35,54 +16,67 @@
   </view>
 </template>
 <script lang="uts">
+import CategoryTabs from '../../components/CategoryTabs/index.uvue'
+import WordListCards from '../../components/WordListCards/index.uvue'
+import RecentLearning from '../../components/RecentLearning/index.uvue'
+
 export default {
-  components: {},
+  components: { CategoryTabs, WordListCards, RecentLearning },
   data() {
     return {
       pageData: {
         description: '完成基础学习后，用真实词汇检验拼读能力',
         categories: [
-          { code: 'all', name: '全部', active: true },
-          { code: 'frontend', name: '前端开发', active: false },
-          { code: 'node', name: 'Node后端', active: false },
-          { code: 'ai', name: 'AI大模型', active: false },
+          { value: 'all', label: '全部' },
+          { value: 'frontend', label: '前端开发' },
+          { value: 'node', label: 'Node后端' },
+          { value: 'ai', label: 'AI大模型' },
         ],
         lists: [
           {
             icon: '</>',
+            id: 'frontend',
             title: '前端开发',
-            desc: 'HTML、CSS、JavaScript 等常用词汇',
-            done: 24,
+            description: 'HTML、CSS、JavaScript 等常用词汇',
+            completed: 24,
             total: 286,
-            percent: 8,
-            color: 'blue',
+            tone: 'blue',
           },
           {
             icon: 'JS',
+            id: 'node',
             title: 'Node.js与后端',
-            desc: 'Node.js、Express、数据库等后端词汇',
-            done: 0,
+            description: 'Node.js、Express、数据库等后端词汇',
+            completed: 0,
             total: 180,
-            percent: 0,
-            color: 'green',
+            tone: 'green',
           },
           {
             icon: 'AI',
+            id: 'ai',
             title: 'AI与大模型',
-            desc: '机器学习、深度学习、大模型相关词汇',
-            done: 0,
+            description: '机器学习、深度学习、大模型相关词汇',
+            completed: 0,
             total: 168,
-            percent: 0,
-            color: 'purple',
+            tone: 'purple',
           },
         ],
         recentWords: [
-          { word: 'component', learnedAt: '2分钟前' },
-          { word: 'developer', learnedAt: '10分钟前' },
+          { id: 'component', word: 'component', learnedAt: '2分钟前' },
+          { id: 'developer', word: 'developer', learnedAt: '10分钟前' },
         ],
         customList: { title: '▢　我的自定义词库', statusText: '即将上线' },
       },
+      activeCategory: 'all',
     }
+  },
+  methods: {
+    changeCategory(value: string) {
+      this.activeCategory = value
+    },
+    openList(id: string) {
+      console.log('open word list', id)
+    },
   },
 }
 </script>
@@ -91,77 +85,6 @@ export default {
 .intro {
   display: block;
   text-align: center;
-}
-.chips {
-  display: flex;
-  gap: 18rpx;
-  margin: 38rpx 0;
-}
-.chips text {
-  padding: 14rpx 24rpx;
-  border: 1rpx solid $color-border;
-  border-radius: 30rpx;
-  color: $color-text-secondary;
-}
-.chips .selected {
-  border-color: $color-primary;
-  color: $color-primary;
-}
-.list-card {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-  margin-bottom: 20rpx;
-}
-.list-icon {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  color: $color-primary;
-  background: #eef2ff;
-}
-.green {
-  color: #0ca968;
-  background: #ecfaf3;
-}
-.purple {
-  color: #7a55e8;
-  background: #f5f0ff;
-}
-.list-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10rpx;
-}
-.list-title {
-  font-size: 30rpx;
-  font-weight: 700;
-}
-.progress {
-  margin-top: 16rpx;
-}
-.mini-track {
-  height: 8rpx;
-  background: #e9edf5;
-}
-.mini-track view {
-  height: 8rpx;
-  background: $color-primary;
-}
-.study {
-  min-height: 70rpx;
-  margin: 0;
-  padding: 0 18rpx;
-  font-size: 24rpx;
-}
-.recent {
-  display: flex;
-  justify-content: space-around;
 }
 .custom {
   margin-top: 24rpx;

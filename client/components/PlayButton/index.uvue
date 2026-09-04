@@ -90,12 +90,14 @@ export default {
 
 .play-button {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 14rpx;
   width: fit-content;
 
   &__circle {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     width: 66rpx;
@@ -125,6 +127,7 @@ export default {
 
   &__playing {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 4rpx;
     height: 28rpx;

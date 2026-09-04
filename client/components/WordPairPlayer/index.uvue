@@ -1,0 +1,52 @@
+<template>
+  <view class="word-pair-player card">
+    <view v-for="(item, index) in items" :key="item.word" class="word-pair-player__item">
+      <PlayButton :src="item.audioUrl" size="mini" />
+      <text class="word-pair-player__word">{{ item.word }}</text>
+      <PhonemeDisplay :segments="item.segments" size="mini" />
+      <text v-if="index === 0" class="word-pair-player__divider">⇄</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+
+export default {
+  components: { PhonemeDisplay, PlayButton },
+  props: {
+    items: { type: Array, required: true },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.word-pair-player {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 48rpx;
+
+  &__item {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 8rpx;
+  }
+
+  &__word {
+    font-size: 30rpx;
+    font-weight: 700;
+  }
+
+  &__divider {
+    position: absolute;
+    right: -42rpx;
+    top: 50%;
+    color: $color-text-secondary;
+    font-size: 34rpx;
+  }
+}
+</style>
