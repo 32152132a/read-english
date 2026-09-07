@@ -1,10 +1,10 @@
 <template>
-  <view class="page">
+  <view class="page phoneme-detail">
     <LessonProgress :current="pageData.current" :total="pageData.total" label="" compact />
-    <text class="label">{{ pageData.category }}</text>
+    <text class="phoneme-detail__category">{{ pageData.category }}</text>
     <PhonemeDisplay :segments="pageData.segments" size="hero" />
-    <text class="description">{{ pageData.description }}</text>
-    <view class="listen">
+    <text class="phoneme-detail__description">{{ pageData.description }}</text>
+    <view class="phoneme-detail__listen">
       <PlayButton :src="pageData.audioUrl" text="听发音" size="hero" />
       <PlayButton :src="pageData.slowAudioUrl" text="慢速" size="pill" />
     </view>
@@ -44,8 +44,8 @@ export default {
     return {
       pageData: {
         id: 'phoneme-ae',
-        current: 4,
-        total: 20,
+        current: 2,
+        total: 3,
         category: '短元音',
         ipa: '/æ/',
         segments: [{ text: '/æ/', tone: 'primary' }],
@@ -58,21 +58,18 @@ export default {
         examples: [
           {
             word: 'cat',
-            ipa: '/kæt/',
             segments: [{ text: '/kæt/', tone: 'muted' }],
             zh: '猫',
             audioUrl: '',
           },
           {
             word: 'map',
-            ipa: '/mæp/',
             segments: [{ text: '/mæp/', tone: 'muted' }],
             zh: '地图',
             audioUrl: '',
           },
           {
             word: 'happy',
-            ipa: "/'hæpi/",
             segments: [{ text: "/'hæpi/", tone: 'muted' }],
             zh: '开心的',
             audioUrl: '',
@@ -81,11 +78,76 @@ export default {
         comparisonText: '容易和哪个音混淆？对比 /e/',
         comparisonRoute: '/pages/phoneme/compare',
       },
+      stepList: [
+        {
+          id: 'phoneme-e',
+          category: '短元音',
+          segments: [{ text: '/e/', tone: 'primary' }],
+          description: '接近「哎」，嘴巴自然半开',
+          memoryTip: '声音短促，舌尖轻靠下齿，不要拖长。',
+          mouthSteps: ['嘴巴自然半开', '舌尖靠近下齿', '快速发出短音'],
+          comparisonText: '容易和哪个音混淆？对比 /æ/',
+          examples: [
+            { word: 'bed', segments: [{ text: '/bed/', tone: 'muted' }], zh: '床', audioUrl: '' },
+            { word: 'pen', segments: [{ text: '/pen/', tone: 'muted' }], zh: '钢笔', audioUrl: '' },
+            {
+              word: 'desk',
+              segments: [{ text: '/desk/', tone: 'muted' }],
+              zh: '书桌',
+              audioUrl: '',
+            },
+          ],
+        },
+        {
+          id: 'phoneme-ae',
+          category: '短元音',
+          segments: [{ text: '/æ/', tone: 'primary' }],
+          description: '接近「爱」，嘴巴张得更大',
+          memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
+          mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
+          comparisonText: '容易和哪个音混淆？对比 /e/',
+          examples: [
+            { word: 'cat', segments: [{ text: '/kæt/', tone: 'muted' }], zh: '猫', audioUrl: '' },
+            { word: 'map', segments: [{ text: '/mæp/', tone: 'muted' }], zh: '地图', audioUrl: '' },
+            {
+              word: 'happy',
+              segments: [{ text: "/'hæpi/", tone: 'muted' }],
+              zh: '开心的',
+              audioUrl: '',
+            },
+          ],
+        },
+        {
+          id: 'phoneme-caret',
+          category: '短元音',
+          segments: [{ text: '/ʌ/', tone: 'primary' }],
+          description: '接近短促的「啊」，嘴巴自然放松',
+          memoryTip: '从喉咙中部快速发声，嘴唇不要用力。',
+          mouthSteps: ['嘴巴自然打开', '舌头放松居中', '短促收音'],
+          comparisonText: '容易和哪个音混淆？对比 /ɑː/',
+          examples: [
+            { word: 'cup', segments: [{ text: '/kʌp/', tone: 'muted' }], zh: '杯子', audioUrl: '' },
+            { word: 'sun', segments: [{ text: '/sʌn/', tone: 'muted' }], zh: '太阳', audioUrl: '' },
+            { word: 'love', segments: [{ text: '/lʌv/', tone: 'muted' }], zh: '爱', audioUrl: '' },
+          ],
+        },
+      ],
     }
   },
   methods: {
     loadStep(target: number) {
+      const step = this.stepList[target - 1]
+      if (step == null) return
+
+      this.pageData.id = step.id
       this.pageData.current = target
+      this.pageData.category = step.category
+      this.pageData.segments = step.segments
+      this.pageData.description = step.description
+      this.pageData.memoryTip = step.memoryTip
+      this.pageData.mouthSteps = step.mouthSteps
+      this.pageData.comparisonText = step.comparisonText
+      this.pageData.examples = step.examples
     },
     goCompare() {
       uni.navigateTo({ url: this.pageData.comparisonRoute })
@@ -95,24 +157,29 @@ export default {
 </script>
 <style lang="scss">
 @import '../../uni.scss';
-.label {
-  display: block;
-  margin-top: 20rpx;
-  color: $color-text-secondary;
-  font-size: 27rpx;
-}
-.description {
-  display: block;
-  margin-top: 8rpx;
-  text-align: center;
-  color: $color-text-secondary;
-  font-size: 28rpx;
-}
-.listen {
-  margin: 26rpx 0 30rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 28rpx;
+
+.phoneme-detail {
+  &__category {
+    display: block;
+    margin-top: 20rpx;
+    color: $color-text-secondary;
+    font-size: 27rpx;
+  }
+
+  &__description {
+    display: block;
+    margin-top: 8rpx;
+    text-align: center;
+    color: $color-text-secondary;
+    font-size: 28rpx;
+  }
+
+  &__listen {
+    margin: 26rpx 0 30rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28rpx;
+  }
 }
 </style>

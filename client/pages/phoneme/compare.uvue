@@ -24,8 +24,8 @@ export default {
     return {
       pageData: {
         id: 'short-vowel-comparison',
-        current: 3,
-        total: 20,
+        current: 2,
+        total: 3,
         category: '短元音对比',
         title: '区分 /ɪ/ 和 /iː/',
         description: '一个短促放松，一个稍长并向两侧展开',
@@ -65,20 +65,40 @@ export default {
             audioUrl: '',
           },
         ],
-        nextRoute: '/pages/phoneme/quiz',
       },
+      stepList: [
+        {
+          pairTitle: '先听第一组单词',
+          wordPair: [
+            { word: 'ship', segments: [{ text: '/ʃɪp/', tone: 'muted' }], audioUrl: '' },
+            { word: 'sheep', segments: [{ text: '/ʃiːp/', tone: 'muted' }], audioUrl: '' },
+          ],
+        },
+        {
+          pairTitle: '再听一组相似单词',
+          wordPair: [
+            { word: 'sit', segments: [{ text: '/sɪt/', tone: 'muted' }], audioUrl: '' },
+            { word: 'seat', segments: [{ text: '/siːt/', tone: 'muted' }], audioUrl: '' },
+          ],
+        },
+        {
+          pairTitle: '最后听完整单词',
+          wordPair: [
+            { word: 'live', segments: [{ text: '/lɪv/', tone: 'muted' }], audioUrl: '' },
+            { word: 'leave', segments: [{ text: '/liːv/', tone: 'muted' }], audioUrl: '' },
+          ],
+        },
+      ],
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < this.pageData.current) {
-        uni.navigateBack()
-        return
-      }
-      this.goQuiz()
-    },
-    goQuiz() {
-      uni.navigateTo({ url: this.pageData.nextRoute })
+      const step = this.stepList[target - 1]
+      if (step == null) return
+
+      this.pageData.current = target
+      this.pageData.pairTitle = step.pairTitle
+      this.pageData.wordPair = step.wordPair
     },
   },
 }

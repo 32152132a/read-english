@@ -39,7 +39,7 @@ export default {
       pageData: {
         id: 'syllable-basic',
         current: 2,
-        total: 8,
+        total: 3,
         title: '一个元音音素，一个音节',
         description: '每个音节都只有一个元音音素作为核心。',
         tipTitle: '记忆小贴士',
@@ -67,8 +67,24 @@ export default {
           ],
           answer: '3',
         },
-        nextRoute: '/pages/decoding/ipa',
       },
+      stepList: [
+        {
+          title: '先找到元音音素',
+          description: '元音音素是划分音节的核心线索。',
+          tip: '先听声音，再看音标中的元音。',
+        },
+        {
+          title: '一个元音音素，一个音节',
+          description: '每个音节都只有一个元音音素作为核心。',
+          tip: '看元音音素，不是数元音字母。',
+        },
+        {
+          title: '按发音节奏完成拆分',
+          description: '重读和弱读会形成清楚的音节节奏。',
+          tip: '慢速朗读，更容易听出音节边界。',
+        },
+      ],
     }
   },
   methods: {
@@ -76,14 +92,13 @@ export default {
       this.pageData.question.answer = value
     },
     loadStep(target: number) {
-      if (target < this.pageData.current) {
-        uni.navigateBack()
-        return
-      }
-      this.next()
-    },
-    next() {
-      uni.navigateTo({ url: this.pageData.nextRoute })
+      const step = this.stepList[target - 1]
+      if (step == null) return
+
+      this.pageData.current = target
+      this.pageData.title = step.title
+      this.pageData.description = step.description
+      this.pageData.tip = step.tip
     },
   },
 }

@@ -8,6 +8,7 @@
     <ListeningPrompt :audio-url="pageData.audioUrl" :description="pageData.replayTip" />
     <text class="section-title">请选择</text>
     <ChoiceGroup
+      :key="pageData.id"
       :options="pageData.options"
       :initial-value="pageData.selectedValue"
       @change="selectAnswer"
@@ -27,8 +28,8 @@ export default {
     return {
       pageData: {
         id: 'short-vowel-quiz-2',
-        current: 2,
-        total: 6,
+        current: 1,
+        total: 3,
         category: '短元音练习',
         question: '你听到的是哪个音？',
         description: '先听发音，再选择对应的音标',
@@ -43,8 +44,44 @@ export default {
         ],
         selectedValue: 'ae',
         correctValue: 'ae',
-        nextRoute: '/pages/phoneme/overview',
       },
+      questionList: [
+        {
+          id: 'short-vowel-quiz-1',
+          question: '你听到的是哪个音？',
+          description: '先听发音，再选择对应的音标',
+          options: [
+            { label: 'A', text: '/e/', value: 'e' },
+            { label: 'B', text: '/æ/', value: 'ae' },
+            { label: 'C', text: '/ʌ/', value: 'caret' },
+            { label: 'D', text: '/ɒ/', value: 'short-o' },
+          ],
+          selectedValue: 'ae',
+          correctValue: 'ae',
+        },
+        {
+          id: 'short-vowel-quiz-2',
+          question: '哪个音更短促？',
+          description: '听完两个发音后选择答案',
+          options: [
+            { label: 'A', text: '/ɪ/', value: 'short-i' },
+            { label: 'B', text: '/iː/', value: 'long-i' },
+          ],
+          selectedValue: 'short-i',
+          correctValue: 'short-i',
+        },
+        {
+          id: 'short-vowel-quiz-3',
+          question: '你听到的是长音还是短音？',
+          description: '注意声音持续的时间',
+          options: [
+            { label: 'A', text: '长音', value: 'long' },
+            { label: 'B', text: '短音', value: 'short' },
+          ],
+          selectedValue: 'long',
+          correctValue: 'long',
+        },
+      ],
       selectedAnswer: 'ae',
     }
   },
@@ -53,7 +90,19 @@ export default {
       this.selectedAnswer = value
     },
     confirm() {
-      uni.navigateTo({ url: this.pageData.nextRoute })
+      const target = this.pageData.current + 1
+      const question = this.questionList[target - 1]
+      if (question == null) return
+
+      this.pageData.id = question.id
+      this.pageData.current = target
+      this.pageData.question = question.question
+      this.pageData.description = question.description
+      this.pageData.options = question.options
+      this.pageData.selectedValue = question.selectedValue
+      this.pageData.correctValue = question.correctValue
+      this.selectedAnswer = question.selectedValue
+      uni.pageScrollTo({ scrollTop: 0, duration: 200 })
     },
   },
 }

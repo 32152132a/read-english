@@ -21,8 +21,8 @@ export default {
     return {
       pageData: {
         id: 'ipa-decoding-component',
-        current: 4,
-        total: 10,
+        current: 2,
+        total: 3,
         title: '把音标分段读出来',
         ipa: '/kəmˈpəʊnənt/',
         ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
@@ -43,20 +43,51 @@ export default {
           fullAudioUrl: '',
           answerWord: 'component',
         },
-        nextRoute: '/pages/decoding/word',
       },
+      stepList: [
+        {
+          id: 'ipa-decoding-fantastic',
+          ipaSegments: [{ text: '/fænˈtæstɪk/', tone: 'primary' }],
+          answerWord: 'fantastic',
+          parts: [
+            { text: 'fæn', emphasized: false },
+            { text: 'tæs', emphasized: true },
+            { text: 'tɪk', emphasized: false },
+          ],
+        },
+        {
+          id: 'ipa-decoding-component',
+          ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
+          answerWord: 'component',
+          parts: [
+            { text: 'kəm', emphasized: false },
+            { text: 'pəʊ', emphasized: true },
+            { text: 'nənt', emphasized: false },
+          ],
+        },
+        {
+          id: 'ipa-decoding-important',
+          ipaSegments: [{ text: '/ɪmˈpɔːtənt/', tone: 'primary' }],
+          answerWord: 'important',
+          parts: [
+            { text: 'ɪm', emphasized: false },
+            { text: 'pɔː', emphasized: true },
+            { text: 'tənt', emphasized: false },
+          ],
+        },
+      ],
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < this.pageData.current) {
-        uni.navigateBack()
-        return
-      }
-      this.next()
-    },
-    next() {
-      uni.navigateTo({ url: this.pageData.nextRoute })
+      const step = this.stepList[target - 1]
+      if (step == null) return
+
+      this.pageData.id = step.id
+      this.pageData.current = target
+      this.pageData.ipaSegments = step.ipaSegments
+      this.pageData.exercise.answerWord = step.answerWord
+      this.pageData.exercise.parts = step.parts
     },
   },
 }

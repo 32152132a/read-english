@@ -8,7 +8,7 @@
       @finish="evaluateRecording"
     />
     <EvaluationResult :title="pageData.resultTitle" :scores="pageData.scores" />
-    <StepActions :current="pageData.current" :total="pageData.total" />
+    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
   </view>
 </template>
@@ -23,8 +23,8 @@ export default {
   data() {
     return {
       pageData: {
-        current: 3,
-        total: 10,
+        current: 2,
+        total: 3,
         word: {
           id: 'component',
           word: 'component',
@@ -48,11 +48,26 @@ export default {
           { code: 'fluency', label: '流利度', value: 84, tone: 'success' },
         ],
       },
+      stepList: [
+        { id: 'fantastic', word: 'fantastic', ipa: '/fænˈtæstɪk/' },
+        { id: 'component', word: 'component', ipa: '/kəmˈpəʊnənt/' },
+        { id: 'important', word: 'important', ipa: '/ɪmˈpɔːtənt/' },
+      ],
     }
   },
   methods: {
     evaluateRecording() {
       // 后续在这里提交录音文件并更新评测结果。
+    },
+    loadStep(target: number) {
+      const step = this.stepList[target - 1]
+      if (step == null) return
+
+      this.pageData.current = target
+      this.pageData.word.id = step.id
+      this.pageData.word.word = step.word
+      this.pageData.word.ipa = step.ipa
+      this.pageData.word.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
     },
   },
 }

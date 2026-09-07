@@ -1,7 +1,7 @@
 <template>
   <view class="step-actions">
     <text v-if="hint.length > 0" class="step-actions__hint" @click="$emit('hint-click')">
-      {{ hint }}
+      {{ hint }}　›
     </text>
     <view class="step-actions__buttons">
       <button
@@ -40,6 +40,7 @@ export default {
       if (target < 1 || target > this.total) return
 
       this.$emit('change', target)
+      uni.pageScrollTo({ scrollTop: 0, duration: 200 })
     },
   },
 }

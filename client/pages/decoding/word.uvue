@@ -26,8 +26,8 @@ export default {
     return {
       pageData: {
         id: 'word-decoding-component',
-        current: 5,
-        total: 12,
+        current: 2,
+        total: 3,
         title: '根据字母组合推测读音',
         tip: '非重读音节中的 o 常弱读为 /ə/',
         word: 'component',
@@ -46,11 +46,51 @@ export default {
           { part: 'nent', segments: [{ text: '/nənt/', tone: 'normal' }], tip: '结尾 t 不发音' },
         ],
       },
+      stepList: [
+        {
+          id: 'word-decoding-fantastic',
+          word: 'fantastic',
+          ipa: '/fænˈtæstɪk/',
+          parts: [
+            { text: 'fan', emphasized: false },
+            { text: 'tas', emphasized: true },
+            { text: 'tic', emphasized: false },
+          ],
+        },
+        {
+          id: 'word-decoding-component',
+          word: 'component',
+          ipa: '/kəmˈpəʊnənt/',
+          parts: [
+            { text: 'com', emphasized: false },
+            { text: 'po', emphasized: true },
+            { text: 'nent', emphasized: false },
+          ],
+        },
+        {
+          id: 'word-decoding-important',
+          word: 'important',
+          ipa: '/ɪmˈpɔːtənt/',
+          parts: [
+            { text: 'im', emphasized: false },
+            { text: 'por', emphasized: true },
+            { text: 'tant', emphasized: false },
+          ],
+        },
+      ],
     }
   },
   methods: {
     loadStep(target: number) {
-      if (target < this.pageData.current) uni.navigateBack()
+      const step = this.stepList[target - 1]
+      if (step == null) return
+
+      this.pageData.id = step.id
+      this.pageData.current = target
+      this.pageData.word = step.word
+      this.pageData.ipa = step.ipa
+      this.pageData.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
+      this.pageData.parts = step.parts
     },
   },
 }
