@@ -1,10 +1,11 @@
 <template>
   <view class="next-stage-list card">
+    <text v-if="lockedText" class="next-stage-list__locked">{{ lockedText }}</text>
     <template v-for="(stage, index) in stages" :key="stage.code">
       <text v-if="index > 0" class="next-stage-list__arrow">›</text>
       <view class="next-stage-list__item" @click="$emit('select', stage.route)">
-        <text class="next-stage-list__icon">{{ stage.icon }}</text>
-        <text>{{ stage.name }}</text>
+        <AppIcon :name="stage.iconName" :size="58" tone="dark" />
+        <text class="next-stage-list__name">{{ stage.name }}</text>
         <text class="next-stage-list__description">{{ stage.description }}</text>
       </view>
     </template>
@@ -12,9 +13,13 @@
 </template>
 
 <script lang="uts">
+import AppIcon from '../AppIcon/index.uvue'
+
 export default {
+  components: { AppIcon },
   props: {
     stages: { type: Array, required: true },
+    lockedText: { type: String, default: '' },
   },
   emits: ['select'],
 }
@@ -24,21 +29,26 @@ export default {
 @import '../../uni.scss';
 
 .next-stage-list {
-  width: 100%;
+  position: relative;
+  width: 662rpx;
+  max-width: 100%;
+  align-self: center;
+  min-height: 238rpx;
+  padding: 52rpx 30rpx 28rpx;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
+  grid-template-columns: 154rpx 30rpx 154rpx 30rpx 154rpx;
   align-items: center;
 
   &__item {
     display: grid;
     justify-items: center;
-    gap: 8rpx;
+    gap: 10rpx;
   }
 
-  &__icon {
-    color: $color-primary;
-    font-size: 46rpx;
+  &__name {
+    font-size: 27rpx;
+    font-weight: 600;
   }
 
   &__description {
@@ -48,6 +58,18 @@ export default {
 
   &__arrow {
     color: $color-text-secondary;
+    font-size: 42rpx;
+  }
+
+  &__locked {
+    position: absolute;
+    top: 14rpx;
+    right: 22rpx;
+    padding: 8rpx 14rpx;
+    border-radius: 8rpx;
+    background: #f1f3f8;
+    color: $color-text-secondary;
+    font-size: 20rpx;
   }
 }
 </style>

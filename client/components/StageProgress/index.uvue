@@ -1,5 +1,6 @@
 <template>
-  <view class="stage-progress">
+  <view class="stage-progress" :class="variant === 'path' ? 'stage-progress--path' : ''">
+    <view v-if="variant === 'path'" class="stage-progress__track" />
     <view v-for="(step, index) in steps" :key="step.code" class="stage-progress__item">
       <text class="stage-progress__number" :class="step.state === 'active' ? 'is-active' : ''">
         {{ step.state === 'completed' ? '✓' : index + 1 }}
@@ -15,6 +16,7 @@
 export default {
   props: {
     steps: { type: Array, required: true },
+    variant: { type: String, default: 'default' },
   },
 }
 </script>
@@ -33,10 +35,47 @@ export default {
   gap: 12rpx;
 
   &__item {
+    position: relative;
+    z-index: 1;
     min-width: 0;
     display: grid;
     justify-items: center;
     gap: 12rpx;
+  }
+
+  &__track {
+    display: none;
+  }
+
+  &--path {
+    width: 656rpx;
+    max-width: 100%;
+    position: relative;
+    grid-template-columns: repeat(4, 110rpx);
+    column-gap: 72rpx;
+
+    .stage-progress__track {
+      position: absolute;
+      top: 29rpx;
+      right: 55rpx;
+      left: 55rpx;
+      display: block;
+      height: 2rpx;
+      background: #d7dce8;
+    }
+
+    .stage-progress__number {
+      box-sizing: border-box;
+      border: 2rpx solid #d7dce8;
+      background: $color-surface;
+      color: $color-text-secondary;
+
+      &.is-active {
+        border-color: $color-primary;
+        background: $color-primary;
+        color: #fff;
+      }
+    }
   }
 
   &__number {

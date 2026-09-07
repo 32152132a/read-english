@@ -3,7 +3,15 @@
     <text class="today-lesson-card__tag">{{ data.tag }}</text>
     <text class="today-lesson-card__title">{{ data.title }}</text>
     <text class="today-lesson-card__description">{{ data.description }}</text>
-    <text class="today-lesson-card__duration">◷ 约 {{ data.durationMinutes }} 分钟</text>
+    <view class="today-lesson-card__duration">
+      <AppIcon name="clock-3" :size="30" />
+      <text>约 {{ data.durationMinutes }} 分钟</text>
+    </view>
+    <image
+      class="today-lesson-card__illustration"
+      src="/static/images/hero-face-wave.svg"
+      mode="aspectFit"
+    />
     <view class="today-lesson-card__footer">
       <button class="primary-button today-lesson-card__button" @click="$emit('continue')">
         {{ data.actionText }} ›
@@ -18,9 +26,10 @@
 
 <script lang="uts">
 import ProgressBar from '../ProgressBar/index.uvue'
+import AppIcon from '../AppIcon/index.uvue'
 
 export default {
-  components: { ProgressBar },
+  components: { ProgressBar, AppIcon },
   props: {
     data: { type: Object, required: true },
   },
@@ -32,8 +41,14 @@ export default {
 @import '../../uni.scss';
 
 .today-lesson-card {
-  margin-top: 46rpx;
-  padding: 34rpx;
+  position: relative;
+  width: 662rpx;
+  max-width: 100%;
+  align-self: center;
+  box-sizing: border-box;
+  margin-top: 40rpx;
+  padding: 30rpx 34rpx;
+  overflow: hidden;
 
   &__tag {
     padding: 8rpx 12rpx;
@@ -44,20 +59,41 @@ export default {
 
   &__title {
     display: block;
-    margin-top: 38rpx;
-    font-size: 40rpx;
+    margin-top: 26rpx;
+    font-size: 42rpx;
     font-weight: 700;
   }
 
-  &__description,
-  &__duration {
+  &__description {
     display: block;
     margin-top: 16rpx;
     color: $color-text-secondary;
   }
 
+  &__duration {
+    position: relative;
+    z-index: 1;
+    margin-top: 18rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10rpx;
+    color: $color-text-secondary;
+  }
+
+  &__illustration {
+    position: absolute;
+    top: 130rpx;
+    right: -40rpx;
+    width: 360rpx;
+    height: 204rpx;
+    opacity: 0.92;
+  }
+
   &__footer {
-    margin-top: 40rpx;
+    position: relative;
+    z-index: 1;
+    margin-top: 30rpx;
     display: grid;
     grid-template-columns: 238rpx 1fr;
     align-items: center;

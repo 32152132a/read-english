@@ -1,6 +1,6 @@
 <template>
   <view class="learning-path">
-    <StageProgress :steps="steps" />
+    <StageProgress :steps="steps" variant="path" />
     <text class="learning-path__current">
       当前：
       <text class="learning-path__name">{{ currentName }}</text>
@@ -24,9 +24,14 @@ export default {
 @import '../../uni.scss';
 
 .learning-path {
+  width: 662rpx;
+  max-width: 100%;
+  align-self: center;
+  box-sizing: border-box;
+
   &__current {
     display: block;
-    margin: 36rpx 12rpx 0;
+    margin: 24rpx 10rpx 0;
     color: $color-text-secondary;
   }
 

@@ -6,13 +6,17 @@
           <text class="greeting">{{ pageData.greeting }}</text>
           <text class="subtitle">{{ pageData.subtitle }}</text>
         </view>
-        <text class="search">⌕</text>
+        <AppIcon name="search" :size="52" label="搜索" />
       </view>
       <TodayLessonCard :data="pageData.todayTask" @continue="go(pageData.todayTask.route)" />
       <text class="section-title">学习路径</text>
       <LearningPath :steps="pageData.learningPaths" :current-name="pageData.currentStageName" />
       <text class="section-title">下一阶段</text>
-      <NextStageList :stages="pageData.nextStages" @select="go" />
+      <NextStageList
+        :stages="pageData.nextStages"
+        :locked-text="pageData.nextStageLockedText"
+        @select="go"
+      />
     </view>
     <BottomNav active="home" />
     <DebugPageNav />
@@ -23,8 +27,9 @@ import BottomNav from '../../components/BottomNav/index.uvue'
 import TodayLessonCard from '../../components/TodayLessonCard/index.uvue'
 import LearningPath from '../../components/LearningPath/index.uvue'
 import NextStageList from '../../components/NextStageList/index.uvue'
+import AppIcon from '../../components/AppIcon/index.uvue'
 export default {
-  components: { BottomNav, TodayLessonCard, LearningPath, NextStageList },
+  components: { BottomNav, TodayLessonCard, LearningPath, NextStageList, AppIcon },
   data() {
     return {
       pageData: {
@@ -48,26 +53,27 @@ export default {
           { code: 'word-decoding', name: '看单词拆读', state: 'pending' },
         ],
         currentStageName: '认识音标',
+        nextStageLockedText: '完成基础后开启',
         nextStages: [
           {
             code: 'word-list',
             name: '专业词库',
             description: '实际应用',
-            icon: '▢',
+            iconName: 'book-open',
             route: '/pages/word-list/index',
           },
           {
             code: 'evaluation',
             name: '跟读评测',
             description: '发现问题',
-            icon: '♧',
+            iconName: 'headphones',
             route: '/pages/evaluation/index',
           },
           {
             code: 'correction',
             name: 'AI 纠音',
             description: '针对提升',
-            icon: '≋',
+            iconName: 'audio-waveform',
             route: '/pages/correction/index',
           },
         ],
@@ -88,7 +94,9 @@ export default {
   min-height: 100vh;
 }
 .home {
-  padding-top: 92rpx;
+  width: 100vw;
+  overflow-x: hidden;
+  padding-top: 84rpx;
   padding-bottom: 164rpx;
 }
 
@@ -98,16 +106,13 @@ export default {
 
   .greeting {
     display: block;
-    font-size: 42rpx;
+    font-size: 48rpx;
     font-weight: 700;
   }
   .subtitle {
     display: block;
     margin-top: 12rpx;
     color: $color-text-secondary;
-  }
-  .search {
-    font-size: 52rpx;
   }
 }
 </style>

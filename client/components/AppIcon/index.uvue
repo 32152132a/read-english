@@ -31,14 +31,22 @@ export default {
     name: { type: String, required: true },
     size: { type: Number, default: 48 },
     active: { type: Boolean, default: false },
+    tone: { type: String, default: 'default' },
     label: { type: String, default: '' },
   },
   computed: {
     iconSource(): string {
       const iconName = iconNames.includes(this.name) ? this.name : 'circle-check'
-      const activeSuffix =
-        this.active && ['house', 'user-round'].includes(iconName) ? '-active' : ''
-      return '/static/icons/' + iconName + activeSuffix + '.svg'
+      if (this.active && ['house', 'user-round'].includes(iconName)) {
+        return '/static/icons/' + iconName + '-active.svg'
+      }
+      if (
+        this.tone === 'dark' &&
+        ['book-open', 'headphones', 'audio-waveform'].includes(iconName)
+      ) {
+        return '/static/icons/' + iconName + '-dark.svg'
+      }
+      return '/static/icons/' + iconName + '.svg'
     },
   },
 }
