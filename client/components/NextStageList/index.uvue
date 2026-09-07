@@ -1,14 +1,16 @@
 <template>
   <view class="next-stage-list card">
     <text v-if="lockedText" class="next-stage-list__locked">{{ lockedText }}</text>
-    <template v-for="(stage, index) in stages" :key="stage.code">
-      <text v-if="index > 0" class="next-stage-list__arrow">›</text>
-      <view class="next-stage-list__item" @click="$emit('select', stage.route)">
-        <AppIcon :name="stage.iconName" :size="58" tone="dark" />
-        <text class="next-stage-list__name">{{ stage.name }}</text>
-        <text class="next-stage-list__description">{{ stage.description }}</text>
-      </view>
-    </template>
+    <view class="next-stage-list__stages">
+      <template v-for="(stage, index) in stages" :key="stage.code">
+        <text v-if="index > 0" class="next-stage-list__arrow">›</text>
+        <view class="next-stage-list__item" @click="$emit('select', stage.route)">
+          <AppIcon :name="stage.iconName" :size="58" tone="dark" />
+          <text class="next-stage-list__name">{{ stage.name }}</text>
+          <text class="next-stage-list__description">{{ stage.description }}</text>
+        </view>
+      </template>
+    </view>
   </view>
 </template>
 
@@ -33,9 +35,14 @@ export default {
   min-height: 238rpx;
   padding: 52rpx 30rpx 28rpx;
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 154rpx 30rpx 154rpx 30rpx 154rpx;
-  align-items: center;
+
+  &__stages {
+    width: 624rpx;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 188rpx 30rpx 188rpx 30rpx 188rpx;
+    align-items: center;
+  }
 
   &__item {
     display: grid;

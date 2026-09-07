@@ -17,7 +17,11 @@
         {{ data.actionText }} ›
       </button>
       <view class="today-lesson-card__progress">
-        <text>{{ data.progressLabel }} {{ data.current }} / {{ data.total }}</text>
+        <text>
+          {{ data.progressLabel }}
+          <text class="today-lesson-card__current">{{ data.current }}</text>
+          / {{ data.total }}
+        </text>
         <ProgressBar :current="data.current" :total="data.total" />
       </view>
     </view>
@@ -41,16 +45,17 @@ export default {
 
 .today-lesson-card {
   position: relative;
-  width: 662rpx;
-  max-width: 100%;
+  width: 678rpx;
+  max-width: calc(100% + 16rpx);
   align-self: center;
   box-sizing: border-box;
-  margin-top: 40rpx;
-  padding: 30rpx 34rpx;
+  margin-top: 60rpx;
+  padding: 30rpx 34rpx 42rpx;
   overflow: hidden;
 
   &__tag {
-    padding: 8rpx 12rpx;
+    width: fit-content;
+    padding: 6rpx 12rpx;
     border-radius: 10rpx;
     background-color: #eef0ff;
     color: $color-primary;
@@ -82,21 +87,22 @@ export default {
 
   &__illustration {
     position: absolute;
-    top: 130rpx;
-    right: -40rpx;
-    width: 360rpx;
-    height: 204rpx;
+    top: 90rpx;
+    right: -10rpx;
+    width: 420rpx;
+    height: 236rpx;
     opacity: 0.92;
   }
 
   &__footer {
     position: relative;
     z-index: 1;
-    margin-top: 30rpx;
+    margin-top: 40rpx;
     display: grid;
-    grid-template-columns: 238rpx 1fr;
+    grid-template-columns: 224rpx 214rpx;
+    justify-content: space-between;
     align-items: center;
-    gap: 24rpx;
+    gap: 0;
   }
 
   &__button {
@@ -108,7 +114,12 @@ export default {
     display: grid;
     gap: 10rpx;
     color: $color-text-secondary;
-    font-size: 22rpx;
+    font-size: 26rpx;
+  }
+
+  &__current {
+    color: $color-success;
+    font-weight: 600;
   }
 }
 </style>
