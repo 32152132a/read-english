@@ -88,7 +88,7 @@ export default {
 }
 .home {
   padding-top: 92rpx;
-  padding-bottom: 30rpx;
+  padding-bottom: 164rpx;
 }
 
 .home-head {

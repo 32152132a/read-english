@@ -1,17 +1,25 @@
 <template>
-  <view class="nav">
-    <view class="item" @click="openHome">
-      <text class="icon">⌂</text>
-      <text :class="active === 'home' ? 'active' : ''">首页</text>
+  <view class="bottom-nav">
+    <view class="bottom-nav__item" :class="active === 'home' ? 'is-active' : ''" @click="openHome">
+      <AppIcon name="house" :size="46" :active="active === 'home'" label="首页" />
+      <text>首页</text>
     </view>
-    <view class="item" @click="openProfile">
-      <text class="icon">♙</text>
-      <text :class="active === 'profile' ? 'active' : ''">我的</text>
+    <view
+      class="bottom-nav__item"
+      :class="active === 'profile' ? 'is-active' : ''"
+      @click="openProfile"
+    >
+      <AppIcon name="user-round" :size="46" :active="active === 'profile'" label="我的" />
+      <text>我的</text>
     </view>
   </view>
 </template>
+
 <script lang="uts">
+import AppIcon from '../AppIcon/index.uvue'
+
 export default {
+  components: { AppIcon },
   props: { active: { type: String, default: 'home' } },
   methods: {
     openHome() {
@@ -23,29 +31,50 @@ export default {
   },
 }
 </script>
-<style>
-.nav {
-  height: 132rpx;
-  padding-bottom: 24rpx;
-  border-top: 1rpx solid #e6e9f1;
-  background: #fff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-}
-.item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-  color: #6b7496;
-  font-size: 24rpx;
-}
-.icon {
-  font-size: 42rpx;
-}
-.active {
-  color: #174cff;
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  width: 100vw;
+  box-sizing: border-box;
+  min-height: 116rpx;
+  padding: 14rpx 0 calc(14rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid $color-border;
+  background: $color-surface;
+  overflow: hidden;
+
+  &__item {
+    position: absolute;
+    top: 14rpx;
+    width: 100rpx;
+    margin-left: -50rpx;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 8rpx;
+    color: #6b7496;
+    font-size: 24rpx;
+
+    &:first-child {
+      left: 25vw;
+    }
+
+    &:last-child {
+      right: 25vw;
+      left: auto;
+      margin-right: -50rpx;
+      margin-left: 0;
+    }
+
+    &.is-active {
+      color: $color-primary;
+    }
+  }
 }
 </style>

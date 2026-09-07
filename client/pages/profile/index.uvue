@@ -51,6 +51,7 @@ export default {
 @import '../../uni.scss';
 .profile {
   padding-top: 110rpx;
+  padding-bottom: 164rpx;
 }
 .title {
   font-size: 54rpx;

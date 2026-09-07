@@ -1,0 +1,52 @@
+<template>
+  <image
+    class="app-icon"
+    :src="iconSource"
+    :style="{ width: size + 'rpx', height: size + 'rpx' }"
+    mode="aspectFit"
+    :aria-label="label"
+  />
+</template>
+
+<script lang="uts">
+const iconNames = [
+  'chevron-left',
+  'search',
+  'play',
+  'volume-2',
+  'clock-3',
+  'mic',
+  'house',
+  'user-round',
+  'book-open',
+  'headphones',
+  'audio-waveform',
+  'lightbulb',
+  'circle-check',
+  'lock-keyhole',
+]
+
+export default {
+  props: {
+    name: { type: String, required: true },
+    size: { type: Number, default: 48 },
+    active: { type: Boolean, default: false },
+    label: { type: String, default: '' },
+  },
+  computed: {
+    iconSource(): string {
+      const iconName = iconNames.includes(this.name) ? this.name : 'circle-check'
+      const activeSuffix =
+        this.active && ['house', 'user-round'].includes(iconName) ? '-active' : ''
+      return '/static/icons/' + iconName + activeSuffix + '.svg'
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+.app-icon {
+  display: block;
+  flex-shrink: 0;
+}
+</style>
