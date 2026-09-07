@@ -9,6 +9,7 @@
     <text class="section-title">{{ pageData.pairTitle }}</text>
     <WordPairPlayer :items="pageData.wordPair" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

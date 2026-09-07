@@ -13,6 +13,7 @@
       @change="selectAnswer"
     />
     <button class="primary-button confirm" @click="confirm">确认答案</button>
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

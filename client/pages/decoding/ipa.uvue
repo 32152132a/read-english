@@ -6,6 +6,7 @@
     <StageProgress :steps="pageData.stages" />
     <DecodingExercise :data="pageData.exercise" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

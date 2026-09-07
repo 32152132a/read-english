@@ -1,9 +1,11 @@
 import App from './App'
 import { createSSRApp } from 'vue'
 import { createPinia } from 'pinia'
+import DebugPageNav from './components/DebugPageNav/index.uvue'
 
 export function createApp() {
   const app = createSSRApp(App)
   app.use(createPinia())
+  app.component('DebugPageNav', DebugPageNav)
   return { app }
 }

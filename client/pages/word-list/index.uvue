@@ -13,6 +13,7 @@
       {{ pageData.customList.title }}
       <text class="muted">　{{ pageData.customList.statusText }}</text>
     </view>
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

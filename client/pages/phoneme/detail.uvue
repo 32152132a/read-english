@@ -14,6 +14,7 @@
     <ExampleWordList :items="pageData.examples" />
     <text class="compare" @click="goCompare">{{ pageData.comparisonText }}　›</text>
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

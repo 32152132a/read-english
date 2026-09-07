@@ -1,0 +1,121 @@
+<template>
+  <view class="debug-page-nav">
+    <view v-if="open" class="debug-page-nav__panel">
+      <view class="debug-page-nav__header">
+        <text>页面调试</text>
+        <text class="debug-page-nav__close" @click="toggle">关闭</text>
+      </view>
+      <scroll-view class="debug-page-nav__list" scroll-y>
+        <view class="debug-page-nav__grid">
+          <text
+            v-for="item in pages"
+            :key="item.route"
+            class="debug-page-nav__link"
+            @click="openPage(item.route)"
+          >
+            {{ item.label }}
+          </text>
+        </view>
+      </scroll-view>
+    </view>
+    <text class="debug-page-nav__trigger" @click="toggle">{{ open ? '收起' : '页面' }}</text>
+  </view>
+</template>
+
+<script lang="uts">
+export default {
+  data() {
+    return {
+      open: false,
+      pages: [
+        { label: '首页', route: '/pages/home/index' },
+        { label: '单个音标', route: '/pages/phoneme/detail' },
+        { label: '易混对比', route: '/pages/phoneme/compare' },
+        { label: '听音辨认', route: '/pages/phoneme/quiz' },
+        { label: '音标总览', route: '/pages/phoneme/overview' },
+        { label: '音素音节', route: '/pages/syllable/index' },
+        { label: '音标拼读', route: '/pages/decoding/ipa' },
+        { label: '单词拆读', route: '/pages/decoding/word' },
+        { label: '专业词库', route: '/pages/word-list/index' },
+        { label: '跟读评测', route: '/pages/evaluation/index' },
+        { label: 'AI 纠音', route: '/pages/correction/index' },
+        { label: '我的', route: '/pages/profile/index' },
+      ],
+    }
+  },
+  methods: {
+    toggle() {
+      this.open = !this.open
+    },
+    openPage(route: string) {
+      this.open = false
+      uni.reLaunch({ url: route })
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.debug-page-nav {
+  position: fixed;
+  bottom: 142rpx;
+  left: 22rpx;
+  z-index: 99;
+
+  &__trigger {
+    display: block;
+    width: fit-content;
+    padding: 12rpx 18rpx;
+    border-radius: 24rpx;
+    background: rgba(20, 33, 61, 0.82);
+    color: #fff;
+    font-size: 22rpx;
+  }
+
+  &__panel {
+    width: 560rpx;
+    max-width: calc(100vw - 44rpx);
+    margin-bottom: 14rpx;
+    padding: 20rpx;
+    box-sizing: border-box;
+    border: 1rpx solid $color-border;
+    border-radius: 18rpx;
+    background: $color-surface;
+    box-shadow: 0 12rpx 36rpx rgba(20, 33, 61, 0.16);
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 16rpx;
+    font-weight: 600;
+  }
+
+  &__close {
+    color: $color-primary;
+    font-weight: 400;
+  }
+
+  &__list {
+    height: 360rpx;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12rpx;
+  }
+
+  &__link {
+    padding: 16rpx 12rpx;
+    border-radius: 10rpx;
+    background: #f3f5fb;
+    color: $color-text-primary;
+    text-align: center;
+    font-size: 23rpx;
+  }
+}
+</style>

@@ -11,6 +11,7 @@
     <text class="section-title">双元音</text>
     <PhonemeGrid :items="pageData.diphthongs" @select="openDetail" />
     <button class="primary-button bottom" @click="next">继续学习</button>
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

@@ -15,6 +15,7 @@
       <NextStageList :stages="pageData.nextStages" @select="go" />
     </view>
     <BottomNav active="home" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

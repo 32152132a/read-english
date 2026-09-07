@@ -9,6 +9,7 @@
     />
     <EvaluationResult :title="pageData.resultTitle" :scores="pageData.scores" />
     <StepActions :current="pageData.current" :total="pageData.total" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

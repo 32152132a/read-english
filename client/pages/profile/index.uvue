@@ -11,6 +11,7 @@
       <text class="version">{{ pageData.version }}</text>
     </view>
     <BottomNav active="profile" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">

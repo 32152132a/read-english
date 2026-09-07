@@ -11,6 +11,7 @@
     <text class="section-title">字母与发音</text>
     <PronunciationMappings :items="pageData.mappings" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <DebugPageNav />
   </view>
 </template>
 <script lang="uts">
