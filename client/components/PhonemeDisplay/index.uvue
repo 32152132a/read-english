@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     displaySize(): string {
-      return ['mini', 'large'].includes(this.size) ? this.size : 'default'
+      return ['mini', 'large', 'hero'].includes(this.size) ? this.size : 'default'
     },
   },
 }
@@ -41,6 +41,12 @@ export default {
 
   &--large {
     font-size: 66rpx;
+  }
+
+  &--hero {
+    margin-top: 8rpx;
+    font-size: 96rpx;
+    line-height: 1.25;
   }
 
   &__segment {

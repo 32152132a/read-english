@@ -1,10 +1,10 @@
 <template>
-  <view class="tip-card">
-    <text class="tip-card__icon">!</text>
-    <text class="tip-card__content">
+  <view class="tip-card" :class="variant === 'memory' ? 'tip-card--memory' : ''">
+    <AppIcon name="lightbulb" :size="34" />
+    <view class="tip-card__content">
       <text class="tip-card__title">{{ title }}</text>
-      <text>　{{ text }}</text>
-    </text>
+      <text class="tip-card__text">{{ text }}</text>
+    </view>
   </view>
 </template>
 
@@ -13,6 +13,7 @@ export default {
   props: {
     title: { type: String, default: '提示' },
     text: { type: String, required: true },
+    variant: { type: String, default: 'default' },
   },
 }
 </script>
@@ -26,32 +27,31 @@ export default {
   border-radius: 14rpx;
   background-color: #eef2ff;
   display: grid;
-  grid-template-columns: 28rpx 1fr;
+  grid-template-columns: 34rpx 1fr;
   align-items: start;
   gap: 12rpx;
 
-  &__icon {
-    width: 28rpx;
-    height: 28rpx;
-    margin-top: 2rpx;
-    border-radius: 50%;
-    background-color: $color-primary;
-    color: $color-surface;
-    text-align: center;
-    font-size: 20rpx;
-    font-weight: 600;
-    line-height: 28rpx;
-  }
-
   &__content {
-    color: $color-text-secondary;
-    font-size: 22rpx;
-    line-height: 32rpx;
+    display: grid;
+    gap: 8rpx;
   }
 
   &__title {
     color: $color-primary;
     font-weight: 600;
+  }
+
+  &__text {
+    font-size: 23rpx;
+    line-height: 34rpx;
+  }
+
+  &--memory {
+    margin-top: 28rpx;
+    padding: 20rpx 24rpx;
+    border: 2rpx solid $color-border;
+    border-radius: 16rpx;
+    background-color: $color-surface;
   }
 }
 </style>

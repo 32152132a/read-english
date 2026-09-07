@@ -53,9 +53,9 @@ export default {
 
   &__hint {
     display: block;
-    margin-bottom: 20rpx;
+    margin-bottom: 22rpx;
     color: $color-primary;
-    text-align: center;
+    text-align: left;
     font-size: 24rpx;
   }
 

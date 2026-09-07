@@ -13,8 +13,13 @@
       mode="aspectFit"
     />
     <view class="today-lesson-card__footer">
-      <button class="primary-button today-lesson-card__button" @click="$emit('continue')">
-        {{ data.actionText }} ›
+      <button
+        class="today-lesson-card__button"
+        hover-class="today-lesson-card__button--pressed"
+        @click="$emit('continue')"
+      >
+        <text class="today-lesson-card__button-text">{{ data.actionText }}</text>
+        <text class="today-lesson-card__button-arrow">›</text>
       </button>
       <view class="today-lesson-card__progress">
         <text>
@@ -107,7 +112,43 @@ export default {
 
   &__button {
     width: 100%;
+    min-height: 82rpx;
     margin: 0;
+    padding: 0 26rpx;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 22rpx;
+    background: linear-gradient(135deg, #315cff 0%, #193bfa 100%);
+    box-shadow: 0 10rpx 22rpx rgba(38, 75, 255, 0.2);
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    align-items: center;
+    gap: 18rpx;
+
+    &::after {
+      border: 0;
+    }
+
+    &--pressed {
+      opacity: 0.86;
+      transform: scale(0.98);
+    }
+  }
+
+  &__button-text,
+  &__button-arrow {
+    color: #fff;
+  }
+
+  &__button-text {
+    font-size: 28rpx;
+    font-weight: 600;
+  }
+
+  &__button-arrow {
+    font-size: 36rpx;
+    font-weight: 300;
   }
 
   &__progress {

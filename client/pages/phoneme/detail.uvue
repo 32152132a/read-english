@@ -1,19 +1,24 @@
 <template>
   <view class="page">
-    <LessonProgress :current="pageData.current" :total="pageData.total" />
+    <LessonProgress :current="pageData.current" :total="pageData.total" label="" compact />
     <text class="label">{{ pageData.category }}</text>
-    <PhonemeDisplay :segments="pageData.segments" size="large" />
+    <PhonemeDisplay :segments="pageData.segments" size="hero" />
     <text class="description">{{ pageData.description }}</text>
-    <TipCard :text="pageData.memoryTip" />
     <view class="listen">
-      <PlayButton :src="pageData.audioUrl" text="听发音" />
-      <text class="slow">◷ 慢速</text>
+      <PlayButton :src="pageData.audioUrl" text="听发音" size="hero" />
+      <PlayButton :src="pageData.slowAudioUrl" text="慢速" size="pill" />
     </view>
-    <PronunciationGuide :steps="pageData.mouthSteps" />
+    <PronunciationGuide :image-src="pageData.mouthImage" :steps="pageData.mouthSteps" />
     <text class="section-title">放进单词里听</text>
     <ExampleWordList :items="pageData.examples" />
-    <text class="compare" @click="goCompare">{{ pageData.comparisonText }}　›</text>
-    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <TipCard title="记忆技巧" :text="pageData.memoryTip" variant="memory" />
+    <StepActions
+      :current="pageData.current"
+      :total="pageData.total"
+      :hint="pageData.comparisonText"
+      @change="loadStep"
+      @hint-click="goCompare"
+    />
     <DebugPageNav />
   </view>
 </template>
@@ -48,6 +53,7 @@ export default {
         memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
         audioUrl: '',
         slowAudioUrl: '',
+        mouthImage: '/static/images/mouth-open.svg',
         mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
         examples: [
           {
@@ -79,11 +85,7 @@ export default {
   },
   methods: {
     loadStep(target: number) {
-      if (target < this.pageData.current) {
-        uni.navigateBack()
-        return
-      }
-      this.goCompare()
+      this.pageData.current = target
     },
     goCompare() {
       uni.navigateTo({ url: this.pageData.comparisonRoute })
@@ -95,33 +97,22 @@ export default {
 @import '../../uni.scss';
 .label {
   display: block;
-  margin-top: 40rpx;
+  margin-top: 20rpx;
   color: $color-text-secondary;
   font-size: 27rpx;
 }
 .description {
   display: block;
+  margin-top: 8rpx;
   text-align: center;
   color: $color-text-secondary;
   font-size: 28rpx;
 }
 .listen {
-  margin: 28rpx 0;
+  margin: 26rpx 0 30rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22rpx;
-}
-.slow {
-  padding: 12rpx 18rpx;
-  border: 1rpx solid $color-border;
-  border-radius: 28rpx;
-  color: $color-text-secondary;
-}
-.compare {
-  display: block;
-  margin: 24rpx 4rpx;
-  color: $color-primary;
-  font-size: 24rpx;
+  gap: 28rpx;
 }
 </style>

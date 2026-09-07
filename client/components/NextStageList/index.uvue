@@ -28,19 +28,20 @@ export default {
 @import '../../uni.scss';
 
 .next-stage-list {
-  position: relative;
   width: 662rpx;
   max-width: 100%;
   align-self: center;
   min-height: 238rpx;
-  padding: 52rpx 30rpx 28rpx;
+  padding: 14rpx 30rpx 28rpx;
   box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto 1fr;
 
   &__stages {
-    width: 624rpx;
-    max-width: 100%;
+    width: 100%;
+    align-self: center;
     display: grid;
-    grid-template-columns: 188rpx 30rpx 188rpx 30rpx 188rpx;
+    grid-template-columns: 1fr 30rpx 1fr 30rpx 1fr;
     align-items: center;
   }
 
@@ -63,12 +64,11 @@ export default {
   &__arrow {
     color: $color-text-secondary;
     font-size: 42rpx;
+    transform: translateY(-4rpx);
   }
 
   &__locked {
-    position: absolute;
-    top: 14rpx;
-    right: 22rpx;
+    justify-self: end;
     padding: 8rpx 14rpx;
     border-radius: 8rpx;
     background: #f1f3f8;

@@ -1,9 +1,18 @@
 <template>
   <view class="pronunciation-guide card">
     <text class="pronunciation-guide__title">怎么发音</text>
-    <text class="pronunciation-guide__symbol">{{ symbol }}</text>
+    <image
+      v-if="imageSrc.length > 0"
+      class="pronunciation-guide__image"
+      :src="imageSrc"
+      mode="aspectFit"
+    />
+    <text v-else class="pronunciation-guide__symbol">{{ symbol }}</text>
     <view class="pronunciation-guide__steps">
-      <text v-for="(step, index) in steps" :key="step">{{ index + 1 }}　{{ step }}</text>
+      <view v-for="(step, index) in steps" :key="step" class="pronunciation-guide__step">
+        <text class="pronunciation-guide__number">{{ index + 1 }}</text>
+        <text>{{ step }}</text>
+      </view>
     </view>
   </view>
 </template>
@@ -12,6 +21,7 @@
 export default {
   props: {
     symbol: { type: String, default: '◡' },
+    imageSrc: { type: String, default: '' },
     steps: { type: Array, required: true },
   },
 }
@@ -21,6 +31,8 @@ export default {
 @import '../../uni.scss';
 
 .pronunciation-guide {
+  padding: 24rpx 28rpx 28rpx;
+
   &__title {
     font-size: 28rpx;
     font-weight: 700;
@@ -34,12 +46,37 @@ export default {
     line-height: 170rpx;
   }
 
+  &__image {
+    display: block;
+    width: 300rpx;
+    height: 210rpx;
+    margin: 0 auto;
+  }
+
   &__steps {
     width: 330rpx;
     margin: auto;
     display: grid;
-    gap: 16rpx;
+    gap: 10rpx;
     font-size: 25rpx;
+  }
+
+  &__step {
+    display: grid;
+    grid-template-columns: 32rpx 1fr;
+    align-items: center;
+    gap: 12rpx;
+  }
+
+  &__number {
+    width: 32rpx;
+    height: 32rpx;
+    border-radius: 50%;
+    background-color: $color-primary;
+    color: #fff;
+    text-align: center;
+    font-size: 20rpx;
+    line-height: 32rpx;
   }
 }
 </style>

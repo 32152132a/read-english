@@ -18,6 +18,7 @@
           :style="{ backgroundColor: color }"
         />
       </view>
+      <AppIcon v-else-if="buttonSize === 'pill'" name="clock-3" :size="28" />
       <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
     </view>
     <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">
@@ -44,7 +45,7 @@ export default {
   },
   computed: {
     buttonSize(): string {
-      return ['mini', 'large'].includes(this.size) ? this.size : 'default'
+      return ['mini', 'large', 'hero', 'pill'].includes(this.size) ? this.size : 'default'
     },
   },
   methods: {
@@ -195,6 +196,44 @@ export default {
     .play-button__bar {
       width: 6rpx;
       height: 20rpx;
+    }
+  }
+
+  &--hero {
+    gap: 20rpx;
+
+    .play-button__circle {
+      width: 88rpx;
+      height: 88rpx;
+    }
+
+    .play-button__icon {
+      font-size: 32rpx;
+    }
+
+    .play-button__text {
+      font-size: 30rpx;
+      font-weight: 600;
+    }
+  }
+
+  &--pill {
+    min-height: 52rpx;
+    padding: 0 20rpx;
+    box-sizing: border-box;
+    border: 2rpx solid $color-border;
+    border-radius: 28rpx;
+    gap: 8rpx;
+
+    .play-button__circle {
+      width: 28rpx;
+      height: 28rpx;
+      border: 0;
+    }
+
+    .play-button__text {
+      color: $color-text-secondary !important;
+      font-size: 23rpx;
     }
   }
 

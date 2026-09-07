@@ -1,6 +1,9 @@
 <template>
-  <view class="lesson-progress">
-    <text class="lesson-progress__label">{{ label }} {{ current }} / {{ total }}</text>
+  <view class="lesson-progress" :class="compact ? 'lesson-progress--compact' : ''">
+    <text class="lesson-progress__label">
+      <text v-if="label.length > 0">{{ label }}</text>
+      {{ current }} / {{ total }}
+    </text>
     <view class="lesson-progress__track">
       <view class="lesson-progress__value" :style="{ width: progressPercent + '%' }"></view>
     </view>
@@ -13,6 +16,7 @@ export default {
     current: { type: Number, required: true },
     total: { type: Number, required: true },
     label: { type: String, default: '学习进度' },
+    compact: { type: Boolean, default: false },
   },
   computed: {
     progressPercent(): number {
@@ -49,6 +53,16 @@ export default {
     height: 100%;
     border-radius: inherit;
     background-color: $color-primary;
+  }
+
+  &--compact {
+    padding-top: 12rpx;
+
+    .lesson-progress__label {
+      margin-bottom: 16rpx;
+      text-align: right;
+      font-size: 27rpx;
+    }
   }
 }
 </style>
