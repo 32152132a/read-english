@@ -13,10 +13,7 @@
 </template>
 
 <script lang="uts">
-import AppIcon from '../AppIcon/index.uvue'
-
 export default {
-  components: { AppIcon },
   props: {
     stages: { type: Array, required: true },
     lockedText: { type: String, default: '' },

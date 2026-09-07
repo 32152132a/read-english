@@ -27,9 +27,8 @@ import BottomNav from '../../components/BottomNav/index.uvue'
 import TodayLessonCard from '../../components/TodayLessonCard/index.uvue'
 import LearningPath from '../../components/LearningPath/index.uvue'
 import NextStageList from '../../components/NextStageList/index.uvue'
-import AppIcon from '../../components/AppIcon/index.uvue'
 export default {
-  components: { BottomNav, TodayLessonCard, LearningPath, NextStageList, AppIcon },
+  components: { BottomNav, TodayLessonCard, LearningPath, NextStageList },
   data() {
     return {
       pageData: {

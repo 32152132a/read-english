@@ -26,10 +26,9 @@
 
 <script lang="uts">
 import ProgressBar from '../ProgressBar/index.uvue'
-import AppIcon from '../AppIcon/index.uvue'
 
 export default {
-  components: { ProgressBar, AppIcon },
+  components: { ProgressBar },
   props: {
     data: { type: Object, required: true },
   },

@@ -16,10 +16,7 @@
 </template>
 
 <script lang="uts">
-import AppIcon from '../AppIcon/index.uvue'
-
 export default {
-  components: { AppIcon },
   props: { active: { type: String, default: 'home' } },
   methods: {
     openHome() {
