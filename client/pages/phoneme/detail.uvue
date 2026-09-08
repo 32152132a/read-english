@@ -6,10 +6,9 @@
     <text class="phoneme-detail__description">{{ pageData.description }}</text>
     <view class="phoneme-detail__listen">
       <PlayButton :src="pageData.audioUrl" text="听发音" size="hero" />
-      <PlayButton :src="pageData.slowAudioUrl" text="慢速" size="pill" />
     </view>
     <PronunciationGuide :mouth-type="pageData.mouthType" :steps="pageData.mouthSteps" />
-    <text class="section-title">放进单词里听</text>
+    <text class="section-title">例词发音</text>
     <ExampleWordList :items="pageData.examples" />
     <TipCard title="记忆技巧" :text="pageData.memoryTip" variant="memory" />
     <StepActions
@@ -52,7 +51,6 @@ export default {
         description: '接近「爱」，嘴巴张得更大',
         memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
         audioUrl: '',
-        slowAudioUrl: '',
         mouthType: 'open',
         mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
         examples: [

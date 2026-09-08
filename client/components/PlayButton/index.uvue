@@ -29,6 +29,9 @@
 </template>
 
 <script lang="uts">
+// 临时播放占位音，接入真实音频数据后删除。
+const TEMP_MOCK_AUDIO_URL = '/static/audio/mock-pronunciation.wav'
+
 export default {
   props: {
     src: { type: String, default: '' },
@@ -38,7 +41,7 @@ export default {
     icon: { type: String, default: 'play' },
     disabled: { type: Boolean, default: false },
   },
-  emits: ['error'],
+  emits: ['play', 'ended', 'error'],
   data() {
     return {
       status: 'idle',
@@ -52,14 +55,15 @@ export default {
   },
   methods: {
     play() {
-      if (this.disabled || this.src.length === 0 || this.status !== 'idle') return
+      if (this.disabled || this.status !== 'idle') return
 
       this.status = 'loading'
       const audio = uni.createInnerAudioContext()
       this.audioContext = audio
-      audio.src = this.src
+      audio.src = this.src.length > 0 ? this.src : TEMP_MOCK_AUDIO_URL
       audio.onPlay(() => {
         this.status = 'playing'
+        this.$emit('play')
       })
       audio.onWaiting(() => {
         this.status = 'loading'
@@ -68,6 +72,7 @@ export default {
         if (this.status === 'loading') this.status = 'playing'
       })
       audio.onEnded(() => {
+        this.$emit('ended')
         this.resetAudio()
       })
       audio.onError((error) => {

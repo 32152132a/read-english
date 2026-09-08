@@ -1,13 +1,13 @@
 <template>
   <view class="pronunciation-guide card">
     <text class="pronunciation-guide__title">怎么发音</text>
-    <view class="pronunciation-guide__mouth">
+    <view class="pronunciation-guide__content">
       <MouthShape :type="mouthType" :size="mouthSize" :tone="mouthTone" />
-    </view>
-    <view class="pronunciation-guide__steps">
-      <view v-for="(step, index) in steps" :key="step" class="pronunciation-guide__step">
-        <text class="pronunciation-guide__number">{{ index + 1 }}</text>
-        <text>{{ step }}</text>
+      <view class="pronunciation-guide__steps">
+        <view v-for="(step, index) in steps" :key="step" class="pronunciation-guide__step">
+          <text class="pronunciation-guide__number">{{ index + 1 }}</text>
+          <text>{{ step }}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -29,28 +29,38 @@ export default {
 
 .pronunciation-guide {
   padding: 24rpx 28rpx 28rpx;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
 
   &__title {
+    display: block;
+    justify-self: start;
     font-size: 28rpx;
     font-weight: 700;
   }
 
-  &__mouth {
+  &__content {
+    width: 100%;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
   }
 
   &__steps {
-    width: 330rpx;
-    margin: auto;
+    width: 100%;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10rpx;
     font-size: 25rpx;
   }
 
   &__step {
+    width: 330rpx;
+    max-width: 100%;
+    justify-self: center;
     display: grid;
-    grid-template-columns: 32rpx 1fr;
+    grid-template-columns: 32rpx minmax(0, 1fr);
     align-items: center;
     gap: 12rpx;
   }
