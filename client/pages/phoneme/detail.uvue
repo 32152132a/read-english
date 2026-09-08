@@ -8,7 +8,7 @@
       <PlayButton :src="pageData.audioUrl" text="听发音" size="hero" />
       <PlayButton :src="pageData.slowAudioUrl" text="慢速" size="pill" />
     </view>
-    <PronunciationGuide :image-src="pageData.mouthImage" :steps="pageData.mouthSteps" />
+    <PronunciationGuide :mouth-type="pageData.mouthType" :steps="pageData.mouthSteps" />
     <text class="section-title">放进单词里听</text>
     <ExampleWordList :items="pageData.examples" />
     <TipCard title="记忆技巧" :text="pageData.memoryTip" variant="memory" />
@@ -53,7 +53,7 @@ export default {
         memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
         audioUrl: '',
         slowAudioUrl: '',
-        mouthImage: '/static/images/mouth-open.svg',
+        mouthType: 'open',
         mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
         examples: [
           {
@@ -86,6 +86,7 @@ export default {
           description: '接近「哎」，嘴巴自然半开',
           memoryTip: '声音短促，舌尖轻靠下齿，不要拖长。',
           mouthSteps: ['嘴巴自然半开', '舌尖靠近下齿', '快速发出短音'],
+          mouthType: 'relaxed',
           comparisonText: '容易和哪个音混淆？对比 /æ/',
           examples: [
             { word: 'bed', segments: [{ text: '/bed/', tone: 'muted' }], zh: '床', audioUrl: '' },
@@ -105,6 +106,7 @@ export default {
           description: '接近「爱」，嘴巴张得更大',
           memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
           mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
+          mouthType: 'open',
           comparisonText: '容易和哪个音混淆？对比 /e/',
           examples: [
             { word: 'cat', segments: [{ text: '/kæt/', tone: 'muted' }], zh: '猫', audioUrl: '' },
@@ -124,6 +126,7 @@ export default {
           description: '接近短促的「啊」，嘴巴自然放松',
           memoryTip: '从喉咙中部快速发声，嘴唇不要用力。',
           mouthSteps: ['嘴巴自然打开', '舌头放松居中', '短促收音'],
+          mouthType: 'relaxed',
           comparisonText: '容易和哪个音混淆？对比 /ɑː/',
           examples: [
             { word: 'cup', segments: [{ text: '/kʌp/', tone: 'muted' }], zh: '杯子', audioUrl: '' },
@@ -146,6 +149,7 @@ export default {
       this.pageData.description = step.description
       this.pageData.memoryTip = step.memoryTip
       this.pageData.mouthSteps = step.mouthSteps
+      this.pageData.mouthType = step.mouthType
       this.pageData.comparisonText = step.comparisonText
       this.pageData.examples = step.examples
     },

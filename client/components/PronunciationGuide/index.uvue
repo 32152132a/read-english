@@ -1,13 +1,9 @@
 <template>
   <view class="pronunciation-guide card">
     <text class="pronunciation-guide__title">怎么发音</text>
-    <image
-      v-if="imageSrc.length > 0"
-      class="pronunciation-guide__image"
-      :src="imageSrc"
-      mode="aspectFit"
-    />
-    <text v-else class="pronunciation-guide__symbol">{{ symbol }}</text>
+    <view class="pronunciation-guide__mouth">
+      <MouthShape :type="mouthType" :size="mouthSize" :tone="mouthTone" />
+    </view>
     <view class="pronunciation-guide__steps">
       <view v-for="(step, index) in steps" :key="step" class="pronunciation-guide__step">
         <text class="pronunciation-guide__number">{{ index + 1 }}</text>
@@ -20,8 +16,9 @@
 <script lang="uts">
 export default {
   props: {
-    symbol: { type: String, default: '◡' },
-    imageSrc: { type: String, default: '' },
+    mouthType: { type: String, default: 'open' },
+    mouthSize: { type: String, default: 'large' },
+    mouthTone: { type: String, default: 'primary' },
     steps: { type: Array, required: true },
   },
 }
@@ -38,19 +35,9 @@ export default {
     font-weight: 700;
   }
 
-  &__symbol {
-    display: block;
-    color: $color-primary;
-    text-align: center;
-    font-size: 150rpx;
-    line-height: 170rpx;
-  }
-
-  &__image {
-    display: block;
-    width: 300rpx;
-    height: 210rpx;
-    margin: 0 auto;
+  &__mouth {
+    display: grid;
+    justify-items: center;
   }
 
   &__steps {

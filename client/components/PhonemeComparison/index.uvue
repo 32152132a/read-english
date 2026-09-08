@@ -6,10 +6,12 @@
       class="phoneme-comparison__card"
       :class="item.tone === 'success' ? 'is-success' : ''"
     >
-      <PhonemeDisplay :segments="item.segments" size="large" />
+      <PhonemeDisplay :segments="item.segments" size="hero" />
       <text class="phoneme-comparison__name">{{ item.name }}</text>
-      <PlayButton :src="item.audioUrl" text="听发音" />
-      <text class="phoneme-comparison__mouth">⌣</text>
+      <PlayButton :src="item.audioUrl" text="听发音" icon="volume" :color="item.toneColor" />
+      <view class="phoneme-comparison__mouth">
+        <MouthShape :type="item.mouthType" size="medium" :tone="item.tone" />
+      </view>
       <text class="phoneme-comparison__tip">{{ item.tip }}</text>
       <text class="phoneme-comparison__examples">{{ item.examples }}</text>
     </view>
@@ -32,18 +34,19 @@ export default {
 @import '../../uni.scss';
 
 .phoneme-comparison {
+  margin-top: 24rpx;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24rpx;
 
   &__card {
     min-width: 0;
-    padding: 28rpx 18rpx;
+    padding: 28rpx 18rpx 22rpx;
     border: 2rpx solid #91a8ff;
     border-radius: 18rpx;
     display: grid;
     justify-items: center;
-    gap: 18rpx;
+    gap: 14rpx;
     color: $color-primary;
 
     &.is-success {
@@ -57,7 +60,7 @@ export default {
   }
 
   &__mouth {
-    font-size: 72rpx;
+    margin-top: 8rpx;
   }
 
   &__tip,
@@ -70,6 +73,8 @@ export default {
     width: 100%;
     padding-top: 18rpx;
     border-top: 1rpx solid $color-border;
+    font-size: 24rpx;
+    font-weight: 600;
   }
 }
 </style>

@@ -1,0 +1,55 @@
+<template>
+  <image
+    class="mouth-shape"
+    :src="imageSource"
+    :style="{ width: shapeWidth + 'rpx', height: shapeHeight + 'rpx' }"
+    mode="aspectFit"
+  />
+</template>
+
+<script lang="uts">
+export default {
+  props: {
+    type: { type: String, default: 'open' },
+    size: { type: String, default: 'medium' },
+    tone: { type: String, default: 'primary' },
+  },
+  computed: {
+    shapeType(): string {
+      return ['open', 'relaxed', 'smile'].includes(this.type) ? this.type : 'open'
+    },
+    shapeTone(): string {
+      return this.tone === 'success' ? 'success' : 'primary'
+    },
+    shapeWidth(): number {
+      if (this.size === 'mini') return 100
+      if (this.size === 'large') return 300
+      return 148
+    },
+    shapeHeight(): number {
+      return Math.round(this.shapeWidth * 0.7)
+    },
+    imageSource(): string {
+      if (this.shapeType === 'relaxed') {
+        return this.shapeTone === 'success'
+          ? '/static/images/mouth-relaxed-success.svg'
+          : '/static/images/mouth-relaxed.svg'
+      }
+      if (this.shapeType === 'smile') {
+        return this.shapeTone === 'success'
+          ? '/static/images/mouth-smile.svg'
+          : '/static/images/mouth-smile-primary.svg'
+      }
+      return this.shapeTone === 'success'
+        ? '/static/images/mouth-open-success.svg'
+        : '/static/images/mouth-open.svg'
+    },
+  },
+}
+</script>
+
+<style lang="scss">
+.mouth-shape {
+  display: block;
+}
+</style>

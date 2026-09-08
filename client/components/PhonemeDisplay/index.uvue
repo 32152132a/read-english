@@ -36,17 +36,24 @@ export default {
   font-size: 34rpx;
 
   &--mini {
-    font-size: 24rpx;
+    .phoneme-display__segment {
+      font-size: 24rpx;
+    }
   }
 
   &--large {
-    font-size: 66rpx;
+    .phoneme-display__segment {
+      font-size: 66rpx;
+    }
   }
 
   &--hero {
     margin-top: 8rpx;
-    font-size: 96rpx;
     line-height: 1.25;
+
+    .phoneme-display__segment {
+      font-size: 96rpx;
+    }
   }
 
   &__segment {
@@ -59,6 +66,10 @@ export default {
     &.is-stress {
       color: #f29b00;
       font-weight: 700;
+    }
+
+    &.is-success {
+      color: #11aaa0;
     }
 
     &.is-muted {

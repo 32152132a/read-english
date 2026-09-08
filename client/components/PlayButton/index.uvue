@@ -19,6 +19,7 @@
         />
       </view>
       <AppIcon v-else-if="buttonSize === 'pill'" name="clock-3" :size="28" />
+      <AppIcon v-else-if="icon === 'volume'" name="volume-2" :size="30" />
       <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
     </view>
     <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">
@@ -34,6 +35,7 @@ export default {
     text: { type: String, default: '' },
     size: { type: String, default: 'default' },
     color: { type: String, default: '#5267f8' },
+    icon: { type: String, default: 'play' },
     disabled: { type: Boolean, default: false },
   },
   emits: ['error'],

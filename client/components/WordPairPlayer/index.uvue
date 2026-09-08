@@ -1,11 +1,16 @@
 <template>
   <view class="word-pair-player card">
-    <view v-for="(item, index) in items" :key="item.word" class="word-pair-player__item">
-      <PlayButton :src="item.audioUrl" size="mini" />
-      <text class="word-pair-player__word">{{ item.word }}</text>
-      <PhonemeDisplay :segments="item.segments" size="mini" />
+    <template v-for="(item, index) in items" :key="item.word">
+      <view class="word-pair-player__item" :class="index === 1 ? 'is-reverse' : ''">
+        <PlayButton v-if="index === 0" :src="item.audioUrl" size="mini" />
+        <view class="word-pair-player__content">
+          <text class="word-pair-player__word">{{ item.word }}</text>
+          <PhonemeDisplay :segments="item.segments" size="mini" />
+        </view>
+        <PlayButton v-if="index === 1" :src="item.audioUrl" size="mini" color="#11aaa0" />
+      </view>
       <text v-if="index === 0" class="word-pair-player__divider">⇄</text>
-    </view>
+    </template>
   </view>
 </template>
 
@@ -25,15 +30,28 @@ export default {
 @import '../../uni.scss';
 
 .word-pair-player {
+  padding: 22rpx 28rpx;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 48rpx;
+  grid-template-columns: 1fr 52rpx 1fr;
+  align-items: center;
+  gap: 12rpx;
 
   &__item {
-    position: relative;
     display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
     justify-items: center;
-    gap: 8rpx;
+    gap: 14rpx;
+
+    &.is-reverse {
+      grid-template-columns: 1fr auto;
+    }
+  }
+
+  &__content {
+    display: grid;
+    justify-items: start;
+    gap: 4rpx;
   }
 
   &__word {
@@ -42,11 +60,14 @@ export default {
   }
 
   &__divider {
-    position: absolute;
-    right: -42rpx;
-    top: 50%;
+    width: 52rpx;
+    height: 52rpx;
+    border-radius: 50%;
+    background-color: #f0f2f7;
     color: $color-text-secondary;
+    text-align: center;
     font-size: 34rpx;
+    line-height: 52rpx;
   }
 }
 </style>
