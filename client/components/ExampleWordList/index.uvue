@@ -1,9 +1,13 @@
 <template>
   <view class="example-word-list card">
     <view v-for="item in items" :key="item.word" class="example-word-list__item">
-      <PlayButton :src="item.audioUrl" size="mini" />
+      <PlayButton :src="item.audioUrl" size="tiny" />
       <text class="example-word-list__word">{{ item.word }}</text>
-      <PhonemeDisplay :segments="item.segments" size="mini" />
+      <PhonemeDisplay
+        class="example-word-list__phoneme"
+        :segments="item.segments"
+        size="mini"
+      />
       <text class="example-word-list__meaning">{{ item.zh }}</text>
     </view>
   </view>
@@ -32,9 +36,9 @@ export default {
     padding: 0 26rpx;
     border-bottom: 1rpx solid $color-border;
     display: grid;
-    grid-template-columns: auto 100rpx 1fr auto;
+    grid-template-columns: 40rpx minmax(120rpx, 1fr) minmax(0, 1fr) 90rpx;
     align-items: center;
-    gap: 20rpx;
+    gap: 16rpx;
 
     &:last-child {
       border-bottom: 0;
@@ -45,8 +49,13 @@ export default {
     font-weight: 600;
   }
 
+  &__phoneme {
+    justify-self: center;
+  }
+
   &__meaning {
     color: $color-text-secondary;
+    text-align: right;
   }
 }
 </style>

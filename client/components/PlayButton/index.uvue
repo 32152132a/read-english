@@ -50,7 +50,9 @@ export default {
   },
   computed: {
     buttonSize(): string {
-      return ['mini', 'large', 'hero', 'pill'].includes(this.size) ? this.size : 'default'
+      return ['tiny', 'mini', 'large', 'hero', 'pill'].includes(this.size)
+        ? this.size
+        : 'default'
     },
   },
   methods: {
@@ -167,6 +169,26 @@ export default {
     .play-button__icon,
     .play-button__text {
       font-size: 22rpx;
+    }
+  }
+
+  &--tiny {
+    gap: 8rpx;
+
+    .play-button__circle {
+      width: 40rpx;
+      height: 40rpx;
+    }
+
+    .play-button__icon,
+    .play-button__text {
+      font-size: 20rpx;
+    }
+
+    .play-button__loading {
+      width: 18rpx;
+      height: 18rpx;
+      border-width: 2rpx;
     }
   }
 
