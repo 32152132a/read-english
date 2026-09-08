@@ -32,13 +32,9 @@ export default {
 @import '../../uni.scss';
 
 .phoneme-grid {
-  width: 662rpx;
-  max-width: 100%;
-  margin: 0 auto;
-  align-self: center;
-  box-sizing: border-box;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, 300rpx);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18rpx;
 
   &__card {
@@ -50,6 +46,7 @@ export default {
     border-radius: 16rpx;
     background-color: $color-surface;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 8rpx;
   }

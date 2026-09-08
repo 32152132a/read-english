@@ -28,15 +28,12 @@ export default {
 @import '../../uni.scss';
 
 .next-stage-list {
-  width: 662rpx;
-  max-width: 100%;
-  margin-right: auto;
-  margin-left: auto;
+  width: 100%;
   min-height: 238rpx;
   padding: 14rpx 30rpx 28rpx;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
 
   &__stages {
@@ -51,6 +48,7 @@ export default {
 
   &__item {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 10rpx;
   }

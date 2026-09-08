@@ -29,6 +29,7 @@ export default {
 
 .word-list-cards {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20rpx;
 
   &__card {
@@ -66,6 +67,7 @@ export default {
   &__content {
     min-width: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 8rpx;
   }
 

@@ -49,6 +49,8 @@ export default {
 
   &__steps {
     width: 100%;
+    padding: 0 15%;
+    box-sizing: border-box;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 10rpx;
@@ -56,9 +58,7 @@ export default {
   }
 
   &__step {
-    width: 330rpx;
-    max-width: 100%;
-    justify-self: center;
+    width: 100%;
     display: grid;
     grid-template-columns: 32rpx minmax(0, 1fr);
     align-items: center;

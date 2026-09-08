@@ -25,13 +25,9 @@ export default {
 @import '../../uni.scss';
 
 .stage-progress {
-  width: 662rpx;
-  max-width: 100%;
-  margin: 0 auto;
-  align-self: center;
-  box-sizing: border-box;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12rpx;
 
   &__item {
@@ -39,6 +35,7 @@ export default {
     z-index: 1;
     min-width: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 12rpx;
   }
@@ -48,17 +45,14 @@ export default {
   }
 
   &--path {
-    width: 656rpx;
-    max-width: 100%;
     position: relative;
-    grid-template-columns: repeat(4, 110rpx);
-    column-gap: 72rpx;
+    width: 100%;
 
     .stage-progress__track {
       position: absolute;
       top: 29rpx;
-      right: 55rpx;
-      left: 55rpx;
+      right: 12.5%;
+      left: 12.5%;
       display: block;
       height: 2rpx;
       background: #d7dce8;

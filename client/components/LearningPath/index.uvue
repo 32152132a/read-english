@@ -24,10 +24,7 @@ export default {
 @import '../../uni.scss';
 
 .learning-path {
-  width: 662rpx;
-  max-width: 100%;
-  align-self: center;
-  box-sizing: border-box;
+  width: 100%;
 
   &__current {
     display: block;

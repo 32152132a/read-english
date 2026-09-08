@@ -38,36 +38,23 @@ export default {
   bottom: 0;
   left: 0;
   z-index: 10;
-  width: 100vw;
   box-sizing: border-box;
   min-height: 116rpx;
   padding: 14rpx 0 calc(14rpx + env(safe-area-inset-bottom));
   border-top: 1rpx solid $color-border;
   background: $color-surface;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
 
   &__item {
-    position: absolute;
-    top: 14rpx;
-    width: 100rpx;
-    margin-left: -50rpx;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     align-content: center;
     gap: 8rpx;
     color: #6b7496;
     font-size: 24rpx;
-
-    &:first-child {
-      left: 25vw;
-    }
-
-    &:last-child {
-      right: 25vw;
-      left: auto;
-      margin-right: -50rpx;
-      margin-left: 0;
-    }
 
     &.is-active {
       color: $color-primary;

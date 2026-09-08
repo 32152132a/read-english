@@ -50,6 +50,7 @@ export default {
 
   &__content {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: start;
     gap: 4rpx;
   }

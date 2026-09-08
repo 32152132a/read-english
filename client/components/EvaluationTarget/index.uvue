@@ -24,6 +24,7 @@ export default {
 
 .evaluation-target {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   gap: 22rpx;
   margin-top: 20rpx;

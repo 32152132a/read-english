@@ -51,6 +51,7 @@ export default {
 
   &__score {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 12rpx;
     color: $color-text-secondary;

@@ -27,6 +27,7 @@ export default {
 
 .correction-practice {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 22rpx;
   padding: 26rpx;
   border: 1rpx solid $color-border;

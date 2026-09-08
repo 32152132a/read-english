@@ -35,6 +35,7 @@ export default {
   padding: 0 44rpx;
   box-sizing: border-box;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: 1fr auto auto auto 1fr;
   justify-items: center;
   text-align: center;

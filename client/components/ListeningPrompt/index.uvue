@@ -24,6 +24,7 @@ export default {
 .listening-prompt {
   min-height: 320rpx;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-content: center;
   justify-items: center;
   gap: 20rpx;

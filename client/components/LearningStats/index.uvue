@@ -26,6 +26,7 @@ export default { props: { items: { type: Array, default: () => [] } } }
 
   &__item {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 8rpx;
     color: $color-text-secondary;

@@ -168,6 +168,7 @@ export default {
 
   &__progress {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10rpx;
     color: $color-text-secondary;
     font-size: 26rpx;

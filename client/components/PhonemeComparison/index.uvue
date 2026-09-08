@@ -45,6 +45,7 @@ export default {
     border: 2rpx solid #91a8ff;
     border-radius: 18rpx;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 14rpx;
     color: $color-primary;
