@@ -1,19 +1,24 @@
 <template>
-  <view class="page">
+  <view class="page phoneme-quiz">
     <LessonProgress :current="pageData.current" :total="pageData.total" />
-    <text class="muted kicker">{{ pageData.category }}</text>
+    <text class="muted phoneme-quiz__category">{{ pageData.category }}</text>
     <text class="page-title">{{ pageData.question }}</text>
-    <text class="muted desc">{{ pageData.description }}</text>
-    <TipCard :text="pageData.tip" />
-    <ListeningPrompt :audio-url="pageData.audioUrl" :description="pageData.replayTip" />
+    <text class="muted phoneme-quiz__description">{{ pageData.description }}</text>
+    <ListeningPrompt :audios="pageData.audios" />
     <text class="section-title">请选择</text>
     <ChoiceGroup
       :key="pageData.id"
       :options="pageData.options"
-      :initial-value="pageData.selectedValue"
       @change="selectAnswer"
     />
-    <button class="primary-button confirm" @click="confirm">确认答案</button>
+    <TipCard :text="pageData.tip" />
+    <button
+      class="primary-button phoneme-quiz__confirm"
+      :disabled="selectedAnswer.length === 0"
+      @click="confirm"
+    >
+      确认答案
+    </button>
     <DebugPageNav />
   </view>
 </template>
@@ -34,15 +39,13 @@ export default {
         question: '你听到的是哪个音？',
         description: '先听发音，再选择对应的音标',
         tip: '注意声音是否短促，以及嘴巴张开的程度',
-        replayTip: '可以反复播放',
-        audioUrl: '',
+        audios: [{ id: 'target', text: '点击播放', url: '' }],
         options: [
           { label: 'A', text: '/ɪ/', value: 'short-i' },
           { label: 'B', text: '/iː/', value: 'long-i' },
           { label: 'C', text: '/e/', value: 'e' },
           { label: 'D', text: '/æ/', value: 'ae' },
         ],
-        selectedValue: 'ae',
         correctValue: 'ae',
       },
       questionList: [
@@ -50,39 +53,42 @@ export default {
           id: 'short-vowel-quiz-1',
           question: '你听到的是哪个音？',
           description: '先听发音，再选择对应的音标',
+          audios: [{ id: 'target', text: '点击播放', url: '' }],
           options: [
             { label: 'A', text: '/e/', value: 'e' },
             { label: 'B', text: '/æ/', value: 'ae' },
             { label: 'C', text: '/ʌ/', value: 'caret' },
             { label: 'D', text: '/ɒ/', value: 'short-o' },
           ],
-          selectedValue: 'ae',
           correctValue: 'ae',
         },
         {
           id: 'short-vowel-quiz-2',
           question: '哪个音更短促？',
           description: '听完两个发音后选择答案',
+          audios: [
+            { id: 'audio-a', text: '音频 A', url: '' },
+            { id: 'audio-b', text: '音频 B', url: '' },
+          ],
           options: [
             { label: 'A', text: '/ɪ/', value: 'short-i' },
             { label: 'B', text: '/iː/', value: 'long-i' },
           ],
-          selectedValue: 'short-i',
           correctValue: 'short-i',
         },
         {
           id: 'short-vowel-quiz-3',
           question: '你听到的是长音还是短音？',
           description: '注意声音持续的时间',
+          audios: [{ id: 'target', text: '点击播放', url: '' }],
           options: [
             { label: 'A', text: '长音', value: 'long' },
             { label: 'B', text: '短音', value: 'short' },
           ],
-          selectedValue: 'long',
           correctValue: 'long',
         },
       ],
-      selectedAnswer: 'ae',
+      selectedAnswer: '',
     }
   },
   methods: {
@@ -98,10 +104,10 @@ export default {
       this.pageData.current = target
       this.pageData.question = question.question
       this.pageData.description = question.description
+      this.pageData.audios = question.audios
       this.pageData.options = question.options
-      this.pageData.selectedValue = question.selectedValue
       this.pageData.correctValue = question.correctValue
-      this.selectedAnswer = question.selectedValue
+      this.selectedAnswer = ''
       uni.pageScrollTo({ scrollTop: 0, duration: 200 })
     },
   },
@@ -110,17 +116,25 @@ export default {
 <style lang="scss">
 @import '../../uni.scss';
 
-.kicker {
-  display: block;
-  margin-top: 36rpx;
-}
-.desc {
-  display: block;
-  margin-top: 10rpx;
-}
+.phoneme-quiz {
+  &__category {
+    display: block;
+    margin-top: 36rpx;
+  }
 
-.confirm {
-  width: 100%;
-  margin-top: 28rpx;
+  &__description {
+    display: block;
+    margin-top: 10rpx;
+    margin-bottom: 10rpx;
+  }
+
+  &__confirm {
+    width: 100%;
+    margin-top: 28rpx;
+
+    &[disabled] {
+      opacity: 0.45;
+    }
+  }
 }
 </style>

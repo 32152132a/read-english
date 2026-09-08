@@ -23,6 +23,11 @@ export default {
   data() {
     return { selectedValue: this.initialValue }
   },
+  watch: {
+    options() {
+      this.selectedValue = this.initialValue
+    },
+  },
   methods: {
     selectOption(value: string) {
       this.selectedValue = value

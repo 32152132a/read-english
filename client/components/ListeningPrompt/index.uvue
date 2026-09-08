@@ -1,8 +1,12 @@
 <template>
   <view class="listening-prompt card">
-    <PlayButton :src="audioUrl" text="点击播放" />
-    <text class="listening-prompt__replay">↻　再听一次</text>
-    <text class="listening-prompt__description">{{ description }}</text>
+    <PlayButton
+      v-for="audio in audios"
+      :key="audio.id"
+      :src="audio.url"
+      :text="audio.text"
+      size="large"
+    />
   </view>
 </template>
 
@@ -12,8 +16,7 @@ import PlayButton from '../PlayButton/index.uvue'
 export default {
   components: { PlayButton },
   props: {
-    audioUrl: { type: String, required: true },
-    description: { type: String, default: '可以反复播放' },
+    audios: { type: Array, required: true },
   },
 }
 </script>
@@ -22,21 +25,12 @@ export default {
 @import '../../uni.scss';
 
 .listening-prompt {
-  min-height: 320rpx;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  place-content: center;
-  justify-items: center;
-  gap: 20rpx;
-
-  &__replay {
-    padding: 13rpx 24rpx;
-    border: 1rpx solid $color-border;
-    border-radius: 32rpx;
-  }
-
-  &__description {
-    color: $color-text-secondary;
-  }
+  min-height: 280rpx;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 48rpx;
 }
 </style>
