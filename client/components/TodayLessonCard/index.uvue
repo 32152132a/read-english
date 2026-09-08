@@ -8,8 +8,13 @@
       <text>约 {{ data.durationMinutes }} 分钟</text>
     </view>
     <image
-      class="today-lesson-card__illustration"
-      src="/static/images/hero-face-wave.svg"
+      class="today-lesson-card__wave"
+      src="/static/images/hero-sound-wave.svg"
+      mode="aspectFit"
+    />
+    <image
+      class="today-lesson-card__face"
+      src="/static/images/hero-face-outline.svg"
       mode="aspectFit"
     />
     <view class="today-lesson-card__footer">
@@ -90,13 +95,26 @@ export default {
     color: $color-text-secondary;
   }
 
-  &__illustration {
+  &__wave,
+  &__face {
     position: absolute;
-    top: 90rpx;
-    right: -10rpx;
-    width: 420rpx;
-    height: 236rpx;
+    display: block;
     opacity: 0.92;
+  }
+
+  &__wave {
+    top: 118rpx;
+    right: 128rpx;
+    width: 300rpx;
+    height: 180rpx;
+  }
+
+  &__face {
+    z-index: 1;
+    top: 90rpx;
+    right: 8rpx;
+    width: 112rpx;
+    height: 236rpx;
   }
 
   &__footer {

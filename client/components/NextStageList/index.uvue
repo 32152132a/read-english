@@ -30,19 +30,23 @@ export default {
 .next-stage-list {
   width: 662rpx;
   max-width: 100%;
-  align-self: center;
+  margin-right: auto;
+  margin-left: auto;
   min-height: 238rpx;
   padding: 14rpx 30rpx 28rpx;
   box-sizing: border-box;
   display: grid;
+  grid-template-columns: 1fr;
   grid-template-rows: auto 1fr;
 
   &__stages {
-    width: 100%;
+    min-width: 0;
+    justify-self: stretch;
     align-self: center;
     display: grid;
     grid-template-columns: 1fr 30rpx 1fr 30rpx 1fr;
     align-items: center;
+    justify-items: center;
   }
 
   &__item {
