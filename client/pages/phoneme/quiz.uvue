@@ -14,6 +14,7 @@
     <TipCard :text="pageData.tip" />
     <button
       class="primary-button phoneme-quiz__confirm"
+      :class="selectedAnswer.length === 0 ? 'is-disabled' : ''"
       :disabled="selectedAnswer.length === 0"
       @click="confirm"
     >
@@ -132,7 +133,7 @@ export default {
     width: 100%;
     margin-top: 28rpx;
 
-    &[disabled] {
+    &.is-disabled {
       opacity: 0.45;
     }
   }
