@@ -54,13 +54,11 @@ export default {
         wordPair: [
           {
             word: 'ship',
-            ipa: '/ʃɪp/',
             segments: [{ text: '/ʃɪp/', tone: 'muted' }],
             audioUrl: '',
           },
           {
             word: 'sheep',
-            ipa: '/ʃiːp/',
             segments: [{ text: '/ʃiːp/', tone: 'muted' }],
             audioUrl: '',
           },
