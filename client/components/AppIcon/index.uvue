@@ -8,7 +8,9 @@
   />
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
+import type { AppIconProps } from '../../src/config/types.uts'
+
 const iconNames = [
   'chevron-left',
   'search',
@@ -26,30 +28,23 @@ const iconNames = [
   'lock-keyhole',
 ]
 
-export default {
-  props: {
-    name: { type: String, required: true },
-    size: { type: Number, default: 48 },
-    active: { type: Boolean, default: false },
-    tone: { type: String, default: 'default' },
-    label: { type: String, default: '' },
-  },
-  computed: {
-    iconSource(): string {
-      const iconName = iconNames.includes(this.name) ? this.name : 'circle-check'
-      if (this.active && ['house', 'user-round'].includes(iconName)) {
-        return '/static/icons/' + iconName + '-active.svg'
-      }
-      if (
-        this.tone === 'dark' &&
-        ['book-open', 'headphones', 'audio-waveform'].includes(iconName)
-      ) {
-        return '/static/icons/' + iconName + '-dark.svg'
-      }
-      return '/static/icons/' + iconName + '.svg'
-    },
-  },
-}
+const props = withDefaults(defineProps<AppIconProps>(), {
+  size: 48,
+  active: false,
+  tone: 'default',
+  label: '',
+})
+
+const iconSource = computed((): string => {
+  const iconName = iconNames.includes(props.name) ? props.name : 'circle-check'
+  if (props.active && ['house', 'user-round'].includes(iconName)) {
+    return '/static/icons/' + iconName + '-active.svg'
+  }
+  if (props.tone === 'dark' && ['book-open', 'headphones', 'audio-waveform'].includes(iconName)) {
+    return '/static/icons/' + iconName + '-dark.svg'
+  }
+  return '/static/icons/' + iconName + '.svg'
+})
 </script>
 
 <style lang="scss">

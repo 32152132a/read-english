@@ -25,82 +25,75 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import SegmentedWord from '../../components/SegmentedWord/index.uvue'
 import InfoSteps from '../../components/InfoSteps/index.uvue'
 import ChoiceGroup from '../../components/ChoiceGroup/index.uvue'
-export default {
-  components: { LessonProgress, TipCard, StepActions, SegmentedWord, InfoSteps, ChoiceGroup },
-  data() {
-    return {
-      pageData: {
-        id: 'syllable-basic',
-        current: 2,
-        total: 3,
-        title: '一个元音音素，一个音节',
-        description: '每个音节都只有一个元音音素作为核心。',
-        tipTitle: '记忆小贴士',
-        tip: '看元音音素，不是数元音字母。',
-        example: {
-          word: 'computer',
-          ipaSegments: [{ text: '/kəmˈpjuːtər/', tone: 'muted' }],
-          chunks: [
-            { text: 'kəm', emphasized: false },
-            { text: 'pjuː', emphasized: true },
-            { text: 'tər', emphasized: false },
-          ],
-        },
-        rules: [
-          { title: '找元音音素', text: '找出单词中的元音音素。' },
-          { title: '数出元音数量', text: '元音音素的数量 = 音节的数量。' },
-          { title: '按发音节奏拆分', text: '每个元音音素为一个音节的核心。' },
-        ],
-        question: {
-          text: 'computer 有几个音节？',
-          options: [
-            { value: '2', label: '', text: '2' },
-            { value: '3', label: '', text: '3' },
-            { value: '4', label: '', text: '4' },
-          ],
-          answer: '3',
-        },
-      },
-      stepList: [
-        {
-          title: '先找到元音音素',
-          description: '元音音素是划分音节的核心线索。',
-          tip: '先听声音，再看音标中的元音。',
-        },
-        {
-          title: '一个元音音素，一个音节',
-          description: '每个音节都只有一个元音音素作为核心。',
-          tip: '看元音音素，不是数元音字母。',
-        },
-        {
-          title: '按发音节奏完成拆分',
-          description: '重读和弱读会形成清楚的音节节奏。',
-          tip: '慢速朗读，更容易听出音节边界。',
-        },
-      ],
-    }
+const pageData = reactive({
+  id: 'syllable-basic',
+  current: 2,
+  total: 3,
+  title: '一个元音音素，一个音节',
+  description: '每个音节都只有一个元音音素作为核心。',
+  tipTitle: '记忆小贴士',
+  tip: '看元音音素，不是数元音字母。',
+  example: {
+    word: 'computer',
+    ipaSegments: [{ text: '/kəmˈpjuːtər/', tone: 'muted' }],
+    chunks: [
+      { text: 'kəm', emphasized: false },
+      { text: 'pjuː', emphasized: true },
+      { text: 'tər', emphasized: false },
+    ],
   },
-  methods: {
-    selectAnswer(value: string) {
-      this.pageData.question.answer = value
-    },
-    loadStep(target: number) {
-      const step = this.stepList[target - 1]
-      if (step == null) return
+  rules: [
+    { title: '找元音音素', text: '找出单词中的元音音素。' },
+    { title: '数出元音数量', text: '元音音素的数量 = 音节的数量。' },
+    { title: '按发音节奏拆分', text: '每个元音音素为一个音节的核心。' },
+  ],
+  question: {
+    text: 'computer 有几个音节？',
+    options: [
+      { value: '2', label: '', text: '2' },
+      { value: '3', label: '', text: '3' },
+      { value: '4', label: '', text: '4' },
+    ],
+    answer: '3',
+  },
+})
+const stepList = [
+  {
+    title: '先找到元音音素',
+    description: '元音音素是划分音节的核心线索。',
+    tip: '先听声音，再看音标中的元音。',
+  },
+  {
+    title: '一个元音音素，一个音节',
+    description: '每个音节都只有一个元音音素作为核心。',
+    tip: '看元音音素，不是数元音字母。',
+  },
+  {
+    title: '按发音节奏完成拆分',
+    description: '重读和弱读会形成清楚的音节节奏。',
+    tip: '慢速朗读，更容易听出音节边界。',
+  },
+]
 
-      this.pageData.current = target
-      this.pageData.title = step.title
-      this.pageData.description = step.description
-      this.pageData.tip = step.tip
-    },
-  },
+function selectAnswer(value: string) {
+  pageData.question.answer = value
+}
+
+function loadStep(target: number) {
+  const step = stepList[target - 1]
+  if (step == null) return
+
+  pageData.current = target
+  pageData.title = step.title
+  pageData.description = step.description
+  pageData.tip = step.tip
 }
 </script>
 <style lang="scss">

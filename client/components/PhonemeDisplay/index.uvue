@@ -11,18 +11,13 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    segments: { type: Array, required: true },
-    size: { type: String, default: 'default' },
-  },
-  computed: {
-    displaySize(): string {
-      return ['mini', 'large', 'hero'].includes(this.size) ? this.size : 'default'
-    },
-  },
-}
+<script setup lang="uts">
+import type { PhonemeDisplayProps } from '../../src/config/types.uts'
+
+const props = withDefaults(defineProps<PhonemeDisplayProps>(), { size: 'default' })
+const displaySize = computed((): string =>
+  ['mini', 'large', 'hero'].includes(props.size) ? props.size : 'default'
+)
 </script>
 
 <style lang="scss">

@@ -14,14 +14,11 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    stages: { type: Array, required: true },
-    lockedText: { type: String, default: '' },
-  },
-  emits: ['select'],
-}
+<script setup lang="uts">
+import type { NextStageListProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<NextStageListProps>(), { lockedText: '' })
+defineEmits(['select'])
 </script>
 
 <style lang="scss">

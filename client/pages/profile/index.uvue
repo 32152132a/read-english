@@ -14,39 +14,32 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import BottomNav from '../../components/BottomNav/index.uvue'
 import UserSummary from '../../components/UserSummary/index.uvue'
 import LearningStats from '../../components/LearningStats/index.uvue'
 import ProfileMenu from '../../components/ProfileMenu/index.uvue'
-export default {
-  components: { BottomNav, UserSummary, LearningStats, ProfileMenu },
-  data() {
-    return {
-      pageData: {
-        title: '我的',
-        user: { avatarText: 'YQ', nickname: '永庆', learningStatus: '正在完成基础学习' },
-        stats: [
-          { code: 'learned', label: '已学习', value: 8, suffix: '/ 20' },
-          { code: 'streak', label: '连续学习', value: 3, suffix: '天' },
-          { code: 'review', label: '待复习', value: 2, suffix: '个' },
-        ],
-        records: [
-          { code: 'progress', label: '▧　学习进度' },
-          { code: 'mastered', label: '/iː/　已掌握音标' },
-          { code: 'favorites', label: '☆　收藏单词' },
-        ],
-        settings: [
-          { code: 'accent', label: '🔊　发音偏好', value: '美式英语' },
-          { code: 'audio-cache', label: '⇩　音频缓存' },
-          { code: 'feedback', label: '□　意见反馈' },
-          { code: 'about', label: 'ⓘ　关于产品' },
-        ],
-        version: 'v1.0.0',
-      },
-    }
-  },
-}
+const pageData = reactive({
+  title: '我的',
+  user: { avatarText: 'YQ', nickname: '永庆', learningStatus: '正在完成基础学习' },
+  stats: [
+    { code: 'learned', label: '已学习', value: 8, suffix: '/ 20' },
+    { code: 'streak', label: '连续学习', value: 3, suffix: '天' },
+    { code: 'review', label: '待复习', value: 2, suffix: '个' },
+  ],
+  records: [
+    { code: 'progress', label: '▧　学习进度' },
+    { code: 'mastered', label: '/iː/　已掌握音标' },
+    { code: 'favorites', label: '☆　收藏单词' },
+  ],
+  settings: [
+    { code: 'accent', label: '🔊　发音偏好', value: '美式英语' },
+    { code: 'audio-cache', label: '⇩　音频缓存' },
+    { code: 'feedback', label: '□　意见反馈' },
+    { code: 'about', label: 'ⓘ　关于产品' },
+  ],
+  version: 'v1.0.0',
+})
 </script>
 <style lang="scss">
 @import '../../uni.scss';

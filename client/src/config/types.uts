@@ -1,0 +1,292 @@
+export type PhonemeSegment = {
+  text: string
+  tone: string
+}
+
+export type AudioItem = {
+  id: string
+  text: string
+  url: string
+}
+
+export type SelectOption = {
+  label: string
+  text: string
+  value: string
+}
+
+export type CategoryTabItem = {
+  value: string
+  label: string
+}
+
+export type NavigationItem = {
+  label: string
+  route: string
+}
+
+export type StageItem = {
+  code: string
+  name: string
+  state: string
+}
+
+export type NextStageItem = {
+  code: string
+  name: string
+  description: string
+  iconName: string
+  route: string
+}
+
+export type LearningStatItem = {
+  code: string
+  label: string
+  value: number
+  suffix: string
+}
+
+export type InfoStepItem = {
+  title: string
+  text: string
+}
+
+export type EvaluationScore = {
+  code: string
+  label: string
+  value: number
+  tone: string
+}
+
+export type SegmentPart = {
+  text: string
+  emphasized: boolean
+}
+
+export type ExampleWord = {
+  word: string
+  segments: PhonemeSegment[]
+  zh: string
+  audioUrl: string
+}
+
+export type CorrectionPracticeData = {
+  word: string
+  audioUrl: string
+  ipaSegments: PhonemeSegment[]
+}
+
+export type DecodingExerciseData = {
+  hint: string
+  parts: SegmentPart[]
+  segmentedAudioUrl: string
+  fullAudioUrl: string
+  answerWord: string
+}
+
+export type EvaluationTargetData = {
+  word: string
+  ipaSegments: PhonemeSegment[]
+  syllables: SegmentPart[]
+  stressIndex: number
+  audioUrl: string
+}
+
+export type PhonemeComparisonItem = {
+  ipa: string
+  segments: PhonemeSegment[]
+  name: string
+  audioUrl: string
+  toneColor: string
+  mouthType: string
+  tone: string
+  tip: string
+  examples: string
+}
+
+export type PhonemeGridItem = {
+  id: string
+  done: boolean
+  segments: PhonemeSegment[]
+  word: string
+  zh: string
+}
+
+export type PronunciationMappingItem = {
+  part: string
+  segments: PhonemeSegment[]
+  tip: string
+}
+
+export type RecentLearningItem = {
+  id: string
+  word: string
+  learnedAt: string
+}
+
+export type ProfileMenuItem = {
+  code: string
+  label: string
+  value?: string
+}
+
+export type WordListCardItem = {
+  id: string
+  icon: string
+  tone: string
+  title: string
+  description: string
+  completed: number
+  total: number
+}
+
+export type WordPairItem = {
+  word: string
+  segments: PhonemeSegment[]
+  audioUrl: string
+}
+
+export type TodayLessonData = {
+  tag: string
+  title: string
+  description: string
+  durationMinutes: number
+  actionText: string
+  progressLabel: string
+  current: number
+  total: number
+}
+
+export type UserSummaryData = {
+  avatarText: string
+  nickname: string
+  learningStatus: string
+}
+
+export type PlayStatus = 'idle' | 'loading' | 'playing'
+
+export type AppIconProps = {
+  name: string
+  size?: number
+  active?: boolean
+  tone?: string
+  label?: string
+}
+
+export type ChoiceGroupProps = {
+  options: SelectOption[]
+  initialValue?: string
+}
+
+export type PlayButtonProps = {
+  src?: string
+  text?: string
+  size?: string
+  color?: string
+  icon?: string
+  disabled?: boolean
+}
+
+export type QuizQuestion = {
+  id: string
+  question: string
+  description: string
+  audios: AudioItem[]
+  options: SelectOption[]
+  correctValue: string
+}
+
+export type QuizPageData = {
+  id: string
+  current: number
+  total: number
+  category: string
+  question: string
+  description: string
+  tip: string
+  audios: AudioItem[]
+  options: SelectOption[]
+  correctValue: string
+}
+
+export type HttpOptions = {
+  url: string
+  method?: RequestMethod | null
+  data?: any | null
+  header?: UTSJSONObject | null
+  timeout?: number | null
+  auth?: boolean | null
+  showLoading?: boolean | null
+  loadingText?: string | null
+}
+
+export type HttpError = {
+  statusCode: number
+  message: string
+  data: any | null
+}
+
+export type BottomNavProps = { active?: string }
+export type CategoryTabsProps = { items?: CategoryTabItem[]; modelValue?: string }
+export type ComingSoonProps = { title?: string }
+export type CorrectionIssueProps = {
+  issue?: string
+  words?: string[]
+  segments?: PhonemeSegment[]
+}
+export type CorrectionPracticeProps = { data: CorrectionPracticeData }
+export type DecodingExerciseProps = { data: DecodingExerciseData }
+export type ErrorStateProps = {
+  code: string
+  title: string
+  description: string
+  primaryText: string
+  secondaryText?: string
+}
+export type EvaluationResultProps = { title?: string; scores?: EvaluationScore[] }
+export type EvaluationTargetProps = { data: EvaluationTargetData }
+export type ExampleWordListProps = { items: ExampleWord[] }
+export type InfoStepsProps = { title?: string; items?: InfoStepItem[] }
+export type LearningPathProps = { steps: StageItem[]; currentName: string }
+export type LearningStatsProps = { items?: LearningStatItem[] }
+export type LessonProgressProps = {
+  current: number
+  total: number
+  label?: string
+  compact?: boolean
+}
+export type ListeningPromptProps = { audios: AudioItem[] }
+export type MouthShapeProps = { type?: string; size?: string; tone?: string }
+export type NextStageListProps = { stages: NextStageItem[]; lockedText?: string }
+export type PhonemeComparisonProps = { items: PhonemeComparisonItem[] }
+export type PhonemeDisplayProps = { segments: PhonemeSegment[]; size?: string }
+export type PhonemeGridProps = { items: PhonemeGridItem[] }
+export type ProfileMenuProps = { items?: ProfileMenuItem[] }
+export type ProgressBarProps = { current: number; total: number }
+export type PronunciationGuideProps = {
+  mouthType?: string
+  mouthSize?: string
+  mouthTone?: string
+  steps: string[]
+}
+export type PronunciationMappingsProps = { items?: PronunciationMappingItem[] }
+export type RecentLearningProps = { items?: RecentLearningItem[] }
+export type RecordingPanelProps = {
+  title?: string
+  activeText?: string
+  description?: string
+}
+export type SegmentedWordProps = {
+  word?: string
+  ipaSegments?: PhonemeSegment[]
+  parts?: SegmentPart[]
+  separator?: string
+  hint?: string
+}
+export type StageProgressProps = { steps: StageItem[]; variant?: string }
+export type StepActionsProps = { current: number; total: number; hint?: string }
+export type TipCardProps = { title?: string; text: string; variant?: string }
+export type TodayLessonCardProps = { data: TodayLessonData }
+export type UserSummaryProps = { data: UserSummaryData }
+export type WordListCardsProps = { items?: WordListCardItem[] }
+export type WordPairPlayerProps = { items: WordPairItem[] }

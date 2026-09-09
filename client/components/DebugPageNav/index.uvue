@@ -22,36 +22,32 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  data() {
-    return {
-      open: false,
-      pages: [
-        { label: '首页', route: '/pages/home/index' },
-        { label: '单个音标', route: '/pages/phoneme/detail' },
-        { label: '易混对比', route: '/pages/phoneme/compare' },
-        { label: '听音辨认', route: '/pages/phoneme/quiz' },
-        { label: '音标总览', route: '/pages/phoneme/overview' },
-        { label: '音素音节', route: '/pages/syllable/index' },
-        { label: '音标拼读', route: '/pages/decoding/ipa' },
-        { label: '单词拆读', route: '/pages/decoding/word' },
-        { label: '专业词库', route: '/pages/word-list/index' },
-        { label: '跟读评测', route: '/pages/evaluation/index' },
-        { label: 'AI 纠音', route: '/pages/correction/index' },
-        { label: '我的', route: '/pages/profile/index' },
-      ],
-    }
-  },
-  methods: {
-    toggle() {
-      this.open = !this.open
-    },
-    openPage(route: string) {
-      this.open = false
-      uni.reLaunch({ url: route })
-    },
-  },
+<script setup lang="uts">
+import type { NavigationItem } from '../../src/config/types.uts'
+
+const open = ref(false)
+const pages: NavigationItem[] = [
+  { label: '首页', route: '/pages/home/index' },
+  { label: '单个音标', route: '/pages/phoneme/detail' },
+  { label: '易混对比', route: '/pages/phoneme/compare' },
+  { label: '听音辨认', route: '/pages/phoneme/quiz' },
+  { label: '音标总览', route: '/pages/phoneme/overview' },
+  { label: '音素音节', route: '/pages/syllable/index' },
+  { label: '音标拼读', route: '/pages/decoding/ipa' },
+  { label: '单词拆读', route: '/pages/decoding/word' },
+  { label: '专业词库', route: '/pages/word-list/index' },
+  { label: '跟读评测', route: '/pages/evaluation/index' },
+  { label: 'AI 纠音', route: '/pages/correction/index' },
+  { label: '我的', route: '/pages/profile/index' },
+]
+
+function toggle() {
+  open.value = !open.value
+}
+
+function openPage(route: string) {
+  open.value = false
+  uni.reLaunch({ url: route })
 }
 </script>
 

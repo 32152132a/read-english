@@ -13,14 +13,14 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    title: { type: String, default: '' },
-    scores: { type: Array, default: () => [] },
-  },
-  emits: ['detail'],
-}
+<script setup lang="uts">
+import type { EvaluationResultProps, EvaluationScore } from '../../src/config/types.uts'
+
+withDefaults(defineProps<EvaluationResultProps>(), {
+  title: '',
+  scores: (): EvaluationScore[] => [],
+})
+defineEmits(['detail'])
 </script>
 
 <style lang="scss">

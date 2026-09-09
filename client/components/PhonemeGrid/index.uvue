@@ -16,16 +16,12 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import type { PhonemeGridProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay },
-  props: {
-    items: { type: Array, required: true },
-  },
-  emits: ['select'],
-}
+defineProps<PhonemeGridProps>()
+defineEmits(['select'])
 </script>
 
 <style lang="scss">

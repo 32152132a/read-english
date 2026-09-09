@@ -14,29 +14,27 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    title: { type: String, default: '按住跟读' },
-    activeText: { type: String, default: '正在录音' },
-    description: { type: String, default: '' },
-  },
-  emits: ['start', 'finish'],
-  data() {
-    return { recording: false }
-  },
-  methods: {
-    startRecording() {
-      if (this.recording) return
-      this.recording = true
-      this.$emit('start')
-    },
-    stopRecording() {
-      if (!this.recording) return
-      this.recording = false
-      this.$emit('finish')
-    },
-  },
+<script setup lang="uts">
+import type { RecordingPanelProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<RecordingPanelProps>(), {
+  title: '按住跟读',
+  activeText: '正在录音',
+  description: '',
+})
+const emit = defineEmits(['start', 'finish'])
+const recording = ref(false)
+
+function startRecording() {
+  if (recording.value) return
+  recording.value = true
+  emit('start')
+}
+
+function stopRecording() {
+  if (!recording.value) return
+  recording.value = false
+  emit('finish')
 }
 </script>
 

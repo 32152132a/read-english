@@ -12,64 +12,57 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import EvaluationTarget from '../../components/EvaluationTarget/index.uvue'
 import RecordingPanel from '../../components/RecordingPanel/index.uvue'
 import EvaluationResult from '../../components/EvaluationResult/index.uvue'
-export default {
-  components: { LessonProgress, StepActions, EvaluationTarget, RecordingPanel, EvaluationResult },
-  data() {
-    return {
-      pageData: {
-        current: 2,
-        total: 3,
-        word: {
-          id: 'component',
-          word: 'component',
-          ipa: '/kəmˈpəʊnənt/',
-          ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
-          audioUrl: '',
-          stressIndex: 2,
-          syllables: [
-            { text: 'com', emphasized: false },
-            { text: 'po', emphasized: true },
-            { text: 'nent', emphasized: false },
-          ],
-        },
-        recordTitle: '按住跟读',
-        recordDescription: '读完整单词，松开后开始评测',
-        resultTitle: '上次评测结果',
-        scores: [
-          { code: 'overall', label: '总分', value: 82, tone: 'primary' },
-          { code: 'accuracy', label: '准确度', value: 78, tone: 'success' },
-          { code: 'integrity', label: '完整度', value: 100, tone: 'warning' },
-          { code: 'fluency', label: '流利度', value: 84, tone: 'success' },
-        ],
-      },
-      stepList: [
-        { id: 'fantastic', word: 'fantastic', ipa: '/fænˈtæstɪk/' },
-        { id: 'component', word: 'component', ipa: '/kəmˈpəʊnənt/' },
-        { id: 'important', word: 'important', ipa: '/ɪmˈpɔːtənt/' },
-      ],
-    }
+const pageData = reactive({
+  current: 2,
+  total: 3,
+  word: {
+    id: 'component',
+    word: 'component',
+    ipa: '/kəmˈpəʊnənt/',
+    ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
+    audioUrl: '',
+    stressIndex: 2,
+    syllables: [
+      { text: 'com', emphasized: false },
+      { text: 'po', emphasized: true },
+      { text: 'nent', emphasized: false },
+    ],
   },
-  methods: {
-    evaluateRecording() {
-      // 后续在这里提交录音文件并更新评测结果。
-    },
-    loadStep(target: number) {
-      const step = this.stepList[target - 1]
-      if (step == null) return
+  recordTitle: '按住跟读',
+  recordDescription: '读完整单词，松开后开始评测',
+  resultTitle: '上次评测结果',
+  scores: [
+    { code: 'overall', label: '总分', value: 82, tone: 'primary' },
+    { code: 'accuracy', label: '准确度', value: 78, tone: 'success' },
+    { code: 'integrity', label: '完整度', value: 100, tone: 'warning' },
+    { code: 'fluency', label: '流利度', value: 84, tone: 'success' },
+  ],
+})
+const stepList = [
+  { id: 'fantastic', word: 'fantastic', ipa: '/fænˈtæstɪk/' },
+  { id: 'component', word: 'component', ipa: '/kəmˈpəʊnənt/' },
+  { id: 'important', word: 'important', ipa: '/ɪmˈpɔːtənt/' },
+]
 
-      this.pageData.current = target
-      this.pageData.word.id = step.id
-      this.pageData.word.word = step.word
-      this.pageData.word.ipa = step.ipa
-      this.pageData.word.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
-    },
-  },
+function evaluateRecording() {
+  // 后续在这里提交录音文件并更新评测结果。
+}
+
+function loadStep(target: number) {
+  const step = stepList[target - 1]
+  if (step == null) return
+
+  pageData.current = target
+  pageData.word.id = step.id
+  pageData.word.word = step.word
+  pageData.word.ipa = step.ipa
+  pageData.word.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
 }
 </script>
 <style lang="scss">

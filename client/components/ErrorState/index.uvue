@@ -14,17 +14,11 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    code: { type: String, required: true },
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    primaryText: { type: String, required: true },
-    secondaryText: { type: String, default: '返回首页' },
-  },
-  emits: ['primary', 'secondary'],
-}
+<script setup lang="uts">
+import type { ErrorStateProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<ErrorStateProps>(), { secondaryText: '返回首页' })
+defineEmits(['primary', 'secondary'])
 </script>
 
 <style lang="scss">

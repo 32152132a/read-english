@@ -18,16 +18,12 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
 import PlayButton from '../PlayButton/index.uvue'
+import type { PhonemeComparisonProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay, PlayButton },
-  props: {
-    items: { type: Array, required: true },
-  },
-}
+defineProps<PhonemeComparisonProps>()
 </script>
 
 <style lang="scss">

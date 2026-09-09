@@ -15,17 +15,17 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: { active: { type: String, default: 'home' } },
-  methods: {
-    openHome() {
-      uni.reLaunch({ url: '/pages/home/index' })
-    },
-    openProfile() {
-      uni.reLaunch({ url: '/pages/profile/index' })
-    },
-  },
+<script setup lang="uts">
+import type { BottomNavProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<BottomNavProps>(), { active: 'home' })
+
+function openHome() {
+  uni.reLaunch({ url: '/pages/home/index' })
+}
+
+function openProfile() {
+  uni.reLaunch({ url: '/pages/profile/index' })
 }
 </script>
 

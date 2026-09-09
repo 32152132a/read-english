@@ -10,17 +10,15 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import type { CorrectionIssueProps, PhonemeSegment } from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay },
-  props: {
-    issue: { type: String, default: '' },
-    words: { type: Array, default: () => [] },
-    segments: { type: Array, default: () => [] },
-  },
-}
+withDefaults(defineProps<CorrectionIssueProps>(), {
+  issue: '',
+  words: (): string[] => [],
+  segments: (): PhonemeSegment[] => [],
+})
 </script>
 
 <style lang="scss">

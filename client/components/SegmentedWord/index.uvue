@@ -14,19 +14,17 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import type { PhonemeSegment, SegmentPart, SegmentedWordProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay },
-  props: {
-    word: { type: String, default: '' },
-    ipaSegments: { type: Array, default: () => [] },
-    parts: { type: Array, default: () => [] },
-    separator: { type: String, default: '' },
-    hint: { type: String, default: '' },
-  },
-}
+withDefaults(defineProps<SegmentedWordProps>(), {
+  word: '',
+  ipaSegments: (): PhonemeSegment[] => [],
+  parts: (): SegmentPart[] => [],
+  separator: '',
+  hint: '',
+})
 </script>
 
 <style lang="scss">

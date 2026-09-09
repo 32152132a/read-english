@@ -8,14 +8,13 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    title: { type: String, default: '提示' },
-    text: { type: String, required: true },
-    variant: { type: String, default: 'default' },
-  },
-}
+<script setup lang="uts">
+import type { TipCardProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<TipCardProps>(), {
+  title: '提示',
+  variant: 'default',
+})
 </script>
 
 <style lang="scss">

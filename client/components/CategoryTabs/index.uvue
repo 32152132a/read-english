@@ -12,14 +12,14 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    items: { type: Array, default: () => [] },
-    modelValue: { type: String, default: '' },
-  },
-  emits: ['change'],
-}
+<script setup lang="uts">
+import type { CategoryTabItem, CategoryTabsProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<CategoryTabsProps>(), {
+  items: (): CategoryTabItem[] => [],
+  modelValue: '',
+})
+defineEmits(['change'])
 </script>
 
 <style lang="scss">

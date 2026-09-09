@@ -12,13 +12,10 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    steps: { type: Array, required: true },
-    variant: { type: String, default: 'default' },
-  },
-}
+<script setup lang="uts">
+import type { StageProgressProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<StageProgressProps>(), { variant: 'default' })
 </script>
 
 <style lang="scss">

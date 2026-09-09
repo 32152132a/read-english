@@ -8,8 +8,12 @@
   </view>
 </template>
 
-<script lang="uts">
-export default { props: { items: { type: Array, default: () => [] } } }
+<script setup lang="uts">
+import type { LearningStatItem, LearningStatsProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<LearningStatsProps>(), {
+  items: (): LearningStatItem[] => [],
+})
 </script>
 
 <style lang="scss">

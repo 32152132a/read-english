@@ -18,99 +18,91 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import PhonemeComparison from '../../components/PhonemeComparison/index.uvue'
 import WordPairPlayer from '../../components/WordPairPlayer/index.uvue'
-export default {
-  components: { LessonProgress, TipCard, StepActions, PhonemeComparison, WordPairPlayer },
-  data() {
-    return {
-      pageData: {
-        id: 'short-vowel-comparison',
-        current: 2,
-        total: 3,
-        category: '短元音对比',
-        title: '区分 /ɪ/ 和 /iː/',
-        description: '一个短促放松，一个稍长并向两侧展开',
-        tip: '/ɪ/ 短而放松，/iː/ 像微笑一样向两侧拉开。',
-        sounds: [
-          {
-            ipa: '/ɪ/',
-            segments: [{ text: '/ɪ/', tone: 'primary' }],
-            name: '短促的「衣」',
-            tip: '嘴角放松，快速收音',
-            examples: 'ship · sit · live',
-            audioUrl: '',
-            tone: 'primary',
-            toneColor: '#315cff',
-            mouthType: 'relaxed',
-          },
-          {
-            ipa: '/iː/',
-            segments: [{ text: '/iː/', tone: 'success' }],
-            name: '拉长的「衣」',
-            tip: '嘴角向两侧，声音延长',
-            examples: 'sheep · seat · leave',
-            audioUrl: '',
-            tone: 'success',
-            toneColor: '#11aaa0',
-            mouthType: 'smile',
-          },
-        ],
-        pairTitle: '听一听它们的区别',
-        pairHint: '先分别听，再连续对比',
-        actionHint: '还没记住？可以反复播放',
-        wordPair: [
-          {
-            word: 'ship',
-            segments: [{ text: '/ʃɪp/', tone: 'muted' }],
-            audioUrl: '',
-          },
-          {
-            word: 'sheep',
-            segments: [{ text: '/ʃiːp/', tone: 'muted' }],
-            audioUrl: '',
-          },
-        ],
-      },
-      stepList: [
-        {
-          pairTitle: '先听第一组单词',
-          wordPair: [
-            { word: 'ship', segments: [{ text: '/ʃɪp/', tone: 'muted' }], audioUrl: '' },
-            { word: 'sheep', segments: [{ text: '/ʃiːp/', tone: 'muted' }], audioUrl: '' },
-          ],
-        },
-        {
-          pairTitle: '再听一组相似单词',
-          wordPair: [
-            { word: 'sit', segments: [{ text: '/sɪt/', tone: 'muted' }], audioUrl: '' },
-            { word: 'seat', segments: [{ text: '/siːt/', tone: 'muted' }], audioUrl: '' },
-          ],
-        },
-        {
-          pairTitle: '最后听完整单词',
-          wordPair: [
-            { word: 'live', segments: [{ text: '/lɪv/', tone: 'muted' }], audioUrl: '' },
-            { word: 'leave', segments: [{ text: '/liːv/', tone: 'muted' }], audioUrl: '' },
-          ],
-        },
-      ],
-    }
-  },
-  methods: {
-    loadStep(target: number) {
-      const step = this.stepList[target - 1]
-      if (step == null) return
-
-      this.pageData.current = target
-      this.pageData.pairTitle = step.pairTitle
-      this.pageData.wordPair = step.wordPair
+const pageData = reactive({
+  id: 'short-vowel-comparison',
+  current: 2,
+  total: 3,
+  category: '短元音对比',
+  title: '区分 /ɪ/ 和 /iː/',
+  description: '一个短促放松，一个稍长并向两侧展开',
+  tip: '/ɪ/ 短而放松，/iː/ 像微笑一样向两侧拉开。',
+  sounds: [
+    {
+      ipa: '/ɪ/',
+      segments: [{ text: '/ɪ/', tone: 'primary' }],
+      name: '短促的「衣」',
+      tip: '嘴角放松，快速收音',
+      examples: 'ship · sit · live',
+      audioUrl: '',
+      tone: 'primary',
+      toneColor: '#315cff',
+      mouthType: 'relaxed',
     },
+    {
+      ipa: '/iː/',
+      segments: [{ text: '/iː/', tone: 'success' }],
+      name: '拉长的「衣」',
+      tip: '嘴角向两侧，声音延长',
+      examples: 'sheep · seat · leave',
+      audioUrl: '',
+      tone: 'success',
+      toneColor: '#11aaa0',
+      mouthType: 'smile',
+    },
+  ],
+  pairTitle: '听一听它们的区别',
+  pairHint: '先分别听，再连续对比',
+  actionHint: '还没记住？可以反复播放',
+  wordPair: [
+    {
+      word: 'ship',
+      segments: [{ text: '/ʃɪp/', tone: 'muted' }],
+      audioUrl: '',
+    },
+    {
+      word: 'sheep',
+      segments: [{ text: '/ʃiːp/', tone: 'muted' }],
+      audioUrl: '',
+    },
+  ],
+})
+const stepList = [
+  {
+    pairTitle: '先听第一组单词',
+    wordPair: [
+      { word: 'ship', segments: [{ text: '/ʃɪp/', tone: 'muted' }], audioUrl: '' },
+      { word: 'sheep', segments: [{ text: '/ʃiːp/', tone: 'muted' }], audioUrl: '' },
+    ],
   },
+  {
+    pairTitle: '再听一组相似单词',
+    wordPair: [
+      { word: 'sit', segments: [{ text: '/sɪt/', tone: 'muted' }], audioUrl: '' },
+      { word: 'seat', segments: [{ text: '/siːt/', tone: 'muted' }], audioUrl: '' },
+    ],
+  },
+  {
+    pairTitle: '最后听完整单词',
+    wordPair: [
+      { word: 'live', segments: [{ text: '/lɪv/', tone: 'muted' }], audioUrl: '' },
+      { word: 'leave', segments: [{ text: '/liːv/', tone: 'muted' }], audioUrl: '' },
+    ],
+  },
+]
+
+function loadStep(target: number) {
+  const step = stepList[target - 1]
+  if (step == null) return
+
+  pageData.current = target
+  pageData.pairTitle = step.pairTitle
+  pageData.wordPair = step.wordPair
 }
 </script>
 <style lang="scss">

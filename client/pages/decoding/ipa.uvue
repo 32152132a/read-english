@@ -9,87 +9,79 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
 import StageProgress from '../../components/StageProgress/index.uvue'
 import DecodingExercise from '../../components/DecodingExercise/index.uvue'
-export default {
-  components: { LessonProgress, StepActions, PhonemeDisplay, StageProgress, DecodingExercise },
-  data() {
-    return {
-      pageData: {
-        id: 'ipa-decoding-component',
-        current: 2,
-        total: 3,
-        title: '把音标分段读出来',
-        ipa: '/kəmˈpəʊnənt/',
-        ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
-        stages: [
-          { code: 'vowels', name: '找元音', state: 'completed' },
-          { code: 'syllables', name: '分音节', state: 'active' },
-          { code: 'stress', name: '找重音', state: 'pending' },
-          { code: 'read', name: '连起来读', state: 'pending' },
-        ],
-        exercise: {
-          hint: '拖动分隔符，调整音节划分',
-          parts: [
-            { text: 'kəm', emphasized: false },
-            { text: 'pəʊ', emphasized: true },
-            { text: 'nənt', emphasized: false },
-          ],
-          segmentedAudioUrl: '',
-          fullAudioUrl: '',
-          answerWord: 'component',
-        },
-      },
-      stepList: [
-        {
-          id: 'ipa-decoding-fantastic',
-          ipaSegments: [{ text: '/fænˈtæstɪk/', tone: 'primary' }],
-          answerWord: 'fantastic',
-          parts: [
-            { text: 'fæn', emphasized: false },
-            { text: 'tæs', emphasized: true },
-            { text: 'tɪk', emphasized: false },
-          ],
-        },
-        {
-          id: 'ipa-decoding-component',
-          ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
-          answerWord: 'component',
-          parts: [
-            { text: 'kəm', emphasized: false },
-            { text: 'pəʊ', emphasized: true },
-            { text: 'nənt', emphasized: false },
-          ],
-        },
-        {
-          id: 'ipa-decoding-important',
-          ipaSegments: [{ text: '/ɪmˈpɔːtənt/', tone: 'primary' }],
-          answerWord: 'important',
-          parts: [
-            { text: 'ɪm', emphasized: false },
-            { text: 'pɔː', emphasized: true },
-            { text: 'tənt', emphasized: false },
-          ],
-        },
-      ],
-    }
+const pageData = reactive({
+  id: 'ipa-decoding-component',
+  current: 2,
+  total: 3,
+  title: '把音标分段读出来',
+  ipa: '/kəmˈpəʊnənt/',
+  ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
+  stages: [
+    { code: 'vowels', name: '找元音', state: 'completed' },
+    { code: 'syllables', name: '分音节', state: 'active' },
+    { code: 'stress', name: '找重音', state: 'pending' },
+    { code: 'read', name: '连起来读', state: 'pending' },
+  ],
+  exercise: {
+    hint: '拖动分隔符，调整音节划分',
+    parts: [
+      { text: 'kəm', emphasized: false },
+      { text: 'pəʊ', emphasized: true },
+      { text: 'nənt', emphasized: false },
+    ],
+    segmentedAudioUrl: '',
+    fullAudioUrl: '',
+    answerWord: 'component',
   },
-  methods: {
-    loadStep(target: number) {
-      const step = this.stepList[target - 1]
-      if (step == null) return
+})
+const stepList = [
+  {
+    id: 'ipa-decoding-fantastic',
+    ipaSegments: [{ text: '/fænˈtæstɪk/', tone: 'primary' }],
+    answerWord: 'fantastic',
+    parts: [
+      { text: 'fæn', emphasized: false },
+      { text: 'tæs', emphasized: true },
+      { text: 'tɪk', emphasized: false },
+    ],
+  },
+  {
+    id: 'ipa-decoding-component',
+    ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
+    answerWord: 'component',
+    parts: [
+      { text: 'kəm', emphasized: false },
+      { text: 'pəʊ', emphasized: true },
+      { text: 'nənt', emphasized: false },
+    ],
+  },
+  {
+    id: 'ipa-decoding-important',
+    ipaSegments: [{ text: '/ɪmˈpɔːtənt/', tone: 'primary' }],
+    answerWord: 'important',
+    parts: [
+      { text: 'ɪm', emphasized: false },
+      { text: 'pɔː', emphasized: true },
+      { text: 'tənt', emphasized: false },
+    ],
+  },
+]
 
-      this.pageData.id = step.id
-      this.pageData.current = target
-      this.pageData.ipaSegments = step.ipaSegments
-      this.pageData.exercise.answerWord = step.answerWord
-      this.pageData.exercise.parts = step.parts
-    },
-  },
+function loadStep(target: number) {
+  const step = stepList[target - 1]
+  if (step == null) return
+
+  pageData.id = step.id
+  pageData.current = target
+  pageData.ipaSegments = step.ipaSegments
+  pageData.exercise.answerWord = step.answerWord
+  pageData.exercise.parts = step.parts
 }
 </script>
 <style lang="scss">

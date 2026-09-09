@@ -8,16 +8,11 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import StageProgress from '../StageProgress/index.uvue'
+import type { LearningPathProps } from '../../src/config/types.uts'
 
-export default {
-  components: { StageProgress },
-  props: {
-    steps: { type: Array, required: true },
-    currentName: { type: String, required: true },
-  },
-}
+defineProps<LearningPathProps>()
 </script>
 
 <style lang="scss">

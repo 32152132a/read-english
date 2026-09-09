@@ -11,15 +11,13 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PlayButton from '../PlayButton/index.uvue'
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import type { CorrectionPracticeProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PlayButton, PhonemeDisplay },
-  props: { data: { type: Object, required: true } },
-  emits: ['record'],
-}
+defineProps<CorrectionPracticeProps>()
+defineEmits(['record'])
 </script>
 
 <style lang="scss">

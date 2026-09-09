@@ -13,11 +13,13 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: { items: { type: Array, default: () => [] } },
-  emits: ['select'],
-}
+<script setup lang="uts">
+import type { ProfileMenuItem, ProfileMenuProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<ProfileMenuProps>(), {
+  items: (): ProfileMenuItem[] => [],
+})
+defineEmits(['select'])
 </script>
 
 <style lang="scss">

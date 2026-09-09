@@ -7,8 +7,12 @@
   </view>
 </template>
 
-<script lang="uts">
-export default { props: { items: { type: Array, default: () => [] } } }
+<script setup lang="uts">
+import type { RecentLearningItem, RecentLearningProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<RecentLearningProps>(), {
+  items: (): RecentLearningItem[] => [],
+})
 </script>
 
 <style lang="scss">

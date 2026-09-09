@@ -9,18 +9,14 @@
   />
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import ErrorState from '../../components/ErrorState/index.uvue'
 
-export default {
-  components: { ErrorState },
-  methods: {
-    retry() {
-      uni.navigateBack()
-    },
-    goHome() {
-      uni.reLaunch({ url: '/pages/home/index' })
-    },
-  },
+function retry() {
+  uni.navigateBack()
+}
+
+function goHome() {
+  uni.reLaunch({ url: '/pages/home/index' })
 }
 </script>

@@ -10,15 +10,11 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PlayButton from '../PlayButton/index.uvue'
+import type { ListeningPromptProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PlayButton },
-  props: {
-    audios: { type: Array, required: true },
-  },
-}
+defineProps<ListeningPromptProps>()
 </script>
 
 <style lang="scss">

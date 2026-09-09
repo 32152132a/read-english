@@ -16,69 +16,62 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import CategoryTabs from '../../components/CategoryTabs/index.uvue'
 import WordListCards from '../../components/WordListCards/index.uvue'
 import RecentLearning from '../../components/RecentLearning/index.uvue'
 
-export default {
-  components: { CategoryTabs, WordListCards, RecentLearning },
-  data() {
-    return {
-      pageData: {
-        description: '完成基础学习后，用真实词汇检验拼读能力',
-        categories: [
-          { value: 'all', label: '全部' },
-          { value: 'frontend', label: '前端开发' },
-          { value: 'node', label: 'Node后端' },
-          { value: 'ai', label: 'AI大模型' },
-        ],
-        lists: [
-          {
-            icon: '</>',
-            id: 'frontend',
-            title: '前端开发',
-            description: 'HTML、CSS、JavaScript 等常用词汇',
-            completed: 24,
-            total: 286,
-            tone: 'blue',
-          },
-          {
-            icon: 'JS',
-            id: 'node',
-            title: 'Node.js与后端',
-            description: 'Node.js、Express、数据库等后端词汇',
-            completed: 0,
-            total: 180,
-            tone: 'green',
-          },
-          {
-            icon: 'AI',
-            id: 'ai',
-            title: 'AI与大模型',
-            description: '机器学习、深度学习、大模型相关词汇',
-            completed: 0,
-            total: 168,
-            tone: 'purple',
-          },
-        ],
-        recentWords: [
-          { id: 'component', word: 'component', learnedAt: '2分钟前' },
-          { id: 'developer', word: 'developer', learnedAt: '10分钟前' },
-        ],
-        customList: { title: '▢　我的自定义词库', statusText: '即将上线' },
-      },
-      activeCategory: 'all',
-    }
-  },
-  methods: {
-    changeCategory(value: string) {
-      this.activeCategory = value
+const pageData = reactive({
+  description: '完成基础学习后，用真实词汇检验拼读能力',
+  categories: [
+    { value: 'all', label: '全部' },
+    { value: 'frontend', label: '前端开发' },
+    { value: 'node', label: 'Node后端' },
+    { value: 'ai', label: 'AI大模型' },
+  ],
+  lists: [
+    {
+      icon: '</>',
+      id: 'frontend',
+      title: '前端开发',
+      description: 'HTML、CSS、JavaScript 等常用词汇',
+      completed: 24,
+      total: 286,
+      tone: 'blue',
     },
-    openList(id: string) {
-      console.log('open word list', id)
+    {
+      icon: 'JS',
+      id: 'node',
+      title: 'Node.js与后端',
+      description: 'Node.js、Express、数据库等后端词汇',
+      completed: 0,
+      total: 180,
+      tone: 'green',
     },
-  },
+    {
+      icon: 'AI',
+      id: 'ai',
+      title: 'AI与大模型',
+      description: '机器学习、深度学习、大模型相关词汇',
+      completed: 0,
+      total: 168,
+      tone: 'purple',
+    },
+  ],
+  recentWords: [
+    { id: 'component', word: 'component', learnedAt: '2分钟前' },
+    { id: 'developer', word: 'developer', learnedAt: '10分钟前' },
+  ],
+  customList: { title: '▢　我的自定义词库', statusText: '即将上线' },
+})
+const activeCategory = ref('all')
+
+function changeCategory(value: string) {
+  activeCategory.value = value
+}
+
+function openList(id: string) {
+  console.log('open word list', id)
 }
 </script>
 <style lang="scss">

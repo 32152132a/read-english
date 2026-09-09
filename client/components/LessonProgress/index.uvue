@@ -10,22 +10,17 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    current: { type: Number, required: true },
-    total: { type: Number, required: true },
-    label: { type: String, default: '学习进度' },
-    compact: { type: Boolean, default: false },
-  },
-  computed: {
-    progressPercent(): number {
-      if (this.total <= 0) return 0
+<script setup lang="uts">
+import type { LessonProgressProps } from '../../src/config/types.uts'
 
-      return Math.min(Math.max((this.current / this.total) * 100, 0), 100)
-    },
-  },
-}
+const props = withDefaults(defineProps<LessonProgressProps>(), {
+  label: '学习进度',
+  compact: false,
+})
+const progressPercent = computed((): number => {
+  if (props.total <= 0) return 0
+  return Math.min(Math.max((props.current / props.total) * 100, 0), 100)
+})
 </script>
 
 <style lang="scss">

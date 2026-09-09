@@ -14,85 +14,77 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import SegmentedWord from '../../components/SegmentedWord/index.uvue'
 import PronunciationMappings from '../../components/PronunciationMappings/index.uvue'
-export default {
-  components: { LessonProgress, TipCard, StepActions, SegmentedWord, PronunciationMappings },
-  data() {
-    return {
-      pageData: {
-        id: 'word-decoding-component',
-        current: 2,
-        total: 3,
-        title: '根据字母组合推测读音',
-        tip: '非重读音节中的 o 常弱读为 /ə/',
-        word: 'component',
-        ipa: '/kəmˈpəʊnənt/',
-        ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
-        hint: '拖动分隔符调整拆分',
-        audioUrl: '',
-        parts: [
-          { text: 'com', emphasized: false },
-          { text: 'po', emphasized: true },
-          { text: 'nent', emphasized: false },
-        ],
-        mappings: [
-          { part: 'com', segments: [{ text: '/kəm/', tone: 'normal' }], tip: '辅音 + o 弱读 /ə/' },
-          { part: 'po', segments: [{ text: '/pəʊ/', tone: 'stress' }], tip: '开音节 o 发 /əʊ/' },
-          { part: 'nent', segments: [{ text: '/nənt/', tone: 'normal' }], tip: '结尾 t 不发音' },
-        ],
-      },
-      stepList: [
-        {
-          id: 'word-decoding-fantastic',
-          word: 'fantastic',
-          ipa: '/fænˈtæstɪk/',
-          parts: [
-            { text: 'fan', emphasized: false },
-            { text: 'tas', emphasized: true },
-            { text: 'tic', emphasized: false },
-          ],
-        },
-        {
-          id: 'word-decoding-component',
-          word: 'component',
-          ipa: '/kəmˈpəʊnənt/',
-          parts: [
-            { text: 'com', emphasized: false },
-            { text: 'po', emphasized: true },
-            { text: 'nent', emphasized: false },
-          ],
-        },
-        {
-          id: 'word-decoding-important',
-          word: 'important',
-          ipa: '/ɪmˈpɔːtənt/',
-          parts: [
-            { text: 'im', emphasized: false },
-            { text: 'por', emphasized: true },
-            { text: 'tant', emphasized: false },
-          ],
-        },
-      ],
-    }
+const pageData = reactive({
+  id: 'word-decoding-component',
+  current: 2,
+  total: 3,
+  title: '根据字母组合推测读音',
+  tip: '非重读音节中的 o 常弱读为 /ə/',
+  word: 'component',
+  ipa: '/kəmˈpəʊnənt/',
+  ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
+  hint: '拖动分隔符调整拆分',
+  audioUrl: '',
+  parts: [
+    { text: 'com', emphasized: false },
+    { text: 'po', emphasized: true },
+    { text: 'nent', emphasized: false },
+  ],
+  mappings: [
+    { part: 'com', segments: [{ text: '/kəm/', tone: 'normal' }], tip: '辅音 + o 弱读 /ə/' },
+    { part: 'po', segments: [{ text: '/pəʊ/', tone: 'stress' }], tip: '开音节 o 发 /əʊ/' },
+    { part: 'nent', segments: [{ text: '/nənt/', tone: 'normal' }], tip: '结尾 t 不发音' },
+  ],
+})
+const stepList = [
+  {
+    id: 'word-decoding-fantastic',
+    word: 'fantastic',
+    ipa: '/fænˈtæstɪk/',
+    parts: [
+      { text: 'fan', emphasized: false },
+      { text: 'tas', emphasized: true },
+      { text: 'tic', emphasized: false },
+    ],
   },
-  methods: {
-    loadStep(target: number) {
-      const step = this.stepList[target - 1]
-      if (step == null) return
+  {
+    id: 'word-decoding-component',
+    word: 'component',
+    ipa: '/kəmˈpəʊnənt/',
+    parts: [
+      { text: 'com', emphasized: false },
+      { text: 'po', emphasized: true },
+      { text: 'nent', emphasized: false },
+    ],
+  },
+  {
+    id: 'word-decoding-important',
+    word: 'important',
+    ipa: '/ɪmˈpɔːtənt/',
+    parts: [
+      { text: 'im', emphasized: false },
+      { text: 'por', emphasized: true },
+      { text: 'tant', emphasized: false },
+    ],
+  },
+]
 
-      this.pageData.id = step.id
-      this.pageData.current = target
-      this.pageData.word = step.word
-      this.pageData.ipa = step.ipa
-      this.pageData.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
-      this.pageData.parts = step.parts
-    },
-  },
+function loadStep(target: number) {
+  const step = stepList[target - 1]
+  if (step == null) return
+
+  pageData.id = step.id
+  pageData.current = target
+  pageData.word = step.word
+  pageData.ipa = step.ipa
+  pageData.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
+  pageData.parts = step.parts
 }
 </script>
 <style lang="scss">

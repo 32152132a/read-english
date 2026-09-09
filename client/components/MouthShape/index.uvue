@@ -7,45 +7,39 @@
   />
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    type: { type: String, default: 'open' },
-    size: { type: String, default: 'medium' },
-    tone: { type: String, default: 'primary' },
-  },
-  computed: {
-    shapeType(): string {
-      return ['open', 'relaxed', 'smile'].includes(this.type) ? this.type : 'open'
-    },
-    shapeTone(): string {
-      return this.tone === 'success' ? 'success' : 'primary'
-    },
-    shapeWidth(): number {
-      if (this.size === 'mini') return 100
-      if (this.size === 'large') return 300
-      return 148
-    },
-    shapeHeight(): number {
-      return Math.round(this.shapeWidth * 0.7)
-    },
-    imageSource(): string {
-      if (this.shapeType === 'relaxed') {
-        return this.shapeTone === 'success'
-          ? '/static/images/mouth-relaxed-success.svg'
-          : '/static/images/mouth-relaxed.svg'
-      }
-      if (this.shapeType === 'smile') {
-        return this.shapeTone === 'success'
-          ? '/static/images/mouth-smile.svg'
-          : '/static/images/mouth-smile-primary.svg'
-      }
-      return this.shapeTone === 'success'
-        ? '/static/images/mouth-open-success.svg'
-        : '/static/images/mouth-open.svg'
-    },
-  },
-}
+<script setup lang="uts">
+import type { MouthShapeProps } from '../../src/config/types.uts'
+
+const props = withDefaults(defineProps<MouthShapeProps>(), {
+  type: 'open',
+  size: 'medium',
+  tone: 'primary',
+})
+const shapeType = computed((): string =>
+  ['open', 'relaxed', 'smile'].includes(props.type) ? props.type : 'open'
+)
+const shapeTone = computed((): string => (props.tone === 'success' ? 'success' : 'primary'))
+const shapeWidth = computed((): number => {
+  if (props.size === 'mini') return 100
+  if (props.size === 'large') return 300
+  return 148
+})
+const shapeHeight = computed((): number => Math.round(shapeWidth.value * 0.7))
+const imageSource = computed((): string => {
+  if (shapeType.value === 'relaxed') {
+    return shapeTone.value === 'success'
+      ? '/static/images/mouth-relaxed-success.svg'
+      : '/static/images/mouth-relaxed.svg'
+  }
+  if (shapeType.value === 'smile') {
+    return shapeTone.value === 'success'
+      ? '/static/images/mouth-smile.svg'
+      : '/static/images/mouth-smile-primary.svg'
+  }
+  return shapeTone.value === 'success'
+    ? '/static/images/mouth-open-success.svg'
+    : '/static/images/mouth-open.svg'
+})
 </script>
 
 <style lang="scss">

@@ -3,26 +3,18 @@
     <view v-for="item in items" :key="item.word" class="example-word-list__item">
       <PlayButton :src="item.audioUrl" size="tiny" />
       <text class="example-word-list__word">{{ item.word }}</text>
-      <PhonemeDisplay
-        class="example-word-list__phoneme"
-        :segments="item.segments"
-        size="mini"
-      />
+      <PhonemeDisplay class="example-word-list__phoneme" :segments="item.segments" size="mini" />
       <text class="example-word-list__meaning">{{ item.zh }}</text>
     </view>
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
 import PlayButton from '../PlayButton/index.uvue'
+import type { ExampleWordListProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay, PlayButton },
-  props: {
-    items: { type: Array, required: true },
-  },
-}
+defineProps<ExampleWordListProps>()
 </script>
 
 <style lang="scss">

@@ -14,14 +14,14 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import ProgressBar from '../ProgressBar/index.uvue'
+import type { WordListCardItem, WordListCardsProps } from '../../src/config/types.uts'
 
-export default {
-  components: { ProgressBar },
-  props: { items: { type: Array, default: () => [] } },
-  emits: ['select'],
-}
+withDefaults(defineProps<WordListCardsProps>(), {
+  items: (): WordListCardItem[] => [],
+})
+defineEmits(['select'])
 </script>
 
 <style lang="scss">

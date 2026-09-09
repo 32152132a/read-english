@@ -15,21 +15,16 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import SegmentedWord from '../SegmentedWord/index.uvue'
 import PlayButton from '../PlayButton/index.uvue'
+import type { DecodingExerciseProps } from '../../src/config/types.uts'
 
-export default {
-  components: { SegmentedWord, PlayButton },
-  props: { data: { type: Object, required: true } },
-  data() {
-    return { answerVisible: false }
-  },
-  methods: {
-    showAnswer() {
-      this.answerVisible = true
-    },
-  },
+defineProps<DecodingExerciseProps>()
+const answerVisible = ref(false)
+
+function showAnswer() {
+  answerVisible.value = true
 }
 </script>
 

@@ -18,31 +18,20 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    current: { type: Number, required: true },
-    total: { type: Number, required: true },
-    hint: { type: String, default: '' },
-  },
-  emits: ['change', 'hint-click'],
-  computed: {
-    isFirst(): boolean {
-      return this.total <= 0 || this.current <= 1
-    },
-    isLast(): boolean {
-      return this.total <= 0 || this.current >= this.total
-    },
-  },
-  methods: {
-    changeStep(offset: number) {
-      const target = this.current + offset
-      if (target < 1 || target > this.total) return
+<script setup lang="uts">
+import type { StepActionsProps } from '../../src/config/types.uts'
 
-      this.$emit('change', target)
-      uni.pageScrollTo({ scrollTop: 0, duration: 200 })
-    },
-  },
+const props = withDefaults(defineProps<StepActionsProps>(), { hint: '' })
+const emit = defineEmits(['change', 'hint-click'])
+const isFirst = computed((): boolean => props.total <= 0 || props.current <= 1)
+const isLast = computed((): boolean => props.total <= 0 || props.current >= props.total)
+
+function changeStep(offset: number) {
+  const target = props.current + offset
+  if (target < 1 || target > props.total) return
+
+  emit('change', target)
+  uni.pageScrollTo({ scrollTop: 0, duration: 200 })
 }
 </script>
 

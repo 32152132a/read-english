@@ -11,13 +11,13 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    title: { type: String, default: '' },
-    items: { type: Array, default: () => [] },
-  },
-}
+<script setup lang="uts">
+import type { InfoStepItem, InfoStepsProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<InfoStepsProps>(), {
+  title: '',
+  items: (): InfoStepItem[] => [],
+})
 </script>
 
 <style lang="scss">

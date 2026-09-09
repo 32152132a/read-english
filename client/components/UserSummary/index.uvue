@@ -9,11 +9,11 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: { data: { type: Object, required: true } },
-  emits: ['select'],
-}
+<script setup lang="uts">
+import type { UserSummaryProps } from '../../src/config/types.uts'
+
+defineProps<UserSummaryProps>()
+defineEmits(['select'])
 </script>
 
 <style lang="scss">

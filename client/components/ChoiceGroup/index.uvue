@@ -13,27 +13,23 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    options: { type: Array, required: true },
-    initialValue: { type: String, default: '' },
-  },
-  emits: ['change'],
-  data() {
-    return { selectedValue: this.initialValue }
-  },
-  watch: {
-    options() {
-      this.selectedValue = this.initialValue
-    },
-  },
-  methods: {
-    selectOption(value: string) {
-      this.selectedValue = value
-      this.$emit('change', value)
-    },
-  },
+<script setup lang="uts">
+import type { ChoiceGroupProps } from '../../src/config/types.uts'
+
+const props = withDefaults(defineProps<ChoiceGroupProps>(), { initialValue: '' })
+const emit = defineEmits(['change'])
+const selectedValue = ref(props.initialValue)
+
+watch(
+  () => props.options,
+  () => {
+    selectedValue.value = props.initialValue
+  }
+)
+
+function selectOption(value: string) {
+  selectedValue.value = value
+  emit('change', value)
 }
 </script>
 

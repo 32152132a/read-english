@@ -8,15 +8,13 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
 import SegmentedWord from '../SegmentedWord/index.uvue'
 import PlayButton from '../PlayButton/index.uvue'
+import type { EvaluationTargetProps } from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay, SegmentedWord, PlayButton },
-  props: { data: { type: Object, required: true } },
-}
+defineProps<EvaluationTargetProps>()
 </script>
 
 <style lang="scss">

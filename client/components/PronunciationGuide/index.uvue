@@ -13,15 +13,14 @@
   </view>
 </template>
 
-<script lang="uts">
-export default {
-  props: {
-    mouthType: { type: String, default: 'open' },
-    mouthSize: { type: String, default: 'large' },
-    mouthTone: { type: String, default: 'primary' },
-    steps: { type: Array, required: true },
-  },
-}
+<script setup lang="uts">
+import type { PronunciationGuideProps } from '../../src/config/types.uts'
+
+withDefaults(defineProps<PronunciationGuideProps>(), {
+  mouthType: 'open',
+  mouthSize: 'large',
+  mouthTone: 'primary',
+})
 </script>
 
 <style lang="scss">

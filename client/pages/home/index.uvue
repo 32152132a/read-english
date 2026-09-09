@@ -22,68 +22,60 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import BottomNav from '../../components/BottomNav/index.uvue'
 import TodayLessonCard from '../../components/TodayLessonCard/index.uvue'
 import LearningPath from '../../components/LearningPath/index.uvue'
 import NextStageList from '../../components/NextStageList/index.uvue'
-export default {
-  components: { BottomNav, TodayLessonCard, LearningPath, NextStageList },
-  data() {
-    return {
-      pageData: {
-        greeting: '下午好，永庆',
-        subtitle: '看到陌生单词，也能试着读出来',
-        todayTask: {
-          tag: '今日学习',
-          title: '短元音 · 第 3 课',
-          description: '区分 /ɪ/ 和 /iː/',
-          durationMinutes: 6,
-          actionText: '继续学习',
-          route: '/pages/phoneme/compare',
-          progressLabel: '基础学习',
-          current: 8,
-          total: 20,
-        },
-        learningPaths: [
-          { code: 'phoneme', name: '认识音标', state: 'active' },
-          { code: 'syllable', name: '音素与音节', state: 'pending' },
-          { code: 'ipa-decoding', name: '看音标拼读', state: 'pending' },
-          { code: 'word-decoding', name: '看单词拆读', state: 'pending' },
-        ],
-        currentStageName: '认识音标',
-        nextStageLockedText: '完成基础后开启',
-        nextStages: [
-          {
-            code: 'word-list',
-            name: '专业词库',
-            description: '实际应用',
-            iconName: 'book-open',
-            route: '/pages/word-list/index',
-          },
-          {
-            code: 'evaluation',
-            name: '跟读评测',
-            description: '发现问题',
-            iconName: 'headphones',
-            route: '/pages/evaluation/index',
-          },
-          {
-            code: 'correction',
-            name: 'AI 纠音',
-            description: '针对提升',
-            iconName: 'audio-waveform',
-            route: '/pages/correction/index',
-          },
-        ],
-      },
-    }
+const pageData = reactive({
+  greeting: '下午好，永庆',
+  subtitle: '看到陌生单词，也能试着读出来',
+  todayTask: {
+    tag: '今日学习',
+    title: '短元音 · 第 3 课',
+    description: '区分 /ɪ/ 和 /iː/',
+    durationMinutes: 6,
+    actionText: '继续学习',
+    route: '/pages/phoneme/compare',
+    progressLabel: '基础学习',
+    current: 8,
+    total: 20,
   },
-  methods: {
-    go(url: string) {
-      uni.navigateTo({ url })
+  learningPaths: [
+    { code: 'phoneme', name: '认识音标', state: 'active' },
+    { code: 'syllable', name: '音素与音节', state: 'pending' },
+    { code: 'ipa-decoding', name: '看音标拼读', state: 'pending' },
+    { code: 'word-decoding', name: '看单词拆读', state: 'pending' },
+  ],
+  currentStageName: '认识音标',
+  nextStageLockedText: '完成基础后开启',
+  nextStages: [
+    {
+      code: 'word-list',
+      name: '专业词库',
+      description: '实际应用',
+      iconName: 'book-open',
+      route: '/pages/word-list/index',
     },
-  },
+    {
+      code: 'evaluation',
+      name: '跟读评测',
+      description: '发现问题',
+      iconName: 'headphones',
+      route: '/pages/evaluation/index',
+    },
+    {
+      code: 'correction',
+      name: 'AI 纠音',
+      description: '针对提升',
+      iconName: 'audio-waveform',
+      route: '/pages/correction/index',
+    },
+  ],
+})
+
+function go(url: string) {
+  uni.navigateTo({ url })
 }
 </script>
 <style lang="scss">

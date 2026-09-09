@@ -9,13 +9,16 @@
   </view>
 </template>
 
-<script lang="uts">
+<script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import type {
+  PronunciationMappingItem,
+  PronunciationMappingsProps,
+} from '../../src/config/types.uts'
 
-export default {
-  components: { PhonemeDisplay },
-  props: { items: { type: Array, default: () => [] } },
-}
+withDefaults(defineProps<PronunciationMappingsProps>(), {
+  items: (): PronunciationMappingItem[] => [],
+})
 </script>
 
 <style lang="scss">

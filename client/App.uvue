@@ -1,9 +1,7 @@
-<script lang="uts">
-export default {
-  onLaunch() {
-    console.log('永庆发音学习启动')
-  },
-}
+<script setup lang="uts">
+onLaunch(() => {
+  console.log('永庆发音学习启动')
+})
 </script>
 
 <style lang="scss">

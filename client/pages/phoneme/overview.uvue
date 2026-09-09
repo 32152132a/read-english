@@ -14,155 +14,149 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import CategoryTabs from '../../components/CategoryTabs/index.uvue'
 import PhonemeGrid from '../../components/PhonemeGrid/index.uvue'
-export default {
-  components: { LessonProgress, CategoryTabs, PhonemeGrid },
-  data() {
-    return {
-      pageData: {
-        current: 8,
-        total: 48,
-        progressLabel: '已掌握',
-        tabs: [
-          { value: 'vowel', label: '元音' },
-          { value: 'consonant', label: '辅音' },
-        ],
-        singleVowels: [
-          {
-            id: 'i-long',
-            segments: [{ text: 'iː', tone: 'primary' }],
-            word: 'see',
-            zh: '看见',
-            done: true,
-          },
-          {
-            id: 'i-short',
-            segments: [{ text: 'ɪ', tone: 'primary' }],
-            word: 'sit',
-            zh: '坐',
-            done: true,
-          },
-          {
-            id: 'e',
-            segments: [{ text: 'e', tone: 'primary' }],
-            word: 'bed',
-            zh: '床',
-            done: false,
-          },
-          {
-            id: 'ae',
-            segments: [{ text: 'æ', tone: 'primary' }],
-            word: 'cat',
-            zh: '猫',
-            done: false,
-          },
-          {
-            id: 'a-long',
-            segments: [{ text: 'ɑː', tone: 'primary' }],
-            word: 'car',
-            zh: '汽车',
-            done: true,
-          },
-          {
-            id: 'o-short',
-            segments: [{ text: 'ɒ', tone: 'primary' }],
-            word: 'hot',
-            zh: '热的',
-            done: false,
-          },
-          {
-            id: 'o-long',
-            segments: [{ text: 'ɔː', tone: 'primary' }],
-            word: 'saw',
-            zh: '看见',
-            done: true,
-          },
-          {
-            id: 'u-short',
-            segments: [{ text: 'ʊ', tone: 'primary' }],
-            word: 'book',
-            zh: '书',
-            done: false,
-          },
-          {
-            id: 'u-long',
-            segments: [{ text: 'uː', tone: 'primary' }],
-            word: 'food',
-            zh: '食物',
-            done: true,
-          },
-          {
-            id: 'caret',
-            segments: [{ text: 'ʌ', tone: 'primary' }],
-            word: 'cup',
-            zh: '杯子',
-            done: false,
-          },
-          {
-            id: 'er-long',
-            segments: [{ text: 'ɜː', tone: 'primary' }],
-            word: 'bird',
-            zh: '鸟',
-            done: false,
-          },
-          {
-            id: 'schwa',
-            segments: [{ text: 'ə', tone: 'primary' }],
-            word: 'sofa',
-            zh: '沙发',
-            done: false,
-          },
-        ],
-        diphthongs: [
-          {
-            id: 'ei',
-            segments: [{ text: 'eɪ', tone: 'primary' }],
-            word: 'face',
-            zh: '脸',
-            done: false,
-          },
-          {
-            id: 'ai',
-            segments: [{ text: 'aɪ', tone: 'primary' }],
-            word: 'like',
-            zh: '喜欢',
-            done: false,
-          },
-          {
-            id: 'oi',
-            segments: [{ text: 'ɔɪ', tone: 'primary' }],
-            word: 'boy',
-            zh: '男孩',
-            done: false,
-          },
-          {
-            id: 'au',
-            segments: [{ text: 'aʊ', tone: 'primary' }],
-            word: 'house',
-            zh: '房子',
-            done: false,
-          },
-        ],
-        detailRoute: '/pages/phoneme/detail',
-        nextRoute: '/pages/syllable/index',
-      },
-      activeCategory: 'vowel',
-    }
-  },
-  methods: {
-    changeCategory(value: string) {
-      this.activeCategory = value
+const pageData = reactive({
+  current: 8,
+  total: 48,
+  progressLabel: '已掌握',
+  tabs: [
+    { value: 'vowel', label: '元音' },
+    { value: 'consonant', label: '辅音' },
+  ],
+  singleVowels: [
+    {
+      id: 'i-long',
+      segments: [{ text: 'iː', tone: 'primary' }],
+      word: 'see',
+      zh: '看见',
+      done: true,
     },
-    openDetail() {
-      uni.navigateTo({ url: this.pageData.detailRoute })
+    {
+      id: 'i-short',
+      segments: [{ text: 'ɪ', tone: 'primary' }],
+      word: 'sit',
+      zh: '坐',
+      done: true,
     },
-    next() {
-      uni.navigateTo({ url: this.pageData.nextRoute })
+    {
+      id: 'e',
+      segments: [{ text: 'e', tone: 'primary' }],
+      word: 'bed',
+      zh: '床',
+      done: false,
     },
-  },
+    {
+      id: 'ae',
+      segments: [{ text: 'æ', tone: 'primary' }],
+      word: 'cat',
+      zh: '猫',
+      done: false,
+    },
+    {
+      id: 'a-long',
+      segments: [{ text: 'ɑː', tone: 'primary' }],
+      word: 'car',
+      zh: '汽车',
+      done: true,
+    },
+    {
+      id: 'o-short',
+      segments: [{ text: 'ɒ', tone: 'primary' }],
+      word: 'hot',
+      zh: '热的',
+      done: false,
+    },
+    {
+      id: 'o-long',
+      segments: [{ text: 'ɔː', tone: 'primary' }],
+      word: 'saw',
+      zh: '看见',
+      done: true,
+    },
+    {
+      id: 'u-short',
+      segments: [{ text: 'ʊ', tone: 'primary' }],
+      word: 'book',
+      zh: '书',
+      done: false,
+    },
+    {
+      id: 'u-long',
+      segments: [{ text: 'uː', tone: 'primary' }],
+      word: 'food',
+      zh: '食物',
+      done: true,
+    },
+    {
+      id: 'caret',
+      segments: [{ text: 'ʌ', tone: 'primary' }],
+      word: 'cup',
+      zh: '杯子',
+      done: false,
+    },
+    {
+      id: 'er-long',
+      segments: [{ text: 'ɜː', tone: 'primary' }],
+      word: 'bird',
+      zh: '鸟',
+      done: false,
+    },
+    {
+      id: 'schwa',
+      segments: [{ text: 'ə', tone: 'primary' }],
+      word: 'sofa',
+      zh: '沙发',
+      done: false,
+    },
+  ],
+  diphthongs: [
+    {
+      id: 'ei',
+      segments: [{ text: 'eɪ', tone: 'primary' }],
+      word: 'face',
+      zh: '脸',
+      done: false,
+    },
+    {
+      id: 'ai',
+      segments: [{ text: 'aɪ', tone: 'primary' }],
+      word: 'like',
+      zh: '喜欢',
+      done: false,
+    },
+    {
+      id: 'oi',
+      segments: [{ text: 'ɔɪ', tone: 'primary' }],
+      word: 'boy',
+      zh: '男孩',
+      done: false,
+    },
+    {
+      id: 'au',
+      segments: [{ text: 'aʊ', tone: 'primary' }],
+      word: 'house',
+      zh: '房子',
+      done: false,
+    },
+  ],
+  detailRoute: '/pages/phoneme/detail',
+  nextRoute: '/pages/syllable/index',
+})
+const activeCategory = ref('vowel')
+
+function changeCategory(value: string) {
+  activeCategory.value = value
+}
+
+function openDetail() {
+  uni.navigateTo({ url: pageData.detailRoute })
+}
+
+function next() {
+  uni.navigateTo({ url: pageData.nextRoute })
 }
 </script>
 <style lang="scss">

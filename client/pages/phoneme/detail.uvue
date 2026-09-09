@@ -21,7 +21,7 @@
     <DebugPageNav />
   </view>
 </template>
-<script lang="uts">
+<script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import PlayButton from '../../components/PlayButton/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
@@ -29,132 +29,117 @@ import StepActions from '../../components/StepActions/index.uvue'
 import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
 import PronunciationGuide from '../../components/PronunciationGuide/index.uvue'
 import ExampleWordList from '../../components/ExampleWordList/index.uvue'
-export default {
-  components: {
-    LessonProgress,
-    PlayButton,
-    TipCard,
-    StepActions,
-    PhonemeDisplay,
-    PronunciationGuide,
-    ExampleWordList,
-  },
-  data() {
-    return {
-      pageData: {
-        id: 'phoneme-ae',
-        current: 2,
-        total: 3,
-        category: '短元音',
-        ipa: '/æ/',
-        segments: [{ text: '/æ/', tone: 'primary' }],
-        description: '接近「爱」，嘴巴张得更大',
-        memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
+const pageData = reactive({
+  id: 'phoneme-ae',
+  current: 2,
+  total: 3,
+  category: '短元音',
+  ipa: '/æ/',
+  segments: [{ text: '/æ/', tone: 'primary' }],
+  description: '接近「爱」，嘴巴张得更大',
+  memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
+  audioUrl: '',
+  mouthType: 'open',
+  mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
+  examples: [
+    {
+      word: 'cat',
+      segments: [{ text: '/kæt/', tone: 'muted' }],
+      zh: '猫',
+      audioUrl: '',
+    },
+    {
+      word: 'map',
+      segments: [{ text: '/mæp/', tone: 'muted' }],
+      zh: '地图',
+      audioUrl: '',
+    },
+    {
+      word: 'happy',
+      segments: [{ text: "/'hæpi/", tone: 'muted' }],
+      zh: '开心的',
+      audioUrl: '',
+    },
+  ],
+  comparisonText: '容易和哪个音混淆？对比 /e/',
+  comparisonRoute: '/pages/phoneme/compare',
+})
+const stepList = [
+  {
+    id: 'phoneme-e',
+    category: '短元音',
+    segments: [{ text: '/e/', tone: 'primary' }],
+    description: '接近「哎」，嘴巴自然半开',
+    memoryTip: '声音短促，舌尖轻靠下齿，不要拖长。',
+    mouthSteps: ['嘴巴自然半开', '舌尖靠近下齿', '快速发出短音'],
+    mouthType: 'relaxed',
+    comparisonText: '容易和哪个音混淆？对比 /æ/',
+    examples: [
+      { word: 'bed', segments: [{ text: '/bed/', tone: 'muted' }], zh: '床', audioUrl: '' },
+      { word: 'pen', segments: [{ text: '/pen/', tone: 'muted' }], zh: '钢笔', audioUrl: '' },
+      {
+        word: 'desk',
+        segments: [{ text: '/desk/', tone: 'muted' }],
+        zh: '书桌',
         audioUrl: '',
-        mouthType: 'open',
-        mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
-        examples: [
-          {
-            word: 'cat',
-            segments: [{ text: '/kæt/', tone: 'muted' }],
-            zh: '猫',
-            audioUrl: '',
-          },
-          {
-            word: 'map',
-            segments: [{ text: '/mæp/', tone: 'muted' }],
-            zh: '地图',
-            audioUrl: '',
-          },
-          {
-            word: 'happy',
-            segments: [{ text: "/'hæpi/", tone: 'muted' }],
-            zh: '开心的',
-            audioUrl: '',
-          },
-        ],
-        comparisonText: '容易和哪个音混淆？对比 /e/',
-        comparisonRoute: '/pages/phoneme/compare',
       },
-      stepList: [
-        {
-          id: 'phoneme-e',
-          category: '短元音',
-          segments: [{ text: '/e/', tone: 'primary' }],
-          description: '接近「哎」，嘴巴自然半开',
-          memoryTip: '声音短促，舌尖轻靠下齿，不要拖长。',
-          mouthSteps: ['嘴巴自然半开', '舌尖靠近下齿', '快速发出短音'],
-          mouthType: 'relaxed',
-          comparisonText: '容易和哪个音混淆？对比 /æ/',
-          examples: [
-            { word: 'bed', segments: [{ text: '/bed/', tone: 'muted' }], zh: '床', audioUrl: '' },
-            { word: 'pen', segments: [{ text: '/pen/', tone: 'muted' }], zh: '钢笔', audioUrl: '' },
-            {
-              word: 'desk',
-              segments: [{ text: '/desk/', tone: 'muted' }],
-              zh: '书桌',
-              audioUrl: '',
-            },
-          ],
-        },
-        {
-          id: 'phoneme-ae',
-          category: '短元音',
-          segments: [{ text: '/æ/', tone: 'primary' }],
-          description: '接近「爱」，嘴巴张得更大',
-          memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
-          mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
-          mouthType: 'open',
-          comparisonText: '容易和哪个音混淆？对比 /e/',
-          examples: [
-            { word: 'cat', segments: [{ text: '/kæt/', tone: 'muted' }], zh: '猫', audioUrl: '' },
-            { word: 'map', segments: [{ text: '/mæp/', tone: 'muted' }], zh: '地图', audioUrl: '' },
-            {
-              word: 'happy',
-              segments: [{ text: "/'hæpi/", tone: 'muted' }],
-              zh: '开心的',
-              audioUrl: '',
-            },
-          ],
-        },
-        {
-          id: 'phoneme-caret',
-          category: '短元音',
-          segments: [{ text: '/ʌ/', tone: 'primary' }],
-          description: '接近短促的「啊」，嘴巴自然放松',
-          memoryTip: '从喉咙中部快速发声，嘴唇不要用力。',
-          mouthSteps: ['嘴巴自然打开', '舌头放松居中', '短促收音'],
-          mouthType: 'relaxed',
-          comparisonText: '容易和哪个音混淆？对比 /ɑː/',
-          examples: [
-            { word: 'cup', segments: [{ text: '/kʌp/', tone: 'muted' }], zh: '杯子', audioUrl: '' },
-            { word: 'sun', segments: [{ text: '/sʌn/', tone: 'muted' }], zh: '太阳', audioUrl: '' },
-            { word: 'love', segments: [{ text: '/lʌv/', tone: 'muted' }], zh: '爱', audioUrl: '' },
-          ],
-        },
-      ],
-    }
+    ],
   },
-  methods: {
-    loadStep(target: number) {
-      const step = this.stepList[target - 1]
-      if (step == null) return
+  {
+    id: 'phoneme-ae',
+    category: '短元音',
+    segments: [{ text: '/æ/', tone: 'primary' }],
+    description: '接近「爱」，嘴巴张得更大',
+    memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
+    mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
+    mouthType: 'open',
+    comparisonText: '容易和哪个音混淆？对比 /e/',
+    examples: [
+      { word: 'cat', segments: [{ text: '/kæt/', tone: 'muted' }], zh: '猫', audioUrl: '' },
+      { word: 'map', segments: [{ text: '/mæp/', tone: 'muted' }], zh: '地图', audioUrl: '' },
+      {
+        word: 'happy',
+        segments: [{ text: "/'hæpi/", tone: 'muted' }],
+        zh: '开心的',
+        audioUrl: '',
+      },
+    ],
+  },
+  {
+    id: 'phoneme-caret',
+    category: '短元音',
+    segments: [{ text: '/ʌ/', tone: 'primary' }],
+    description: '接近短促的「啊」，嘴巴自然放松',
+    memoryTip: '从喉咙中部快速发声，嘴唇不要用力。',
+    mouthSteps: ['嘴巴自然打开', '舌头放松居中', '短促收音'],
+    mouthType: 'relaxed',
+    comparisonText: '容易和哪个音混淆？对比 /ɑː/',
+    examples: [
+      { word: 'cup', segments: [{ text: '/kʌp/', tone: 'muted' }], zh: '杯子', audioUrl: '' },
+      { word: 'sun', segments: [{ text: '/sʌn/', tone: 'muted' }], zh: '太阳', audioUrl: '' },
+      { word: 'love', segments: [{ text: '/lʌv/', tone: 'muted' }], zh: '爱', audioUrl: '' },
+    ],
+  },
+]
 
-      this.pageData.id = step.id
-      this.pageData.current = target
-      this.pageData.category = step.category
-      this.pageData.segments = step.segments
-      this.pageData.description = step.description
-      this.pageData.memoryTip = step.memoryTip
-      this.pageData.mouthSteps = step.mouthSteps
-      this.pageData.mouthType = step.mouthType
-      this.pageData.comparisonText = step.comparisonText
-      this.pageData.examples = step.examples
-    },
-    goCompare() {
-      uni.navigateTo({ url: this.pageData.comparisonRoute })
-    },
-  },
+function loadStep(target: number) {
+  const step = stepList[target - 1]
+  if (step == null) return
+
+  pageData.id = step.id
+  pageData.current = target
+  pageData.category = step.category
+  pageData.segments = step.segments
+  pageData.description = step.description
+  pageData.memoryTip = step.memoryTip
+  pageData.mouthSteps = step.mouthSteps
+  pageData.mouthType = step.mouthType
+  pageData.comparisonText = step.comparisonText
+  pageData.examples = step.examples
+}
+
+function goCompare() {
+  uni.navigateTo({ url: pageData.comparisonRoute })
 }
 </script>
 <style lang="scss">
