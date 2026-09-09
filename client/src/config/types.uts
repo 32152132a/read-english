@@ -76,14 +76,6 @@ export type CorrectionPracticeData = {
   ipaSegments: PhonemeSegment[]
 }
 
-export type DecodingExerciseData = {
-  hint: string
-  parts: SegmentPart[]
-  segmentedAudioUrl: string
-  fullAudioUrl: string
-  answerWord: string
-}
-
 export type EvaluationTargetData = {
   word: string
   ipaSegments: PhonemeSegment[]
@@ -243,7 +235,6 @@ export type CorrectionIssueProps = {
   segments?: PhonemeSegment[]
 }
 export type CorrectionPracticeProps = { data: CorrectionPracticeData }
-export type DecodingExerciseProps = { data: DecodingExerciseData }
 export type ErrorStateProps = {
   code: string
   title: string
@@ -297,6 +288,14 @@ export type SegmentedWordProps = {
   separator?: string
   hint?: string
 }
+export type IpaReadingCardData = {
+  word: string
+  hint: string
+  ipaSegments: PhonemeSegment[]
+  parts: SegmentPart[]
+  audioUrl: string
+}
+export type IpaReadingCardProps = { data: IpaReadingCardData }
 export type StageProgressProps = { steps: StageItem[]; variant?: string }
 export type StepActionsProps = { current: number; total: number; hint?: string }
 export type TipCardProps = { title?: string; text: string; variant?: string }

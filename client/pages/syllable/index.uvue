@@ -5,7 +5,7 @@
       <text class="page-title">{{ pageData.title }}</text>
       <text class="muted">{{ pageData.description }}</text>
     </view>
-    <TipCard :title="pageData.tipTitle" :text="pageData.tip" />
+    <TipCard class="syllable-page__tip" :title="pageData.tipTitle" :text="pageData.tip" />
     <SegmentedWord
       :word="pageData.example.word"
       :ipa-segments="pageData.example.ipaSegments"
@@ -130,5 +130,9 @@ function loadStep(target: number) {
 .center .muted {
   display: block;
   margin-top: 12rpx;
+}
+
+.syllable-page__tip {
+  margin-bottom: 20rpx;
 }
 </style>

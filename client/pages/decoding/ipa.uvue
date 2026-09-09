@@ -1,10 +1,7 @@
 <template>
   <view class="page">
     <LessonProgress :current="pageData.current" :total="pageData.total" />
-    <text class="page-title task">{{ pageData.title }}</text>
-    <PhonemeDisplay :segments="pageData.ipaSegments" size="large" />
-    <StageProgress :steps="pageData.stages" />
-    <DecodingExercise :data="pageData.exercise" />
+    <IpaReadingCard :data="pageData.card" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
   </view>
@@ -12,32 +9,21 @@
 <script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
-import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
-import StageProgress from '../../components/StageProgress/index.uvue'
-import DecodingExercise from '../../components/DecodingExercise/index.uvue'
+import IpaReadingCard from '../../components/IpaReadingCard/index.uvue'
 const pageData = reactive({
   id: 'ipa-decoding-component',
   current: 2,
   total: 3,
-  title: '把音标分段读出来',
-  ipa: '/kəmˈpəʊnənt/',
-  ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
-  stages: [
-    { code: 'vowels', name: '找元音', state: 'completed' },
-    { code: 'syllables', name: '分音节', state: 'active' },
-    { code: 'stress', name: '找重音', state: 'pending' },
-    { code: 'read', name: '连起来读', state: 'pending' },
-  ],
-  exercise: {
-    hint: '拖动分隔符，调整音节划分',
+  card: {
+    word: 'component',
+    hint: '听一听，再试着把音节连起来读',
+    ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
     parts: [
       { text: 'kəm', emphasized: false },
       { text: 'pəʊ', emphasized: true },
       { text: 'nənt', emphasized: false },
     ],
-    segmentedAudioUrl: '',
-    fullAudioUrl: '',
-    answerWord: 'component',
+    audioUrl: '',
   },
 })
 const stepList = [
@@ -79,15 +65,8 @@ function loadStep(target: number) {
 
   pageData.id = step.id
   pageData.current = target
-  pageData.ipaSegments = step.ipaSegments
-  pageData.exercise.answerWord = step.answerWord
-  pageData.exercise.parts = step.parts
+  pageData.card.word = step.answerWord
+  pageData.card.ipaSegments = step.ipaSegments
+  pageData.card.parts = step.parts
 }
 </script>
-<style lang="scss">
-@import '../../uni.scss';
-.task {
-  display: block;
-  margin-top: 54rpx;
-}
-</style>

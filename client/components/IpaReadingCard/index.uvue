@@ -1,0 +1,129 @@
+<template>
+  <view class="ipa-reading-card">
+    <text class="ipa-reading-card__hint">{{ data.hint }}</text>
+    <view class="ipa-reading-card__ipa">
+      <PhonemeDisplay :segments="data.ipaSegments" size="large" />
+      <PlayButton :src="data.audioUrl" size="tiny" icon="volume" />
+    </view>
+    <view class="ipa-reading-card__parts">
+      <template v-for="(part, index) in data.parts" :key="part.text">
+        <text v-if="index > 0" class="ipa-reading-card__separator">·</text>
+        <text :class="part.emphasized ? 'is-emphasized' : ''">{{ part.text }}</text>
+      </template>
+    </view>
+    <view class="ipa-reading-card__answer">
+      <text v-if="answerVisible" class="ipa-reading-card__word">{{ data.word }}</text>
+      <view v-else class="ipa-reading-card__placeholder">
+        <view v-for="index in data.word.length" :key="index" class="ipa-reading-card__line" />
+      </view>
+      <view class="ipa-reading-card__eye" @click="toggleAnswer">
+        <AppIcon :name="answerVisible ? 'eye-off' : 'eye'" :size="36" label="显示或隐藏单词" />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+import type { IpaReadingCardProps } from '../../src/config/types.uts'
+
+const props = defineProps<IpaReadingCardProps>()
+const answerVisible = ref(false)
+
+watch(
+  () => props.data.word,
+  () => {
+    answerVisible.value = false
+  }
+)
+
+function toggleAnswer() {
+  answerVisible.value = !answerVisible.value
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.ipa-reading-card {
+  margin-top: 36rpx;
+  padding: 40rpx 28rpx 32rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background-color: $color-surface;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 30rpx;
+
+  &__hint {
+    color: $color-text-secondary;
+    font-size: 24rpx;
+  }
+
+  &__ipa {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+  }
+
+  &__parts {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: #91a5e8;
+    font-size: 50rpx;
+
+    .is-emphasized {
+      color: $color-primary;
+      font-weight: 700;
+    }
+  }
+
+  &__separator {
+    color: $color-text-secondary;
+  }
+
+  &__answer {
+    width: 100%;
+    padding-top: 28rpx;
+    box-sizing: border-box;
+    border-top: 1rpx solid $color-border;
+    display: grid;
+    grid-template-columns: 36rpx minmax(0, 1fr) 36rpx;
+    align-items: center;
+    justify-items: center;
+    gap: 16rpx;
+  }
+
+  &__word,
+  &__placeholder {
+    grid-column: 2;
+  }
+
+  &__word {
+    font-size: 58rpx;
+    font-weight: 700;
+  }
+
+  &__eye {
+    grid-column: 3;
+  }
+
+  &__placeholder {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10rpx;
+  }
+
+  &__line {
+    width: 24rpx;
+    height: 2rpx;
+    background-color: $color-text-secondary;
+  }
+}
+</style>

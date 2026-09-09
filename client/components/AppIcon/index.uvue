@@ -26,6 +26,8 @@ const iconNames = [
   'lightbulb',
   'circle-check',
   'lock-keyhole',
+  'eye',
+  'eye-off',
 ]
 
 const props = withDefaults(defineProps<AppIconProps>(), {
