@@ -1,0 +1,134 @@
+<template>
+  <view class="word-decoding-card">
+    <text class="word-decoding-card__hint">点击字母组合，逐段推测读音</text>
+    <view class="word-decoding-card__word-row">
+      <view class="word-decoding-card__word">
+        <text
+          v-for="(mapping, index) in data.mappings"
+          :key="mapping.part"
+          class="word-decoding-card__chunk"
+          :class="activeIndex === index ? 'is-active' : ''"
+          @click="selectMapping(index)"
+        >
+          {{ mapping.part }}
+        </text>
+      </view>
+      <PlayButton :src="data.audioUrl" size="tiny" icon="volume" />
+    </view>
+    <PhonemeDisplay :segments="displaySegments" size="large" />
+    <text class="word-decoding-card__rule">{{ activeMapping.tip }}</text>
+    <text class="word-decoding-card__progress">
+      {{ activeIndex + 1 }} / {{ data.mappings.length }}
+    </text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+import type {
+  PhonemeSegment,
+  PronunciationMappingItem,
+  WordDecodingCardProps,
+} from '../../src/config/types.uts'
+
+const props = defineProps<WordDecodingCardProps>()
+const activeIndex = ref(0)
+const activeMapping = computed(
+  (): PronunciationMappingItem => props.data.mappings[activeIndex.value]
+)
+const displaySegments = computed((): PhonemeSegment[] => {
+  const segments: PhonemeSegment[] = []
+  props.data.mappings.forEach((mapping, mappingIndex) => {
+    mapping.segments.forEach((segment, segmentIndex) => {
+      let text = segment.text
+      if (mappingIndex === 0 && segmentIndex === 0) text = '/' + text
+      if (
+        mappingIndex === props.data.mappings.length - 1 &&
+        segmentIndex === mapping.segments.length - 1
+      )
+        text += '/'
+      segments.push({
+        text,
+        tone:
+          mappingIndex === activeIndex.value
+            ? segment.tone === 'stress'
+              ? 'stress'
+              : 'primary'
+            : 'muted',
+      })
+    })
+  })
+  return segments
+})
+
+watch(
+  () => props.data.id,
+  () => {
+    activeIndex.value = 0
+  }
+)
+
+function selectMapping(index: number) {
+  activeIndex.value = index
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.word-decoding-card {
+  margin-top: 34rpx;
+  padding: 38rpx 28rpx 28rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background-color: $color-surface;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 30rpx;
+
+  &__hint,
+  &__progress {
+    color: $color-text-secondary;
+    font-size: 23rpx;
+  }
+
+  &__word-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40rpx minmax(0, 1fr) 40rpx;
+    align-items: center;
+  }
+
+  &__word {
+    grid-column: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  &__chunk {
+    padding: 8rpx 4rpx;
+    border-bottom: 4rpx solid transparent;
+    color: #91a5e8;
+    font-size: 58rpx;
+
+    &.is-active {
+      border-color: $color-primary;
+      color: $color-primary;
+      font-weight: 700;
+    }
+  }
+
+  .play-button {
+    grid-column: 3;
+  }
+
+  &__rule {
+    color: $color-text-secondary;
+    font-size: 26rpx;
+    text-align: center;
+  }
+}
+</style>

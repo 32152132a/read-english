@@ -2,7 +2,14 @@
   <view class="tip-card" :class="variant === 'memory' ? 'tip-card--memory' : ''">
     <AppIcon name="lightbulb" :size="34" />
     <text class="tip-card__title">{{ title }}</text>
-    <text class="tip-card__text">{{ text }}</text>
+    <text v-if="text.length > 0" class="tip-card__text">{{ text }}</text>
+    <view v-if="items.length > 0" class="tip-card__list">
+      <view v-for="item in items" :key="item" class="tip-card__item">
+        <view class="tip-card__dot" />
+        <text>{{ item }}</text>
+      </view>
+    </view>
+    <text v-if="note.length > 0" class="tip-card__note">{{ note }}</text>
   </view>
 </template>
 
@@ -11,6 +18,9 @@ import type { TipCardProps } from '../../src/config/types.uts'
 
 withDefaults(defineProps<TipCardProps>(), {
   title: '提示',
+  text: '',
+  items: (): string[] => [],
+  note: '',
   variant: 'default',
 })
 </script>
@@ -37,6 +47,36 @@ withDefaults(defineProps<TipCardProps>(), {
     grid-column: 2;
     font-size: 23rpx;
     line-height: 34rpx;
+  }
+
+  &__list {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8rpx;
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: 10rpx minmax(0, 1fr);
+    align-items: center;
+    gap: 8rpx;
+    font-size: 21rpx;
+    line-height: 31rpx;
+  }
+
+  &__dot {
+    width: 8rpx;
+    height: 8rpx;
+    border-radius: 50%;
+    background-color: $color-primary;
+  }
+
+  &__note {
+    grid-column: 2;
+    color: $color-text-secondary;
+    font-size: 19rpx;
+    line-height: 28rpx;
   }
 
   &--memory {

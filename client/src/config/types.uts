@@ -108,6 +108,14 @@ export type PronunciationMappingItem = {
   tip: string
 }
 
+export type WordDecodingCardData = {
+  id: string
+  word: string
+  audioUrl: string
+  specialTips: string[]
+  mappings: PronunciationMappingItem[]
+}
+
 export type RecentLearningItem = {
   id: string
   word: string
@@ -274,7 +282,7 @@ export type PronunciationGuideProps = {
   mouthTone?: string
   steps: string[]
 }
-export type PronunciationMappingsProps = { items?: PronunciationMappingItem[] }
+export type WordDecodingCardProps = { data: WordDecodingCardData }
 export type RecentLearningProps = { items?: RecentLearningItem[] }
 export type RecordingPanelProps = {
   title?: string
@@ -298,7 +306,13 @@ export type IpaReadingCardData = {
 export type IpaReadingCardProps = { data: IpaReadingCardData }
 export type StageProgressProps = { steps: StageItem[]; variant?: string }
 export type StepActionsProps = { current: number; total: number; hint?: string }
-export type TipCardProps = { title?: string; text: string; variant?: string }
+export type TipCardProps = {
+  title?: string
+  text?: string
+  items?: string[]
+  note?: string
+  variant?: string
+}
 export type TodayLessonCardProps = { data: TodayLessonData }
 export type UserSummaryProps = { data: UserSummaryData }
 export type WordListCardsProps = { items?: WordListCardItem[] }

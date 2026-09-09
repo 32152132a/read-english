@@ -2,14 +2,12 @@
   <view class="page">
     <LessonProgress :current="pageData.current" :total="pageData.total" />
     <text class="page-title centered">{{ pageData.title }}</text>
-    <TipCard :text="pageData.tip" />
-    <SegmentedWord
-      :parts="pageData.parts"
-      :ipa-segments="pageData.ipaSegments"
-      :hint="pageData.hint"
+    <TipCard
+      title="拆分思路"
+      :items="splitTips"
+      note="规则用于帮助推测，最终以音标和实际发音为准。"
     />
-    <text class="section-title">字母与发音</text>
-    <PronunciationMappings :items="pageData.mappings" />
+    <WordDecodingCard :data="pageData.exercise" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
   </view>
@@ -18,62 +16,84 @@
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
-import SegmentedWord from '../../components/SegmentedWord/index.uvue'
-import PronunciationMappings from '../../components/PronunciationMappings/index.uvue'
+import WordDecodingCard from '../../components/WordDecodingCard/index.uvue'
+
+const COMMON_SPLIT_TIPS = [
+  '数声音，不数字母：一个元音声音通常对应一个音节。',
+  '字母组合不拆家：常见元音、辅音组合尽量保持完整。',
+  '辅音看跟谁读：能自然作为下一音节开头就往后归。',
+]
+
 const pageData = reactive({
   id: 'word-decoding-component',
   current: 2,
   total: 3,
   title: '根据字母组合推测读音',
-  tip: '非重读音节中的 o 常弱读为 /ə/',
-  word: 'component',
-  ipa: '/kəmˈpəʊnənt/',
-  ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
-  hint: '拖动分隔符调整拆分',
-  audioUrl: '',
-  parts: [
-    { text: 'com', emphasized: false },
-    { text: 'po', emphasized: true },
-    { text: 'nent', emphasized: false },
-  ],
-  mappings: [
-    { part: 'com', segments: [{ text: '/kəm/', tone: 'normal' }], tip: '辅音 + o 弱读 /ə/' },
-    { part: 'po', segments: [{ text: '/pəʊ/', tone: 'stress' }], tip: '开音节 o 发 /əʊ/' },
-    { part: 'nent', segments: [{ text: '/nənt/', tone: 'normal' }], tip: '结尾 t 不发音' },
-  ],
+  exercise: {
+    id: 'word-decoding-component',
+    word: 'component',
+    audioUrl: '',
+    specialTips: ['component 拆成 com / po / nent。', '重读在 po，非重读元音可能发生弱化。'],
+    mappings: [
+      { part: 'com', segments: [{ text: 'kəm', tone: 'normal' }], tip: '非重读 o 常弱读为 /ə/' },
+      { part: 'po', segments: [{ text: 'pəʊ', tone: 'stress' }], tip: '开音节 o 常发 /əʊ/' },
+      {
+        part: 'nent',
+        segments: [{ text: 'nənt', tone: 'normal' }],
+        tip: '非重读 e 常弱读为 /ə/',
+      },
+    ],
+  },
 })
 const stepList = [
   {
     id: 'word-decoding-fantastic',
     word: 'fantastic',
-    ipa: '/fænˈtæstɪk/',
-    parts: [
-      { text: 'fan', emphasized: false },
-      { text: 'tas', emphasized: true },
-      { text: 'tic', emphasized: false },
+    audioUrl: '',
+    specialTips: ['fantastic 拆成 fan / tas / tic。', '重读在 tas，闭音节中的元音通常发短音。'],
+    mappings: [
+      { part: 'fan', segments: [{ text: 'fæn', tone: 'normal' }], tip: '闭音节 a 常发 /æ/' },
+      { part: 'tas', segments: [{ text: 'ˈtæs', tone: 'stress' }], tip: '重音落在这个音节' },
+      { part: 'tic', segments: [{ text: 'tɪk', tone: 'normal' }], tip: '闭音节 i 常发 /ɪ/' },
     ],
   },
   {
     id: 'word-decoding-component',
     word: 'component',
-    ipa: '/kəmˈpəʊnənt/',
-    parts: [
-      { text: 'com', emphasized: false },
-      { text: 'po', emphasized: true },
-      { text: 'nent', emphasized: false },
+    audioUrl: '',
+    specialTips: ['component 拆成 com / po / nent。', '重读在 po，非重读元音可能发生弱化。'],
+    mappings: [
+      { part: 'com', segments: [{ text: 'kəm', tone: 'normal' }], tip: '非重读 o 常弱读为 /ə/' },
+      { part: 'po', segments: [{ text: 'pəʊ', tone: 'stress' }], tip: '开音节 o 常发 /əʊ/' },
+      {
+        part: 'nent',
+        segments: [{ text: 'nənt', tone: 'normal' }],
+        tip: '非重读 e 常弱读为 /ə/',
+      },
     ],
   },
   {
     id: 'word-decoding-important',
     word: 'important',
-    ipa: '/ɪmˈpɔːtənt/',
-    parts: [
-      { text: 'im', emphasized: false },
-      { text: 'por', emphasized: true },
-      { text: 'tant', emphasized: false },
+    audioUrl: '',
+    specialTips: ['important 拆成 im / por / tant。', '重读在 por，非重读 a 通常弱读为 /ə/。'],
+    mappings: [
+      { part: 'im', segments: [{ text: 'ɪm', tone: 'normal' }], tip: '闭音节 i 常发 /ɪ/' },
+      {
+        part: 'por',
+        segments: [{ text: 'ˈpɔː', tone: 'stress' }],
+        tip: 'or 在重读音节中常发 /ɔː/',
+      },
+      {
+        part: 'tant',
+        segments: [{ text: 'tənt', tone: 'normal' }],
+        tip: '非重读 a 常弱读为 /ə/',
+      },
     ],
   },
 ]
+
+const splitTips = computed((): string[] => [...COMMON_SPLIT_TIPS, ...pageData.exercise.specialTips])
 
 function loadStep(target: number) {
   const step = stepList[target - 1]
@@ -81,10 +101,7 @@ function loadStep(target: number) {
 
   pageData.id = step.id
   pageData.current = target
-  pageData.word = step.word
-  pageData.ipa = step.ipa
-  pageData.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
-  pageData.parts = step.parts
+  pageData.exercise = step
 }
 </script>
 <style lang="scss">
