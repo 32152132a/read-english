@@ -174,7 +174,17 @@ export type AppIconProps = {
 export type ChoiceGroupProps = {
   options: SelectOption[]
   initialValue?: string
+  correctValue?: string
 }
+
+export type SyllableQuizData = {
+  id: string
+  text: string
+  options: SelectOption[]
+  correctValue: string
+}
+
+export type SyllableQuizProps = { data: SyllableQuizData }
 
 export type PlayButtonProps = {
   src?: string

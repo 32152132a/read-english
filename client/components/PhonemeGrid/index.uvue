@@ -33,7 +33,7 @@ defineEmits(['select'])
     min-width: 0;
     padding: 18rpx 10rpx;
     display: flex;
-    flex-direction: row;
+    // flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 6rpx;

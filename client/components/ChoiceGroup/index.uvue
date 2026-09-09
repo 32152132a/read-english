@@ -4,7 +4,7 @@
       v-for="option in options"
       :key="option.value"
       class="choice-group__option"
-      :class="selectedValue === option.value ? 'is-selected' : ''"
+      :class="getOptionClass(option.value)"
       @click="selectOption(option.value)"
     >
       <text v-if="option.label.length > 0" class="choice-group__label">{{ option.label }}</text>
@@ -16,12 +16,15 @@
 <script setup lang="uts">
 import type { ChoiceGroupProps } from '../../src/config/types.uts'
 
-const props = withDefaults(defineProps<ChoiceGroupProps>(), { initialValue: '' })
+const props = withDefaults(defineProps<ChoiceGroupProps>(), {
+  initialValue: '',
+  correctValue: '',
+})
 const emit = defineEmits(['change'])
 const selectedValue = ref(props.initialValue)
 
 watch(
-  () => props.options,
+  () => [props.options, props.initialValue],
   () => {
     selectedValue.value = props.initialValue
   }
@@ -30,6 +33,15 @@ watch(
 function selectOption(value: string) {
   selectedValue.value = value
   emit('change', value)
+}
+
+function getOptionClass(value: string): string {
+  if (selectedValue.value.length === 0) return ''
+  if (props.correctValue.length === 0) {
+    return selectedValue.value === value ? 'is-selected' : ''
+  }
+  if (value === props.correctValue) return 'is-correct'
+  return selectedValue.value === value ? 'is-wrong' : ''
 }
 </script>
 
@@ -56,6 +68,16 @@ function selectOption(value: string) {
       border-color: $color-primary;
       background-color: #f5f7ff;
     }
+
+    &.is-correct {
+      border-color: $color-success;
+      background-color: #f0faf5;
+    }
+
+    &.is-wrong {
+      border-color: #e45b62;
+      background-color: #fff3f3;
+    }
   }
 
   &__label {
@@ -67,6 +89,16 @@ function selectOption(value: string) {
 
   .is-selected &__label {
     background-color: $color-primary;
+    color: $color-surface;
+  }
+
+  .is-correct &__label {
+    background-color: $color-success;
+    color: $color-surface;
+  }
+
+  .is-wrong &__label {
+    background-color: #e45b62;
     color: $color-surface;
   }
 

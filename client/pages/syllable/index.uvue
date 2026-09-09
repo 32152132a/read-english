@@ -13,14 +13,7 @@
       separator="·"
     />
     <InfoSteps title="怎么判断" :items="pageData.rules" />
-    <view class="card question">
-      <text>{{ pageData.question.text }}</text>
-      <ChoiceGroup
-        :options="pageData.question.options"
-        :initial-value="pageData.question.answer"
-        @change="selectAnswer"
-      />
-    </view>
+    <SyllableQuiz :data="pageData.question" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
   </view>
@@ -31,7 +24,7 @@ import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import SegmentedWord from '../../components/SegmentedWord/index.uvue'
 import InfoSteps from '../../components/InfoSteps/index.uvue'
-import ChoiceGroup from '../../components/ChoiceGroup/index.uvue'
+import SyllableQuiz from '../../components/SyllableQuiz/index.uvue'
 const pageData = reactive({
   id: 'syllable-basic',
   current: 2,
@@ -55,13 +48,15 @@ const pageData = reactive({
     { title: '按发音节奏拆分', text: '每个元音音素为一个音节的核心。' },
   ],
   question: {
+    id: 'syllable-core-count',
     text: 'computer 有几个音节？',
     options: [
-      { value: '2', label: '', text: '2' },
-      { value: '3', label: '', text: '3' },
-      { value: '4', label: '', text: '4' },
+      { value: '2', label: 'A', text: '2 个' },
+      { value: '3', label: 'B', text: '3 个' },
+      { value: '4', label: 'C', text: '4 个' },
+      { value: '5', label: 'D', text: '5 个' },
     ],
-    answer: '3',
+    correctValue: '3',
   },
 })
 const stepList = [
@@ -69,22 +64,51 @@ const stepList = [
     title: '先找到元音音素',
     description: '元音音素是划分音节的核心线索。',
     tip: '先听声音，再看音标中的元音。',
+    question: {
+      id: 'syllable-vowel-count',
+      text: 'computer 中有几个元音音素？',
+      options: [
+        { value: '2', label: 'A', text: '2 个' },
+        { value: '3', label: 'B', text: '3 个' },
+        { value: '4', label: 'C', text: '4 个' },
+        { value: '5', label: 'D', text: '5 个' },
+      ],
+      correctValue: '3',
+    },
   },
   {
     title: '一个元音音素，一个音节',
     description: '每个音节都只有一个元音音素作为核心。',
     tip: '看元音音素，不是数元音字母。',
+    question: {
+      id: 'syllable-core-count',
+      text: 'computer 有几个音节？',
+      options: [
+        { value: '2', label: 'A', text: '2 个' },
+        { value: '3', label: 'B', text: '3 个' },
+        { value: '4', label: 'C', text: '4 个' },
+        { value: '5', label: 'D', text: '5 个' },
+      ],
+      correctValue: '3',
+    },
   },
   {
     title: '按发音节奏完成拆分',
     description: '重读和弱读会形成清楚的音节节奏。',
     tip: '慢速朗读，更容易听出音节边界。',
+    question: {
+      id: 'syllable-stress-position',
+      text: 'computer 的重读音节是哪一个？',
+      options: [
+        { value: '1', label: 'A', text: '第 1 个' },
+        { value: '2', label: 'B', text: '第 2 个' },
+        { value: '3', label: 'C', text: '第 3 个' },
+        { value: 'none', label: 'D', text: '没有重读' },
+      ],
+      correctValue: '2',
+    },
   },
 ]
-
-function selectAnswer(value: string) {
-  pageData.question.answer = value
-}
 
 function loadStep(target: number) {
   const step = stepList[target - 1]
@@ -94,6 +118,7 @@ function loadStep(target: number) {
   pageData.title = step.title
   pageData.description = step.description
   pageData.tip = step.tip
+  pageData.question = step.question
 }
 </script>
 <style lang="scss">
@@ -105,14 +130,5 @@ function loadStep(target: number) {
 .center .muted {
   display: block;
   margin-top: 12rpx;
-}
-.question {
-  margin-top: 28rpx;
-  text-align: center;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-.question .choice-group {
-  margin-top: 24rpx;
 }
 </style>

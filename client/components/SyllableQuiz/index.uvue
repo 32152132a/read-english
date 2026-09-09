@@ -1,0 +1,52 @@
+<template>
+  <view class="syllable-quiz">
+    <text class="syllable-quiz__question">{{ data.text }}</text>
+    <ChoiceGroup
+      :options="data.options"
+      :initial-value="selectedValue"
+      :correct-value="data.correctValue"
+      @change="selectAnswer"
+    />
+  </view>
+</template>
+
+<script setup lang="uts">
+import ChoiceGroup from '../ChoiceGroup/index.uvue'
+import type { SyllableQuizProps } from '../../src/config/types.uts'
+
+const props = defineProps<SyllableQuizProps>()
+const emit = defineEmits(['answer'])
+const selectedValue = ref('')
+
+watch(
+  () => props.data.id,
+  () => {
+    selectedValue.value = ''
+  }
+)
+
+function selectAnswer(value: string) {
+  selectedValue.value = value
+  emit('answer', value, value === props.data.correctValue)
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.syllable-quiz {
+  margin-top: 28rpx;
+  padding: 28rpx;
+  border-radius: 18rpx;
+  background-color: $color-surface;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22rpx;
+
+  &__question {
+    font-size: 28rpx;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+</style>

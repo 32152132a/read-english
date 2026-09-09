@@ -1,10 +1,8 @@
 <template>
   <view class="tip-card" :class="variant === 'memory' ? 'tip-card--memory' : ''">
     <AppIcon name="lightbulb" :size="34" />
-    <view class="tip-card__content">
-      <text class="tip-card__title">{{ title }}</text>
-      <text class="tip-card__text">{{ text }}</text>
-    </view>
+    <text class="tip-card__title">{{ title }}</text>
+    <text class="tip-card__text">{{ text }}</text>
   </view>
 </template>
 
@@ -27,14 +25,8 @@ withDefaults(defineProps<TipCardProps>(), {
   background-color: #eef2ff;
   display: grid;
   grid-template-columns: 34rpx 1fr;
-  align-items: start;
+  align-items: center;
   gap: 12rpx;
-
-  &__content {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8rpx;
-  }
 
   &__title {
     color: $color-primary;
@@ -42,6 +34,7 @@ withDefaults(defineProps<TipCardProps>(), {
   }
 
   &__text {
+    grid-column: 2;
     font-size: 23rpx;
     line-height: 34rpx;
   }
