@@ -1,6 +1,7 @@
 <template>
   <view class="page">
     <LessonProgress :current="pageData.current" :total="pageData.total" />
+    <TipCard :title="pageData.tip.title" :text="pageData.tip.text" />
     <IpaReadingCard :data="pageData.card" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
@@ -8,15 +9,20 @@
 </template>
 <script setup lang="uts">
 import LessonProgress from '../../components/LessonProgress/index.uvue'
+import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import IpaReadingCard from '../../components/IpaReadingCard/index.uvue'
 const pageData = reactive({
   id: 'ipa-decoding-component',
   current: 2,
   total: 3,
+  tip: {
+    title: '拼读提示',
+    text: '先找出元音音素，再按音节分段，最后连起来读。',
+  },
   card: {
     word: 'component',
-    hint: '听一听，再试着把音节连起来读',
+    hint: '先自己读一遍，再点击喇叭核对',
     ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'primary' }],
     parts: [
       { text: 'kəm', emphasized: false },
