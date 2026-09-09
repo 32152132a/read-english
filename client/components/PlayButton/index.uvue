@@ -189,6 +189,7 @@ onUnmounted(resetAudio)
 
   &--micro {
     gap: 0;
+    opacity: 0.68;
 
     .play-button__circle {
       width: 32rpx;

@@ -1,15 +1,20 @@
 <template>
   <view class="page">
-    <text class="section-title">元音</text>
-    <PhonemeGrid :items="vowels" @select="openDetail" />
-    <text class="section-title">辅音</text>
-    <PhonemeGrid :items="consonants" @select="openDetail" />
+    <PhonemeCatalog
+      :title="pageData.title"
+      :description="pageData.description"
+      :vowels="vowels"
+      :consonants="consonants"
+      @select="openDetail"
+    />
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
-import PhonemeGrid from '../../components/PhonemeGrid/index.uvue'
+import PhonemeCatalog from '../../components/PhonemeCatalog/index.uvue'
 const pageData = reactive({
+  title: '国际音标速查',
+  description: '共 44 个音标，点击喇叭试听发音',
   singleVowels: [
     { id: 'i-long', segments: [{ text: 'iː', tone: 'primary' }], audioUrl: '' },
     { id: 'i-short', segments: [{ text: 'ɪ', tone: 'primary' }], audioUrl: '' },

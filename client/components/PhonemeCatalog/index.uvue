@@ -1,0 +1,79 @@
+<template>
+  <view class="phoneme-catalog">
+    <view class="phoneme-catalog__intro">
+      <text class="phoneme-catalog__title">{{ title }}</text>
+      <text class="phoneme-catalog__description">{{ description }}</text>
+    </view>
+
+    <view class="phoneme-catalog__section">
+      <view class="phoneme-catalog__section-header">
+        <text class="phoneme-catalog__section-title">元音</text>
+        <text class="phoneme-catalog__count">{{ vowels.length }} 个</text>
+      </view>
+      <PhonemeGrid :items="vowels" @select="$emit('select', $event)" />
+    </view>
+
+    <view class="phoneme-catalog__section">
+      <view class="phoneme-catalog__section-header">
+        <text class="phoneme-catalog__section-title">辅音</text>
+        <text class="phoneme-catalog__count">{{ consonants.length }} 个</text>
+      </view>
+      <PhonemeGrid :items="consonants" @select="$emit('select', $event)" />
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import PhonemeGrid from '../PhonemeGrid/index.uvue'
+import type { PhonemeCatalogProps } from '../../src/config/types.uts'
+
+defineProps<PhonemeCatalogProps>()
+defineEmits(['select'])
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.phoneme-catalog {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 42rpx;
+
+  &__intro,
+  &__section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  &__intro {
+    gap: 8rpx;
+    padding-top: 28rpx;
+  }
+
+  &__title {
+    font-size: 36rpx;
+    font-weight: 700;
+  }
+
+  &__description,
+  &__count {
+    color: $color-text-secondary;
+    font-size: 24rpx;
+  }
+
+  &__section {
+    gap: 18rpx;
+  }
+
+  &__section-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  &__section-title {
+    font-size: 30rpx;
+    font-weight: 700;
+  }
+}
+</style>

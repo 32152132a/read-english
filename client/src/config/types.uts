@@ -259,6 +259,12 @@ export type NextStageListProps = { stages: NextStageItem[]; lockedText?: string 
 export type PhonemeComparisonProps = { items: PhonemeComparisonItem[] }
 export type PhonemeDisplayProps = { segments: PhonemeSegment[]; size?: string }
 export type PhonemeGridProps = { items: PhonemeGridItem[] }
+export type PhonemeCatalogProps = {
+  title: string
+  description: string
+  vowels: PhonemeGridItem[]
+  consonants: PhonemeGridItem[]
+}
 export type ProfileMenuProps = { items?: ProfileMenuItem[] }
 export type ProgressBarProps = { current: number; total: number }
 export type PronunciationGuideProps = {
