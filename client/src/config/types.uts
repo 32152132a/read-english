@@ -106,10 +106,8 @@ export type PhonemeComparisonItem = {
 
 export type PhonemeGridItem = {
   id: string
-  done: boolean
   segments: PhonemeSegment[]
-  word: string
-  zh: string
+  audioUrl: string
 }
 
 export type PronunciationMappingItem = {

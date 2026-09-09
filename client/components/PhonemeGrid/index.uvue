@@ -1,23 +1,16 @@
 <template>
   <view class="phoneme-grid">
-    <view
-      v-for="item in items"
-      :key="item.id"
-      class="phoneme-grid__card"
-      @click="$emit('select', item.id)"
-    >
-      <text class="phoneme-grid__status" :class="item.done ? 'is-done' : ''">
-        {{ item.done ? '✓' : '·' }}
+    <view v-for="item in items" :key="item.id" class="phoneme-grid__item">
+      <text class="phoneme-grid__phoneme" @click="$emit('select', item.id)">
+        {{ item.segments[0].text }}
       </text>
-      <PhonemeDisplay :segments="item.segments" />
-      <text>{{ item.word }}</text>
-      <text class="phoneme-grid__meaning">{{ item.zh }}</text>
+      <PlayButton :src="item.audioUrl" size="micro" icon="volume" />
     </view>
   </view>
 </template>
 
 <script setup lang="uts">
-import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
 import type { PhonemeGridProps } from '../../src/config/types.uts'
 
 defineProps<PhonemeGridProps>()
@@ -29,42 +22,28 @@ defineEmits(['select'])
 
 .phoneme-grid {
   width: 100%;
+  padding: 2rpx;
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rpx;
+  background-color: $color-border;
 
-  &__card {
-    position: relative;
+  &__item {
     min-width: 0;
-    box-sizing: border-box;
     padding: 18rpx 10rpx;
-    border: 1rpx solid $color-border;
-    border-radius: 16rpx;
-    background-color: $color-surface;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 8rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6rpx;
+    background-color: $color-background;
   }
 
-  &__status {
-    position: absolute;
-    right: 8rpx;
-    top: 8rpx;
-    color: #aab1c8;
-
-    &.is-done {
-      width: 28rpx;
-      height: 28rpx;
-      border-radius: 50%;
-      background-color: $color-primary;
-      color: $color-surface;
-      text-align: center;
-    }
-  }
-
-  &__meaning {
-    color: $color-text-secondary;
+  &__phoneme {
+    color: $color-primary;
+    font-size: 36rpx;
+    line-height: 40rpx;
   }
 }
 </style>

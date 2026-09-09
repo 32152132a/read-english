@@ -19,7 +19,11 @@
         />
       </view>
       <AppIcon v-else-if="buttonSize === 'pill'" name="clock-3" :size="28" />
-      <AppIcon v-else-if="icon === 'volume'" name="volume-2" :size="30" />
+      <AppIcon
+        v-else-if="icon === 'volume'"
+        name="volume-2"
+        :size="buttonSize === 'micro' ? 22 : 30"
+      />
       <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
     </view>
     <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">
@@ -46,7 +50,7 @@ const emit = defineEmits(['play', 'ended', 'error'])
 const status = ref<PlayStatus>('idle')
 let audioContext: InnerAudioContext | null = null
 const buttonSize = computed((): string =>
-  ['tiny', 'mini', 'large', 'hero', 'pill'].includes(props.size) ? props.size : 'default'
+  ['micro', 'tiny', 'mini', 'large', 'hero', 'pill'].includes(props.size) ? props.size : 'default'
 )
 
 function play() {
@@ -180,6 +184,31 @@ onUnmounted(resetAudio)
       width: 18rpx;
       height: 18rpx;
       border-width: 2rpx;
+    }
+  }
+
+  &--micro {
+    gap: 0;
+
+    .play-button__circle {
+      width: 32rpx;
+      height: 32rpx;
+    }
+
+    .play-button__loading {
+      width: 14rpx;
+      height: 14rpx;
+      border-width: 2rpx;
+    }
+
+    .play-button__playing {
+      gap: 2rpx;
+      height: 20rpx;
+    }
+
+    .play-button__bar {
+      width: 3rpx;
+      height: 9rpx;
     }
   }
 
