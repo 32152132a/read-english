@@ -1,52 +1,105 @@
 <template>
   <view class="correction-issue">
-    <view>
-      <text class="correction-issue__label">常见问题</text>
-      <text class="correction-issue__title">{{ issue }}</text>
-      <text class="correction-issue__label">受影响的单词</text>
-      <text>{{ words.join('，') }}</text>
+    <text class="correction-issue__badge">✦ AI 发音分析</text>
+    <text class="correction-issue__title">AI 听到了什么</text>
+    <view class="correction-issue__comparison">
+      <view class="correction-issue__phoneme">
+        <text class="correction-issue__label">标准发音</text>
+        <PhonemeDisplay :segments="data.targetSegments" size="large" />
+      </view>
+      <text class="correction-issue__arrow">→</text>
+      <view class="correction-issue__phoneme">
+        <text class="correction-issue__label">听起来像</text>
+        <PhonemeDisplay :segments="data.detectedSegments" size="large" />
+      </view>
     </view>
-    <PhonemeDisplay :segments="segments" size="large" />
+    <text class="correction-issue__diagnosis">{{ data.diagnosis }}</text>
+    <view class="correction-issue__suggestion">
+      <text class="correction-issue__suggestion-title">怎么调整</text>
+      <text>{{ data.suggestion }}</text>
+    </view>
+    <text class="correction-issue__encouragement">{{ data.encouragement }}</text>
   </view>
 </template>
 
 <script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
-import type { CorrectionIssueProps, PhonemeSegment } from '../../src/config/types.uts'
+import type { CorrectionIssueProps } from '../../src/config/types.uts'
 
-withDefaults(defineProps<CorrectionIssueProps>(), {
-  issue: '',
-  words: (): string[] => [],
-  segments: (): PhonemeSegment[] => [],
-})
+defineProps<CorrectionIssueProps>()
 </script>
 
 <style lang="scss">
 @import '../../uni.scss';
 
 .correction-issue {
+  margin-top: 24rpx;
   display: grid;
-  grid-template-columns: 1fr 180rpx;
-  align-items: center;
-  gap: 20rpx;
-  padding: 28rpx;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24rpx;
+  padding: 32rpx;
   border: 1rpx solid $color-border;
-  border-radius: 18rpx;
+  border-radius: 24rpx;
   background: #fff;
 
-  &__label,
-  &__title {
-    display: block;
-  }
-
-  &__label {
-    margin: 10rpx 0;
-    color: $color-text-secondary;
+  &__badge {
+    justify-self: start;
+    padding: 8rpx 14rpx;
+    border-radius: 10rpx;
+    color: $color-primary;
+    background-color: #eef1ff;
   }
 
   &__title {
     font-size: 34rpx;
     font-weight: 700;
+  }
+
+  &__comparison {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 16rpx;
+  }
+
+  &__phoneme {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 10rpx;
+    padding: 24rpx 12rpx;
+    border-radius: 16rpx;
+    background-color: #f7f8fc;
+  }
+
+  &__label,
+  &__encouragement {
+    color: $color-text-secondary;
+    font-size: 24rpx;
+  }
+
+  &__arrow {
+    color: $color-text-secondary;
+    font-size: 34rpx;
+  }
+
+  &__diagnosis {
+    font-size: 30rpx;
+    font-weight: 600;
+  }
+
+  &__suggestion {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10rpx;
+    padding: 24rpx;
+    border-radius: 16rpx;
+    background-color: #eef8f3;
+  }
+
+  &__suggestion-title {
+    color: $color-success;
+    font-weight: 600;
   }
 }
 </style>

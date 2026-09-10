@@ -49,10 +49,6 @@
       "path": "pages/evaluation/index",
       "style": { "navigationBarTitleText": "跟读评测" }
     },
-    {
-      "path": "pages/correction/index",
-      "style": { "navigationBarTitleText": "AI纠音" }
-    },
     { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } },
     {
       "path": "pages/error/404",

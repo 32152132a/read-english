@@ -14,8 +14,8 @@
       v-if="resultVisible"
       :title="pageData.resultTitle"
       :scores="pageData.scores"
-      @detail="openCorrection"
     />
+    <CorrectionIssue v-if="resultVisible" :data="pageData.correction" />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
   </view>
@@ -26,6 +26,7 @@ import StepActions from '../../components/StepActions/index.uvue'
 import EvaluationTarget from '../../components/EvaluationTarget/index.uvue'
 import RecordingPanel from '../../components/RecordingPanel/index.uvue'
 import EvaluationResult from '../../components/EvaluationResult/index.uvue'
+import CorrectionIssue from '../../components/CorrectionIssue/index.uvue'
 const pageData = reactive({
   current: 2,
   total: 3,
@@ -52,6 +53,13 @@ const pageData = reactive({
     { code: 'integrity', label: '完整度', value: 100 },
     { code: 'fluency', label: '流利度', value: 84 },
   ],
+  correction: {
+    targetSegments: [{ text: '/ə/', tone: 'primary' }],
+    detectedSegments: [{ text: '/ɒ/', tone: 'muted' }],
+    diagnosis: '你的弱读 /ə/ 听起来有些接近 /ɒ/。',
+    suggestion: '放松嘴唇和下颌，用更轻、更短的声音带过这个音。',
+    encouragement: '单词整体已经很清楚，弱读自然一些会更流畅。',
+  },
 })
 const stepList = [
   {
@@ -66,6 +74,13 @@ const stepList = [
       { text: 'tas', emphasized: true },
       { text: 'tic', emphasized: false },
     ],
+    correction: {
+      targetSegments: [{ text: '/æ/', tone: 'primary' }],
+      detectedSegments: [{ text: '/e/', tone: 'muted' }],
+      diagnosis: '你的 /æ/ 听起来更接近 /e/。',
+      suggestion: '下颌再打开一些，嘴角向两侧展开后短促发音。',
+      encouragement: '重音位置正确，再把开口度做明显一些即可。',
+    },
   },
   {
     id: 'component',
@@ -79,6 +94,13 @@ const stepList = [
       { text: 'po', emphasized: true },
       { text: 'nent', emphasized: false },
     ],
+    correction: {
+      targetSegments: [{ text: '/ə/', tone: 'primary' }],
+      detectedSegments: [{ text: '/ɒ/', tone: 'muted' }],
+      diagnosis: '你的弱读 /ə/ 听起来有些接近 /ɒ/。',
+      suggestion: '放松嘴唇和下颌，用更轻、更短的声音带过这个音。',
+      encouragement: '单词整体已经很清楚，弱读自然一些会更流畅。',
+    },
   },
   {
     id: 'important',
@@ -92,6 +114,13 @@ const stepList = [
       { text: 'por', emphasized: true },
       { text: 'tant', emphasized: false },
     ],
+    correction: {
+      targetSegments: [{ text: '/ɔː/', tone: 'primary' }],
+      detectedSegments: [{ text: '/ɒ/', tone: 'muted' }],
+      diagnosis: '你的 /ɔː/ 时长偏短，听起来更接近 /ɒ/。',
+      suggestion: '保持嘴唇收圆，将元音平稳地延长一点。',
+      encouragement: '音素位置已经接近，延长声音后会更准确。',
+    },
   },
 ]
 const resultVisible = ref(false)
@@ -106,16 +135,13 @@ function beginRecording() {
   resultVisible.value = false
 }
 
-function openCorrection() {
-  uni.navigateTo({ url: '/pages/correction/index?wordId=' + pageData.word.id })
-}
-
 function loadStep(target: number) {
   const step = stepList[target - 1]
   if (step == null) return
 
   pageData.current = target
   pageData.word = step
+  pageData.correction = step.correction
   pageData.resultTitle = '本次评测结果'
   resultVisible.value = false
 }

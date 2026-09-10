@@ -37,7 +37,6 @@ const pages: NavigationItem[] = [
   { label: '单词拆读', route: '/pages/decoding/word' },
   { label: '专业词库', route: '/pages/word-list/index' },
   { label: '跟读评测', route: '/pages/evaluation/index' },
-  { label: 'AI 纠音', route: '/pages/correction/index' },
   { label: '我的', route: '/pages/profile/index' },
 ]
 

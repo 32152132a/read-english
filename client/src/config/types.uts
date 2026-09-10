@@ -75,6 +75,14 @@ export type CorrectionPracticeData = {
   ipaSegments: PhonemeSegment[]
 }
 
+export type AiCorrectionData = {
+  targetSegments: PhonemeSegment[]
+  detectedSegments: PhonemeSegment[]
+  diagnosis: string
+  suggestion: string
+  encouragement: string
+}
+
 export type EvaluationTargetData = {
   word: string
   ipaSegments: PhonemeSegment[]
@@ -248,11 +256,7 @@ export type HttpError = {
 export type BottomNavProps = { active?: string }
 export type CategoryTabsProps = { items?: CategoryTabItem[]; modelValue?: string }
 export type ComingSoonProps = { title?: string }
-export type CorrectionIssueProps = {
-  issue?: string
-  words?: string[]
-  segments?: PhonemeSegment[]
-}
+export type CorrectionIssueProps = { data: AiCorrectionData }
 export type CorrectionPracticeProps = { data: CorrectionPracticeData }
 export type CorrectionActionsProps = { primaryText: string; secondaryText: string }
 export type ErrorStateProps = {
