@@ -12,7 +12,9 @@
         <AppIcon name="mic-white" :size="62" />
       </view>
     </view>
-    <text class="recording-panel__title">{{ recording ? activeText : title }}</text>
+    <text class="recording-panel__title">
+      {{ recording ? activeText + ' · ' + remainingSeconds + ' 秒' : title }}
+    </text>
     <text class="recording-panel__description">
       {{ recording ? activeDescription : description }}
     </text>
@@ -24,17 +26,60 @@ import type { RecordingPanelProps } from '../../src/config/types.uts'
 
 withDefaults(defineProps<RecordingPanelProps>(), {
   title: '点击开始跟读',
-  activeText: '点击结束录音',
+  activeText: '正在录音',
   description: '',
   activeDescription: '',
 })
 const emit = defineEmits(['start', 'finish'])
 const recording = ref(false)
+const remainingSeconds = ref(4)
+let recordingTimer = 0
+let countdownTimer = 0
 
 function toggleRecording() {
-  recording.value = !recording.value
-  emit(recording.value ? 'start' : 'finish')
+  if (recording.value) {
+    finishRecording()
+    return
+  }
+
+  recording.value = true
+  remainingSeconds.value = 4
+  emit('start')
+  countdownTimer = setInterval(updateCountdown, 1000)
+  recordingTimer = setTimeout(finishRecording, 4000)
 }
+
+function updateCountdown() {
+  if (remainingSeconds.value > 1) remainingSeconds.value -= 1
+}
+
+function finishRecording() {
+  if (!recording.value) return
+
+  clearRecordingTimer()
+  recording.value = false
+  emit('finish')
+}
+
+function clearRecordingTimer() {
+  if (recordingTimer != 0) {
+    clearTimeout(recordingTimer)
+    recordingTimer = 0
+  }
+
+  if (countdownTimer != 0) {
+    clearInterval(countdownTimer)
+    countdownTimer = 0
+  }
+}
+
+function resetRecording() {
+  clearRecordingTimer()
+  recording.value = false
+  remainingSeconds.value = 4
+}
+
+onUnmounted(resetRecording)
 </script>
 
 <style lang="scss">

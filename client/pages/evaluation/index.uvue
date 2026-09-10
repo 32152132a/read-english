@@ -3,6 +3,7 @@
     <LessonProgress :current="pageData.current" :total="pageData.total" />
     <EvaluationTarget :data="pageData.word" />
     <RecordingPanel
+      :key="pageData.word.id"
       :title="pageData.recordTitle"
       :description="pageData.recordDescription"
       :active-description="pageData.recordingDescription"
@@ -13,6 +14,7 @@
       v-if="resultVisible"
       :title="pageData.resultTitle"
       :scores="pageData.scores"
+      @detail="openCorrection"
     />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
@@ -41,8 +43,8 @@ const pageData = reactive({
     ],
   },
   recordTitle: '点击开始跟读',
-  recordDescription: '点击录音，读出上方单词',
-  recordingDescription: '正在录音，再次点击结束并开始评测',
+  recordDescription: '点击录音，读出上方单词（最长 4 秒）',
+  recordingDescription: '再次点击结束并开始评测',
   resultTitle: '本次评测结果',
   scores: [
     { code: 'overall', label: '总分', value: 82 },
@@ -102,6 +104,10 @@ function evaluateRecording() {
 
 function beginRecording() {
   resultVisible.value = false
+}
+
+function openCorrection() {
+  uni.navigateTo({ url: '/pages/correction/index?wordId=' + pageData.word.id })
 }
 
 function loadStep(target: number) {

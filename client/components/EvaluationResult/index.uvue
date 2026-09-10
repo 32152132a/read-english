@@ -2,6 +2,7 @@
   <view class="evaluation-result">
     <view class="evaluation-result__header">
       <text>{{ title }}</text>
+      <text class="evaluation-result__detail" @click="$emit('detail')">查看详情 ›</text>
     </view>
     <view class="evaluation-result__scores">
       <view v-for="score in scores" :key="score.code" class="evaluation-result__score">
@@ -21,6 +22,7 @@ withDefaults(defineProps<EvaluationResultProps>(), {
   title: '',
   scores: (): EvaluationScore[] => [],
 })
+defineEmits(['detail'])
 
 function getScoreTone(value: number) {
   if (value >= 85) return 'is-good'
@@ -38,6 +40,16 @@ function getScoreTone(value: number) {
   border: 1rpx solid $color-border;
   border-radius: 18rpx;
   background: #fff;
+
+  &__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  &__detail {
+    color: $color-primary;
+  }
 
   &__scores {
     display: grid;
