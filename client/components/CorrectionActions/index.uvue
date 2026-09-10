@@ -1,0 +1,36 @@
+<template>
+  <view class="correction-actions">
+    <button class="primary-button" @click="$emit('primary')">{{ primaryText }}</button>
+    <button class="outline-button" @click="$emit('secondary')">{{ secondaryText }}</button>
+    <text>建议仅用于学习辅助</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import type { CorrectionActionsProps } from '../../src/config/types.uts'
+
+defineProps<CorrectionActionsProps>()
+defineEmits(['primary', 'secondary'])
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.correction-actions {
+  margin-top: 28rpx;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14rpx;
+
+  button {
+    width: 100%;
+    margin: 0;
+  }
+
+  text {
+    color: $color-text-secondary;
+    font-size: 21rpx;
+    text-align: center;
+  }
+}
+</style>

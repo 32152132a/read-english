@@ -1,0 +1,30 @@
+<template>
+  <view class="page">
+    <WordLibrarySelector
+      :items="availableLibraries"
+      @confirm="addLibraries"
+      @custom="openCustomPage"
+    />
+    <DebugPageNav />
+  </view>
+</template>
+
+<script setup lang="uts">
+import WordLibrarySelector from '../../components/WordLibrarySelector/index.uvue'
+import { storeToRefs } from 'pinia'
+import { useLibraryStore } from '../../src/stores/library.uts'
+
+const libraryStore = useLibraryStore()
+const { availableLibraries } = storeToRefs(libraryStore)
+
+function addLibraries(ids: string[]) {
+  // 接入后端后提交所选词库 ID，并在返回主页时重新获取“我的词库”。
+  libraryStore.addLibraries(ids)
+  uni.showToast({ title: '已添加 ' + ids.length + ' 个词库', icon: 'none' })
+  uni.navigateBack()
+}
+
+function openCustomPage() {
+  uni.navigateTo({ url: '/pages/word-list/custom' })
+}
+</script>

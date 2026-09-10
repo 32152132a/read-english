@@ -34,6 +34,18 @@
       "style": { "navigationBarTitleText": "专业词库" }
     },
     {
+      "path": "pages/word-list/detail",
+      "style": { "navigationBarTitleText": "词库单词" }
+    },
+    {
+      "path": "pages/word-list/add",
+      "style": { "navigationBarTitleText": "添加词库" }
+    },
+    {
+      "path": "pages/word-list/custom",
+      "style": { "navigationBarTitleText": "AI 定制词库" }
+    },
+    {
       "path": "pages/evaluation/index",
       "style": { "navigationBarTitleText": "跟读评测" }
     },

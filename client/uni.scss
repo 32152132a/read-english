@@ -53,6 +53,11 @@ page {
   color: #fff;
   font-size: 30rpx;
   background: linear-gradient(135deg, #154cff 0%, #253eff 100%);
+
+  &.is-disabled {
+    color: #98a1b2;
+    background: #e7eaf1;
+  }
 }
 .outline-button {
   display: flex;
@@ -64,6 +69,12 @@ page {
   color: $color-primary;
   background-color: #fff;
   font-size: 30rpx;
+
+  &.is-disabled {
+    border-color: #d9dde7;
+    color: #a3aaba;
+    background-color: #f4f5f8;
+  }
 }
 .row {
   display: flex;

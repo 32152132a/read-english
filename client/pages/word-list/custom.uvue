@@ -1,0 +1,18 @@
+<template>
+  <view class="page">
+    <AiWordLibraryForm @submit="createLibrary" />
+    <DebugPageNav />
+  </view>
+</template>
+<script setup lang="uts">
+import AiWordLibraryForm from '../../components/AiWordLibraryForm/index.uvue'
+import { useLibraryStore } from '../../src/stores/library.uts'
+
+const libraryStore = useLibraryStore()
+function createLibrary(name: string, words: string[]) {
+  // Mock 直接返回解析成功；真实接口接入后应轮询或由通知更新解析状态。
+  libraryStore.createCustomLibrary(name, words)
+  uni.showToast({ title: 'AI 解析完成，请选择添加', icon: 'none' })
+  uni.navigateBack()
+}
+</script>

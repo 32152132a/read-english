@@ -3,13 +3,29 @@
     <view v-for="item in items" :key="item.id" class="word-list-cards__card">
       <view class="word-list-cards__icon" :class="'is-' + item.tone">{{ item.icon }}</view>
       <view class="word-list-cards__content">
+        <text class="word-list-cards__kind">{{ item.kindLabel }}</text>
         <text class="word-list-cards__title">{{ item.title }}</text>
         <text class="word-list-cards__description">{{ item.description }}</text>
-        <ProgressBar :current="item.completed" :total="item.total" />
       </view>
-      <button class="outline-button word-list-cards__button" @click="$emit('select', item.id)">
-        {{ item.completed > 0 ? '继续学习' : '开始学习' }}
-      </button>
+      <view class="word-list-cards__footer">
+        <view class="word-list-cards__progress">
+          <text>{{ item.completed }} / {{ item.total }}</text>
+          <ProgressBar :current="item.completed" :total="item.total" />
+        </view>
+        <view class="word-list-cards__actions" :class="item.removable ? 'has-remove' : ''">
+          <button class="outline-button" @click="$emit('view', item.id)">查看单词</button>
+          <button class="primary-button" @click="$emit('learn', item.id)">
+            {{ item.completed > 0 ? '继续学习' : '去学习' }}
+          </button>
+          <button
+            v-if="item.removable"
+            class="outline-button is-remove"
+            @click="$emit('remove', item.id)"
+          >
+            删除
+          </button>
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -21,7 +37,7 @@ import type { WordListCardItem, WordListCardsProps } from '../../src/config/type
 withDefaults(defineProps<WordListCardsProps>(), {
   items: (): WordListCardItem[] => [],
 })
-defineEmits(['select'])
+defineEmits(['learn', 'view', 'remove'])
 </script>
 
 <style lang="scss">
@@ -34,7 +50,7 @@ defineEmits(['select'])
 
   &__card {
     display: grid;
-    grid-template-columns: 100rpx 1fr auto;
+    grid-template-columns: 82rpx minmax(0, 1fr);
     align-items: center;
     gap: 22rpx;
     padding: 24rpx;
@@ -44,13 +60,13 @@ defineEmits(['select'])
   }
 
   &__icon {
-    width: 100rpx;
-    height: 100rpx;
+    width: 82rpx;
+    height: 82rpx;
     border-radius: 16rpx;
     background: #eef2ff;
     color: $color-primary;
     font-size: 28rpx;
-    line-height: 100rpx;
+    line-height: 82rpx;
     text-align: center;
 
     &.is-green {
@@ -71,6 +87,53 @@ defineEmits(['select'])
     gap: 8rpx;
   }
 
+  &__footer {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18rpx;
+  }
+
+  &__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14rpx;
+
+    button {
+      width: 100%;
+      min-height: 64rpx;
+      margin: 0;
+      font-size: 23rpx;
+    }
+
+    &.has-remove {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .is-remove {
+      border-color: #e7b9bd;
+      color: #c55259;
+      background-color: #fff7f7;
+    }
+  }
+
+  &__kind {
+    width: fit-content;
+    padding: 4rpx 10rpx;
+    border-radius: 8rpx;
+    background-color: #f1f4ff;
+    color: $color-primary;
+    font-size: 20rpx;
+  }
+
+  &__progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8rpx;
+    color: $color-text-secondary;
+    font-size: 23rpx;
+  }
+
   &__title {
     font-size: 30rpx;
     font-weight: 700;
@@ -78,13 +141,6 @@ defineEmits(['select'])
 
   &__description {
     color: $color-text-secondary;
-  }
-
-  &__button {
-    min-height: 70rpx;
-    margin: 0;
-    padding: 0 18rpx;
-    font-size: 24rpx;
   }
 }
 </style>

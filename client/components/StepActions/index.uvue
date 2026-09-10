@@ -6,12 +6,18 @@
     <view class="step-actions__buttons">
       <button
         class="outline-button step-actions__button"
+        :class="isFirst ? 'is-disabled' : ''"
         :disabled="isFirst"
         @click="changeStep(-1)"
       >
         上一步
       </button>
-      <button class="primary-button step-actions__button" :disabled="isLast" @click="changeStep(1)">
+      <button
+        class="primary-button step-actions__button"
+        :class="isLast ? 'is-disabled' : ''"
+        :disabled="isLast"
+        @click="changeStep(1)"
+      >
         下一步
       </button>
     </view>

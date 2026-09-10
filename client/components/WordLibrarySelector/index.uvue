@@ -1,0 +1,145 @@
+<template>
+  <view class="word-library-selector">
+    <text class="word-library-selector__title">选择要添加的词库</text>
+    <text class="word-library-selector__description">系统词库和 AI 已解析词库都可以多选添加。</text>
+    <view class="word-library-selector__options">
+      <view
+        v-for="item in items"
+        :key="item.id"
+        class="word-library-selector__option"
+        :class="selectedIds.includes(item.id) ? 'is-selected' : ''"
+        @click="toggleLibrary(item.id)"
+      >
+        <view class="word-library-selector__content">
+          <text class="word-library-selector__kind">{{ item.kindLabel }}</text>
+          <text class="word-library-selector__name">{{ item.title }}</text>
+          <text class="word-library-selector__summary">{{ item.description }}</text>
+        </view>
+        <text class="word-library-selector__count">{{ item.total }} 词</text>
+      </view>
+    </view>
+    <button
+      class="primary-button word-library-selector__confirm"
+      :class="selectedIds.length === 0 ? 'is-disabled' : ''"
+      :disabled="selectedIds.length === 0"
+      @click="confirmSelection"
+    >
+      添加已选词库
+    </button>
+    <view class="word-library-selector__custom">
+      <text class="word-library-selector__name">没有合适的系统词库？</text>
+      <text class="word-library-selector__summary">
+        手动输入一组单词，由 AI 生成音标、释义和拆读内容。
+      </text>
+      <text class="word-library-selector__delay">
+        目前支持逗号分隔输入，文件上传将在后续版本提供。
+      </text>
+      <button class="outline-button" @click="$emit('custom')">手动创建 AI 词库</button>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import type { WordLibrarySelectorProps } from '../../src/config/types.uts'
+
+defineProps<WordLibrarySelectorProps>()
+const emit = defineEmits(['confirm', 'custom'])
+const selectedIds = ref<string[]>([])
+
+function toggleLibrary(id: string) {
+  selectedIds.value = selectedIds.value.includes(id)
+    ? selectedIds.value.filter((item) => item !== id)
+    : [...selectedIds.value, id]
+}
+
+function confirmSelection() {
+  if (selectedIds.value.length === 0) return
+  emit('confirm', selectedIds.value)
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.word-library-selector {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18rpx;
+
+  &__title {
+    font-size: 32rpx;
+    font-weight: 700;
+  }
+
+  &__description,
+  &__summary,
+  &__count,
+  &__delay {
+    color: $color-text-secondary;
+    font-size: 23rpx;
+  }
+
+  &__options {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14rpx;
+  }
+
+  &__option {
+    padding: 22rpx;
+    border: 2rpx solid $color-border;
+    border-radius: 16rpx;
+    background-color: $color-surface;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14rpx;
+
+    &.is-selected {
+      border-color: $color-primary;
+      background-color: #f5f7ff;
+    }
+  }
+
+  &__content,
+  &__custom {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8rpx;
+  }
+
+  &__name {
+    font-weight: 600;
+  }
+
+  &__kind {
+    width: fit-content;
+    padding: 4rpx 10rpx;
+    border-radius: 8rpx;
+    background-color: #f1f4ff;
+    color: $color-primary;
+    font-size: 20rpx;
+  }
+
+  &__confirm,
+  &__custom button {
+    width: 100%;
+    margin: 0;
+  }
+
+  &__custom {
+    margin-top: 16rpx;
+    padding: 24rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 18rpx;
+    background-color: $color-surface;
+    gap: 12rpx;
+  }
+
+  &__delay {
+    padding: 12rpx;
+    border-radius: 10rpx;
+    background-color: #fff8e8;
+  }
+}
+</style>

@@ -1,10 +1,12 @@
 <template>
   <view class="evaluation-target">
     <text class="evaluation-target__word">{{ data.word }}</text>
-    <PhonemeDisplay :segments="data.ipaSegments" />
+    <view class="evaluation-target__audio">
+      <PhonemeDisplay :segments="data.ipaSegments" />
+      <PlayButton :src="data.audioUrl" size="tiny" icon="volume" />
+    </view>
     <SegmentedWord :parts="data.syllables" separator="·" />
     <text class="evaluation-target__hint">重音在第 {{ data.stressIndex }} 个音节</text>
-    <PlayButton text="听标准发音" :src="data.audioUrl" />
   </view>
 </template>
 
@@ -38,6 +40,13 @@ defineProps<EvaluationTargetProps>()
 
   &__hint {
     color: $color-text-secondary;
+  }
+
+  &__audio {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10rpx;
   }
 
   .segmented-word {

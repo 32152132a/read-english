@@ -7,7 +7,11 @@
       :description="pageData.recordDescription"
       @finish="evaluateRecording"
     />
-    <EvaluationResult :title="pageData.resultTitle" :scores="pageData.scores" />
+    <EvaluationResult
+      v-if="resultVisible"
+      :title="pageData.resultTitle"
+      :scores="pageData.scores"
+    />
     <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
     <DebugPageNav />
   </view>
@@ -45,13 +49,51 @@ const pageData = reactive({
   ],
 })
 const stepList = [
-  { id: 'fantastic', word: 'fantastic', ipa: '/fænˈtæstɪk/' },
-  { id: 'component', word: 'component', ipa: '/kəmˈpəʊnənt/' },
-  { id: 'important', word: 'important', ipa: '/ɪmˈpɔːtənt/' },
+  {
+    id: 'fantastic',
+    word: 'fantastic',
+    ipa: '/fænˈtæstɪk/',
+    ipaSegments: [{ text: '/fænˈtæstɪk/', tone: 'muted' }],
+    audioUrl: '',
+    stressIndex: 2,
+    syllables: [
+      { text: 'fan', emphasized: false },
+      { text: 'tas', emphasized: true },
+      { text: 'tic', emphasized: false },
+    ],
+  },
+  {
+    id: 'component',
+    word: 'component',
+    ipa: '/kəmˈpəʊnənt/',
+    ipaSegments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
+    audioUrl: '',
+    stressIndex: 2,
+    syllables: [
+      { text: 'com', emphasized: false },
+      { text: 'po', emphasized: true },
+      { text: 'nent', emphasized: false },
+    ],
+  },
+  {
+    id: 'important',
+    word: 'important',
+    ipa: '/ɪmˈpɔːtənt/',
+    ipaSegments: [{ text: '/ɪmˈpɔːtənt/', tone: 'muted' }],
+    audioUrl: '',
+    stressIndex: 2,
+    syllables: [
+      { text: 'im', emphasized: false },
+      { text: 'por', emphasized: true },
+      { text: 'tant', emphasized: false },
+    ],
+  },
 ]
+const resultVisible = ref(true)
 
 function evaluateRecording() {
   // 后续在这里提交录音文件并更新评测结果。
+  resultVisible.value = true
 }
 
 function loadStep(target: number) {
@@ -59,10 +101,8 @@ function loadStep(target: number) {
   if (step == null) return
 
   pageData.current = target
-  pageData.word.id = step.id
-  pageData.word.word = step.word
-  pageData.word.ipa = step.ipa
-  pageData.word.ipaSegments = [{ text: step.ipa, tone: 'muted' }]
+  pageData.word = step
+  resultVisible.value = false
 }
 </script>
 <style lang="scss">

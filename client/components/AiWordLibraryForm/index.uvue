@@ -1,0 +1,83 @@
+<template>
+  <view class="ai-word-library-form">
+    <text class="ai-word-library-form__title">创建 AI 定制词库</text>
+    <text class="ai-word-library-form__description">输入名称和单词，AI 将异步生成学习内容。</text>
+    <text class="ai-word-library-form__label">词库名称</text>
+    <input v-model="name" class="ai-word-library-form__input" placeholder="例如：产品经理常用词" />
+    <text class="ai-word-library-form__label">单词列表</text>
+    <textarea
+      v-model="wordText"
+      class="ai-word-library-form__textarea"
+      placeholder="product, requirement, prototype"
+    />
+    <text class="ai-word-library-form__tip">使用中文或英文逗号分隔，文件上传后续支持。</text>
+    <button
+      class="primary-button"
+      :class="!canSubmit ? 'is-disabled' : ''"
+      :disabled="!canSubmit"
+      @click="submit"
+    >
+      开始 AI 解析
+    </button>
+  </view>
+</template>
+
+<script setup lang="uts">
+const emit = defineEmits(['submit'])
+const name = ref('')
+const wordText = ref('')
+const words = computed((): string[] =>
+  wordText.value
+    .split(/[,，]/)
+    .map((word) => word.trim())
+    .filter((word) => word.length > 0)
+)
+const canSubmit = computed((): boolean => name.value.trim().length > 0 && words.value.length > 0)
+
+function submit() {
+  if (!canSubmit.value) return
+  emit('submit', name.value.trim(), words.value)
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+.ai-word-library-form {
+  padding: 28rpx;
+  border: 1rpx solid $color-border;
+  border-radius: 18rpx;
+  background-color: $color-surface;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18rpx;
+
+  &__title {
+    font-size: 34rpx;
+    font-weight: 700;
+  }
+  &__description,
+  &__tip {
+    color: $color-text-secondary;
+    font-size: 23rpx;
+  }
+  &__label {
+    margin-top: 8rpx;
+    font-weight: 600;
+  }
+  &__input,
+  &__textarea {
+    width: 100%;
+    padding: 18rpx;
+    box-sizing: border-box;
+    border: 1rpx solid $color-border;
+    border-radius: 12rpx;
+  }
+  &__textarea {
+    min-height: 220rpx;
+  }
+  button {
+    width: 100%;
+    margin: 8rpx 0 0;
+  }
+}
+</style>

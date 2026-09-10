@@ -16,8 +16,12 @@
     <InfoSteps :items="pageData.tips" />
     <text class="section-title">迷你练习</text>
     <CorrectionPractice :data="pageData.practice" />
-    <button class="primary-button full">开始专项练习</button>
-    <button class="outline-button full">稍后复习</button>
+    <CorrectionActions
+      primary-text="开始专项练习"
+      secondary-text="稍后复习"
+      @primary="startPractice"
+      @secondary="reviewLater"
+    />
     <DebugPageNav />
   </view>
 </template>
@@ -25,6 +29,7 @@
 import CorrectionIssue from '../../components/CorrectionIssue/index.uvue'
 import InfoSteps from '../../components/InfoSteps/index.uvue'
 import CorrectionPractice from '../../components/CorrectionPractice/index.uvue'
+import CorrectionActions from '../../components/CorrectionActions/index.uvue'
 
 const pageData = reactive({
   badge: '✦ AI 建议',
@@ -44,6 +49,14 @@ const pageData = reactive({
     audioUrl: '',
   },
 })
+
+function startPractice() {
+  uni.showToast({ title: '专项练习准备中', icon: 'none' })
+}
+
+function reviewLater() {
+  uni.showToast({ title: '已加入复习计划', icon: 'none' })
+}
 </script>
 <style lang="scss">
 @import '../../uni.scss';
@@ -63,10 +76,5 @@ const pageData = reactive({
 .sub {
   display: block;
   margin: 14rpx 0 34rpx;
-}
-
-.full {
-  width: 100%;
-  margin-top: 18rpx;
 }
 </style>

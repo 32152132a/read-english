@@ -5,9 +5,13 @@
       <text>{{ data.word }}</text>
       <PhonemeDisplay :segments="data.ipaSegments" size="mini" />
     </view>
-    <button class="outline-button correction-practice__record" @click="$emit('record')">
-      🎙　点击录音跟读
-    </button>
+    <view class="correction-practice__record" @click="$emit('record')">
+      <AppIcon name="mic" :size="34" />
+      <view>
+        <text class="correction-practice__record-title">点击录音跟读</text>
+        <text class="correction-practice__record-tip">建议跟读 2–3 次</text>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -42,7 +46,29 @@ defineEmits(['record'])
 
   &__record {
     width: 100%;
-    margin: 0;
+    padding: 20rpx;
+    box-sizing: border-box;
+    border-radius: 14rpx;
+    background-color: #f1f4ff;
+    display: grid;
+    grid-template-columns: 34rpx minmax(0, 1fr);
+    align-items: center;
+    gap: 14rpx;
+  }
+
+  &__record-title,
+  &__record-tip {
+    display: block;
+  }
+
+  &__record-title {
+    font-weight: 600;
+  }
+
+  &__record-tip {
+    margin-top: 4rpx;
+    color: $color-text-secondary;
+    font-size: 22rpx;
   }
 }
 </style>

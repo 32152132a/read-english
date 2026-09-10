@@ -130,11 +130,23 @@ export type ProfileMenuItem = {
 
 export type WordListCardItem = {
   id: string
+  kindLabel: string
   icon: string
   tone: string
   title: string
   description: string
   completed: number
+  total: number
+  removable: boolean
+}
+
+export type SystemLibraryOption = {
+  id: string
+  icon: string
+  tone: string
+  kindLabel: string
+  title: string
+  description: string
   total: number
 }
 
@@ -243,6 +255,7 @@ export type CorrectionIssueProps = {
   segments?: PhonemeSegment[]
 }
 export type CorrectionPracticeProps = { data: CorrectionPracticeData }
+export type CorrectionActionsProps = { primaryText: string; secondaryText: string }
 export type ErrorStateProps = {
   code: string
   title: string
@@ -316,4 +329,5 @@ export type TipCardProps = {
 export type TodayLessonCardProps = { data: TodayLessonData }
 export type UserSummaryProps = { data: UserSummaryData }
 export type WordListCardsProps = { items?: WordListCardItem[] }
+export type WordLibrarySelectorProps = { items: SystemLibraryOption[] }
 export type WordPairPlayerProps = { items: WordPairItem[] }
