@@ -29,6 +29,8 @@ const iconNames = [
   'lock-keyhole',
   'eye',
   'eye-off',
+  'info',
+  'log-out',
 ]
 
 const props = withDefaults(defineProps<AppIconProps>(), {

@@ -131,8 +131,11 @@ export type RecentLearningItem = {
 
 export type ProfileMenuItem = {
   code: string
+  iconName: string
   label: string
   value?: string
+  danger?: boolean
+  clickable?: boolean
 }
 
 export type WordListCardItem = {

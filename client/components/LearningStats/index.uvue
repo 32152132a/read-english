@@ -2,8 +2,10 @@
   <view class="learning-stats">
     <view v-for="item in items" :key="item.code" class="learning-stats__item">
       <text>{{ item.label }}</text>
-      <text class="learning-stats__value">{{ item.value }}</text>
-      <text>{{ item.suffix }}</text>
+      <view class="learning-stats__data">
+        <text class="learning-stats__value">{{ item.value }}</text>
+        <text>{{ item.suffix }}</text>
+      </view>
     </view>
   </view>
 </template>
@@ -21,7 +23,7 @@ withDefaults(defineProps<LearningStatsProps>(), {
 
 .learning-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 26rpx;
   padding: 28rpx;
   border: 1rpx solid $color-border;
@@ -40,6 +42,13 @@ withDefaults(defineProps<LearningStatsProps>(), {
     color: $color-text-primary;
     font-size: 42rpx;
     font-weight: 700;
+  }
+
+  &__data {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6rpx;
   }
 }
 </style>

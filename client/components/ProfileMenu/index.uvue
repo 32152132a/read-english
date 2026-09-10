@@ -4,11 +4,12 @@
       v-for="item in items"
       :key="item.code"
       class="profile-menu__item"
-      @click="$emit('select', item.code)"
+      @click="selectItem(item)"
     >
-      <text>{{ item.label }}</text>
+      <AppIcon :name="item.iconName" :size="34" :label="item.label" />
+      <text :class="item.danger == true ? 'is-danger' : ''">{{ item.label }}</text>
       <text v-if="item.value" class="profile-menu__value">{{ item.value }}</text>
-      <text class="profile-menu__arrow">›</text>
+      <text v-if="item.clickable != false" class="profile-menu__arrow">›</text>
     </view>
   </view>
 </template>
@@ -19,7 +20,12 @@ import type { ProfileMenuItem, ProfileMenuProps } from '../../src/config/types.u
 withDefaults(defineProps<ProfileMenuProps>(), {
   items: (): ProfileMenuItem[] => [],
 })
-defineEmits(['select'])
+const emit = defineEmits(['select'])
+
+function selectItem(item: ProfileMenuItem) {
+  if (item.clickable == false) return
+  emit('select', item.code)
+}
 </script>
 
 <style lang="scss">
@@ -33,7 +39,8 @@ defineEmits(['select'])
 
   &__item {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 34rpx minmax(0, 1fr) auto auto;
+    align-items: center;
     gap: 12rpx;
     padding: 26rpx 6rpx;
     border-bottom: 1rpx solid $color-border;
@@ -46,6 +53,10 @@ defineEmits(['select'])
   &__value,
   &__arrow {
     color: $color-text-secondary;
+  }
+
+  .is-danger {
+    color: #df4f55;
   }
 }
 </style>

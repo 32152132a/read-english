@@ -4,10 +4,10 @@
       <text class="title">{{ pageData.title }}</text>
       <UserSummary :data="pageData.user" />
       <LearningStats :items="pageData.stats" />
-      <text class="section-title">学习记录</text>
-      <ProfileMenu :items="pageData.records" />
+      <text class="section-title">我的学习</text>
+      <ProfileMenu :items="pageData.learning" @select="handleMenu" />
       <text class="section-title">设置</text>
-      <ProfileMenu :items="pageData.settings" />
+      <ProfileMenu :items="pageData.settings" @select="handleMenu" />
       <text class="version">{{ pageData.version }}</text>
     </view>
     <BottomNav active="profile" />
@@ -19,27 +19,61 @@ import BottomNav from '../../components/BottomNav/index.uvue'
 import UserSummary from '../../components/UserSummary/index.uvue'
 import LearningStats from '../../components/LearningStats/index.uvue'
 import ProfileMenu from '../../components/ProfileMenu/index.uvue'
+import { clearToken } from '../../src/services/token.uts'
+
 const pageData = reactive({
   title: '我的',
   user: { avatarText: 'YQ', nickname: '永庆', learningStatus: '正在完成基础学习' },
   stats: [
     { code: 'learned', label: '已学习', value: 8, suffix: '/ 20' },
     { code: 'streak', label: '连续学习', value: 3, suffix: '天' },
-    { code: 'review', label: '待复习', value: 2, suffix: '个' },
   ],
-  records: [
-    { code: 'progress', label: '▧　学习进度' },
-    { code: 'mastered', label: '/iː/　已掌握音标' },
-    { code: 'favorites', label: '☆　收藏单词' },
+  learning: [
+    { code: 'progress', iconName: 'circle-check', label: '学习进度' },
+    { code: 'libraries', iconName: 'book-open', label: '我的词库' },
   ],
   settings: [
-    { code: 'accent', label: '🔊　发音偏好', value: '美式英语' },
-    { code: 'audio-cache', label: '⇩　音频缓存' },
-    { code: 'feedback', label: '□　意见反馈' },
-    { code: 'about', label: 'ⓘ　关于产品' },
+    {
+      code: 'accent',
+      iconName: 'volume-2',
+      label: '发音偏好',
+      value: '美式英语',
+      clickable: false,
+    },
+    { code: 'about', iconName: 'info', label: '关于产品' },
+    { code: 'logout', iconName: 'log-out', label: '退出登录', danger: true },
   ],
   version: 'v1.0.0',
 })
+
+function handleMenu(code: string) {
+  if (code === 'progress') {
+    uni.reLaunch({ url: '/pages/home/index' })
+    return
+  }
+  if (code === 'libraries') {
+    uni.navigateTo({ url: '/pages/word-list/index' })
+    return
+  }
+  if (code === 'about') {
+    uni.showToast({ title: '永庆发音学习 v1.0.0', icon: 'none' })
+    return
+  }
+  if (code === 'logout') confirmLogout()
+}
+
+function confirmLogout() {
+  uni.showModal({
+    title: '退出登录',
+    content: '退出后，本机登录状态将被清除。',
+    confirmText: '退出',
+    success: (result) => {
+      if (!result.confirm) return
+      clearToken()
+      uni.reLaunch({ url: '/pages/home/index' })
+    },
+  })
+}
 </script>
 <style lang="scss">
 @import '../../uni.scss';

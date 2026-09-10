@@ -1,11 +1,10 @@
 <template>
-  <view class="user-summary" @click="$emit('select')">
+  <view class="user-summary">
     <view class="user-summary__avatar">{{ data.avatarText }}</view>
     <view>
       <text class="user-summary__name">{{ data.nickname }}</text>
       <text class="user-summary__status">{{ data.learningStatus }}</text>
     </view>
-    <text class="user-summary__arrow">›</text>
   </view>
 </template>
 
@@ -13,7 +12,6 @@
 import type { UserSummaryProps } from '../../src/config/types.uts'
 
 defineProps<UserSummaryProps>()
-defineEmits(['select'])
 </script>
 
 <style lang="scss">
@@ -21,7 +19,7 @@ defineEmits(['select'])
 
 .user-summary {
   display: grid;
-  grid-template-columns: 108rpx 1fr auto;
+  grid-template-columns: 108rpx minmax(0, 1fr);
   align-items: center;
   gap: 26rpx;
   margin-top: 30rpx;
@@ -55,11 +53,6 @@ defineEmits(['select'])
   &__status {
     margin-top: 8rpx;
     color: $color-text-secondary;
-  }
-
-  &__arrow {
-    color: $color-text-secondary;
-    font-size: 48rpx;
   }
 }
 </style>
