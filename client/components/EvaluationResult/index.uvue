@@ -2,12 +2,13 @@
   <view class="evaluation-result">
     <view class="evaluation-result__header">
       <text>{{ title }}</text>
-      <text class="evaluation-result__detail" @click="$emit('detail')">查看详情 ›</text>
     </view>
     <view class="evaluation-result__scores">
       <view v-for="score in scores" :key="score.code" class="evaluation-result__score">
         <text>{{ score.label }}</text>
-        <text class="evaluation-result__value" :class="'is-' + score.tone">{{ score.value }}</text>
+        <text class="evaluation-result__value" :class="getScoreTone(score.value)">
+          {{ score.value }}
+        </text>
       </view>
     </view>
   </view>
@@ -20,28 +21,23 @@ withDefaults(defineProps<EvaluationResultProps>(), {
   title: '',
   scores: (): EvaluationScore[] => [],
 })
-defineEmits(['detail'])
+
+function getScoreTone(value: number) {
+  if (value >= 85) return 'is-good'
+  if (value >= 60) return 'is-medium'
+  return 'is-low'
+}
 </script>
 
 <style lang="scss">
 @import '../../uni.scss';
 
 .evaluation-result {
+  margin-top: 24rpx;
   padding: 28rpx;
   border: 1rpx solid $color-border;
   border-radius: 18rpx;
   background: #fff;
-
-  &__header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  &__detail,
-  &__value {
-    color: $color-primary;
-  }
 
   &__scores {
     display: grid;
@@ -59,12 +55,13 @@ defineEmits(['detail'])
 
   &__value {
     font-size: 44rpx;
+    color: #df4f55;
 
-    &.is-success {
+    &.is-good {
       color: $color-success;
     }
 
-    &.is-warning {
+    &.is-medium {
       color: #f29b00;
     }
   }

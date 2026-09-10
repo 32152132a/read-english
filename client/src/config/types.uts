@@ -55,7 +55,6 @@ export type EvaluationScore = {
   code: string
   label: string
   value: number
-  tone: string
 }
 
 export type SegmentPart = {
@@ -301,6 +300,7 @@ export type RecordingPanelProps = {
   title?: string
   activeText?: string
   description?: string
+  activeDescription?: string
 }
 export type SegmentedWordProps = {
   word?: string

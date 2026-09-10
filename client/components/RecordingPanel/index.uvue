@@ -1,16 +1,21 @@
 <template>
   <view class="recording-panel">
-    <text class="recording-panel__wave" :class="recording ? 'is-recording' : ''">〰　〰　〰</text>
-    <view
-      class="recording-panel__button"
-      :class="recording ? 'is-recording' : ''"
-      @touchstart="startRecording"
-      @touchend="stopRecording"
-    >
-      <text>●</text>
+    <view class="recording-panel__control">
+      <view v-if="recording" class="recording-panel__ripples">
+        <view v-for="index in 3" :key="index" class="recording-panel__ripple" />
+      </view>
+      <view
+        class="recording-panel__button"
+        :class="recording ? 'is-recording' : ''"
+        @click="toggleRecording"
+      >
+        <AppIcon name="mic-white" :size="62" />
+      </view>
     </view>
     <text class="recording-panel__title">{{ recording ? activeText : title }}</text>
-    <text class="recording-panel__description">{{ description }}</text>
+    <text class="recording-panel__description">
+      {{ recording ? activeDescription : description }}
+    </text>
   </view>
 </template>
 
@@ -18,23 +23,17 @@
 import type { RecordingPanelProps } from '../../src/config/types.uts'
 
 withDefaults(defineProps<RecordingPanelProps>(), {
-  title: '按住跟读',
-  activeText: '正在录音',
+  title: '点击开始跟读',
+  activeText: '点击结束录音',
   description: '',
+  activeDescription: '',
 })
 const emit = defineEmits(['start', 'finish'])
 const recording = ref(false)
 
-function startRecording() {
-  if (recording.value) return
-  recording.value = true
-  emit('start')
-}
-
-function stopRecording() {
-  if (!recording.value) return
-  recording.value = false
-  emit('finish')
+function toggleRecording() {
+  recording.value = !recording.value
+  emit(recording.value ? 'start' : 'finish')
 }
 </script>
 
@@ -42,35 +41,67 @@ function stopRecording() {
 @import '../../uni.scss';
 
 .recording-panel {
-  min-height: 430rpx;
+  min-height: 390rpx;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-content: center;
   justify-items: center;
   gap: 24rpx;
 
-  &__wave {
-    color: #8ba4ff;
-    font-size: 54rpx;
+  &__control {
+    display: grid;
+    grid-template-columns: 320rpx;
+    grid-template-rows: 320rpx;
+    place-items: center;
+  }
 
-    &.is-recording {
-      color: $color-primary;
-    }
+  &__ripples {
+    display: grid;
+    grid-template-columns: 320rpx;
+    grid-template-rows: 320rpx;
+    place-items: center;
+  }
+
+  &__ripples,
+  &__button {
+    grid-column: 1;
+    grid-row: 1;
   }
 
   &__button {
-    width: 150rpx;
-    height: 150rpx;
-    border: 24rpx solid #e7ecff;
+    width: 146rpx;
+    height: 146rpx;
+    box-sizing: border-box;
+    border: 18rpx solid #e7ecff;
     border-radius: 50%;
-    background: $color-primary;
-    color: #fff;
-    line-height: 150rpx;
-    text-align: center;
+    background: linear-gradient(145deg, #6276ff, #2648f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 14rpx 34rpx rgba(54, 82, 230, 0.24);
 
     &.is-recording {
-      border-color: #d8e0ff;
-      background: #e95757;
+      border-color: #ffe0e2;
+      background: linear-gradient(145deg, #ff777d, #e4474f);
+    }
+  }
+
+  &__ripple {
+    grid-column: 1;
+    grid-row: 1;
+    width: 146rpx;
+    height: 146rpx;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 4rpx solid rgba(228, 71, 79, 0.5);
+    animation: recording-ripple 1.8s ease-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.6s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 1.2s;
     }
   }
 
@@ -81,6 +112,17 @@ function stopRecording() {
 
   &__description {
     color: $color-text-secondary;
+  }
+}
+
+@keyframes recording-ripple {
+  from {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2);
   }
 }
 </style>

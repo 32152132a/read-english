@@ -18,6 +18,7 @@ const iconNames = [
   'volume-2',
   'clock-3',
   'mic',
+  'mic-white',
   'house',
   'user-round',
   'book-open',

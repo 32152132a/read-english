@@ -5,6 +5,8 @@
     <RecordingPanel
       :title="pageData.recordTitle"
       :description="pageData.recordDescription"
+      :active-description="pageData.recordingDescription"
+      @start="beginRecording"
       @finish="evaluateRecording"
     />
     <EvaluationResult
@@ -38,14 +40,15 @@ const pageData = reactive({
       { text: 'nent', emphasized: false },
     ],
   },
-  recordTitle: '按住跟读',
-  recordDescription: '读完整单词，松开后开始评测',
-  resultTitle: '上次评测结果',
+  recordTitle: '点击开始跟读',
+  recordDescription: '点击录音，读出上方单词',
+  recordingDescription: '正在录音，再次点击结束并开始评测',
+  resultTitle: '本次评测结果',
   scores: [
-    { code: 'overall', label: '总分', value: 82, tone: 'primary' },
-    { code: 'accuracy', label: '准确度', value: 78, tone: 'success' },
-    { code: 'integrity', label: '完整度', value: 100, tone: 'warning' },
-    { code: 'fluency', label: '流利度', value: 84, tone: 'success' },
+    { code: 'overall', label: '总分', value: 82 },
+    { code: 'accuracy', label: '准确度', value: 78 },
+    { code: 'integrity', label: '完整度', value: 100 },
+    { code: 'fluency', label: '流利度', value: 84 },
   ],
 })
 const stepList = [
@@ -89,11 +92,16 @@ const stepList = [
     ],
   },
 ]
-const resultVisible = ref(true)
+const resultVisible = ref(false)
 
 function evaluateRecording() {
   // 后续在这里提交录音文件并更新评测结果。
+  pageData.resultTitle = '本次评测结果'
   resultVisible.value = true
+}
+
+function beginRecording() {
+  resultVisible.value = false
 }
 
 function loadStep(target: number) {
@@ -102,6 +110,7 @@ function loadStep(target: number) {
 
   pageData.current = target
   pageData.word = step
+  pageData.resultTitle = '本次评测结果'
   resultVisible.value = false
 }
 </script>
