@@ -1,0 +1,43 @@
+<template>
+  <view class="page learning-flow-page">
+    <LearningFlowEditor
+      :templates="templates"
+      :nodes="nodes"
+      :default-nodes="defaultNodes"
+      @change="updateFlow"
+      @save="submitFlow"
+    />
+    <DebugPageNav />
+  </view>
+</template>
+
+<script setup lang="uts">
+import { storeToRefs } from 'pinia'
+import LearningFlowEditor from '../../components/LearningFlowEditor/index.uvue'
+import type { LearningFlowNode } from '../../src/config/types.uts'
+import { useLearningFlowStore } from '../../src/stores/learning-flow.uts'
+
+const learningFlowStore = useLearningFlowStore()
+const { templates, nodes, defaultNodes } = storeToRefs(learningFlowStore)
+
+onMounted(() => {
+  learningFlowStore.loadFlow()
+})
+
+function updateFlow(nextNodes: LearningFlowNode[]) {
+  learningFlowStore.updateFlow(nextNodes)
+}
+
+async function submitFlow(nextNodes: LearningFlowNode[]) {
+  await learningFlowStore.submitFlow(nextNodes)
+  uni.showToast({ title: '学习流程已保存', icon: 'success' })
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.learning-flow-page {
+  padding-top: 30rpx;
+}
+</style>

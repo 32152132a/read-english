@@ -34,9 +34,10 @@ const pages: NavigationItem[] = [
   { label: '音标总览', route: '/pages/phoneme/overview' },
   { label: '音素音节', route: '/pages/syllable/index' },
   { label: '音标拼读', route: '/pages/decoding/ipa' },
-  { label: '单词拆读', route: '/pages/decoding/word' },
+  { label: '单词拼读', route: '/pages/decoding/word' },
   { label: '专业词库', route: '/pages/word-list/index' },
-  { label: '跟读评测', route: '/pages/evaluation/index' },
+  { label: 'AI评测', route: '/pages/evaluation/index' },
+  { label: '学习流程', route: '/pages/profile/learning-flow' },
   { label: '我的', route: '/pages/profile/index' },
 ]
 

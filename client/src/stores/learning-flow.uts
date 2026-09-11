@@ -1,0 +1,44 @@
+import { defineStore } from 'pinia'
+import type { LearningFlowNode } from '../config/types.uts'
+import {
+  DEFAULT_LEARNING_FLOW,
+  LEARNING_FLOW_TEMPLATES,
+  getLearningFlow,
+  saveLearningFlow,
+} from '../services/learning-flow.uts'
+
+function cloneNodes(nodes: LearningFlowNode[]): LearningFlowNode[] {
+  return nodes.map((node) => ({ ...node }))
+}
+
+export const useLearningFlowStore = defineStore('learning-flow', () => {
+  const templates = ref(LEARNING_FLOW_TEMPLATES)
+  const defaultNodes = ref(cloneNodes(DEFAULT_LEARNING_FLOW))
+  const nodes = ref<LearningFlowNode[]>(cloneNodes(DEFAULT_LEARNING_FLOW))
+  const currentNodeIndex = ref(0)
+
+  async function loadFlow() {
+    const result = await getLearningFlow()
+    nodes.value = cloneNodes(result.nodes)
+  }
+
+  function updateFlow(nextNodes: LearningFlowNode[]) {
+    nodes.value = cloneNodes(nextNodes)
+  }
+
+  async function submitFlow(nextNodes: LearningFlowNode[]) {
+    const result = await saveLearningFlow(nextNodes)
+    nodes.value = cloneNodes(result.nodes)
+    currentNodeIndex.value = 0
+  }
+
+  return {
+    templates,
+    defaultNodes,
+    nodes,
+    currentNodeIndex,
+    loadFlow,
+    updateFlow,
+    submitFlow,
+  }
+})

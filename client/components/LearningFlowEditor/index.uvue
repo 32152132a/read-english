@@ -1,0 +1,524 @@
+<template>
+  <view class="learning-flow-editor" @mousemove="moveMouseDrag" @mouseup="finishMouseDrag">
+    <view class="learning-flow-editor__section">
+      <text class="learning-flow-editor__title">功能节点</text>
+      <text class="learning-flow-editor__tip">拖到下方区域，同一功能可重复添加</text>
+      <view class="learning-flow-editor__templates">
+        <view
+          v-for="item in templates"
+          :key="item.code"
+          class="learning-flow-editor__template"
+          @longpress="startTemplateDrag(item, $event)"
+          @mousedown="startTemplateMouseDrag(item, $event)"
+          @touchmove="moveDrag"
+          @touchend="finishDrag"
+          @touchcancel="cancelDrag"
+        >
+          <text>{{ formatNodeName(item.name) }}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="learning-flow-editor__section">
+      <text class="learning-flow-editor__title">我的流程</text>
+      <text class="learning-flow-editor__tip">拖动节点调整顺序，节点会自动换行</text>
+      <view class="learning-flow-editor__flow">
+        <text v-if="workingNodes.length === 0" class="learning-flow-editor__empty">
+          把上方功能拖到这里
+        </text>
+        <template v-for="(node, index) in workingNodes" :key="node.id">
+          <view v-if="dragging && dropIndex === index" class="learning-flow-editor__placeholder" />
+          <view
+            class="learning-flow-editor__flow-node"
+            @longpress="startNodeDrag(node, index, $event)"
+            @mousedown="startNodeMouseDrag(node, index, $event)"
+            @touchmove="moveDrag"
+            @touchend="finishDrag"
+            @touchcancel="cancelDrag"
+          >
+            <text>{{ formatNodeName(getTemplate(node.templateCode).name) }}</text>
+          </view>
+        </template>
+        <view
+          v-if="dragging && dropIndex === workingNodes.length"
+          class="learning-flow-editor__placeholder"
+        />
+      </view>
+    </view>
+
+    <view class="learning-flow-editor__trash" :class="trashActive ? 'is-active' : ''">
+      <AppIcon name="trash-2" :size="84" label="删除节点" />
+    </view>
+
+    <view class="learning-flow-editor__actions">
+      <text class="learning-flow-editor__reset" @click="resetFlow">恢复默认</text>
+      <button
+        class="primary-button learning-flow-editor__save"
+        :class="workingNodes.length === 0 ? 'is-disabled' : ''"
+        :disabled="workingNodes.length === 0"
+        @click="confirmSave"
+      >
+        保存流程
+      </button>
+    </view>
+
+    <view
+      v-if="dragging"
+      class="learning-flow-editor__drag-layer"
+      @touchmove="moveDrag"
+      @touchend="finishDrag"
+      @touchcancel="cancelDrag"
+    />
+    <view v-if="dragging" class="learning-flow-editor__ghost" :style="ghostStyle">
+      {{ formatNodeName(draggingName) }}
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import type {
+  LearningFlowEditorProps,
+  LearningFlowNode,
+  LearningFlowTemplate,
+} from '../../src/config/types.uts'
+
+const props = defineProps<LearningFlowEditorProps>()
+const emit = defineEmits(['change', 'save'])
+const instance = getCurrentInstance()!.proxy!
+const workingNodes = ref<LearningFlowNode[]>(props.nodes.map((node) => ({ ...node })))
+const dragging = ref(false)
+const draggingType = ref('')
+const draggingCode = ref('')
+const draggingName = ref('')
+const sourceIndex = ref(-1)
+const pointerX = ref(0)
+const pointerY = ref(0)
+const dropIndex = ref(-1)
+const trashActive = ref(false)
+const flowRect = ref(null as NodeInfo | null)
+const trashRect = ref(null as NodeInfo | null)
+const nodeRects = ref<NodeInfo[]>([])
+let nodeSequence = 0
+let mousePending = false
+let mouseType = ''
+let mouseCode = ''
+let mouseName = ''
+let mouseSourceIndex = -1
+let mouseStartX = 0
+let mouseStartY = 0
+
+const ASCII_UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const FULLWIDTH_UPPERCASE = 'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ'
+
+const ghostStyle = computed(
+  (): string => 'left:' + (pointerX.value - 26) + 'px;top:' + (pointerY.value - 26) + 'px;'
+)
+
+watch(
+  () => props.nodes,
+  (nodes) => {
+    if (dragging.value) return
+    workingNodes.value = nodes.map((node) => ({ ...node }))
+  }
+)
+
+function getTemplate(code: string): LearningFlowTemplate {
+  const template = props.templates.find((item) => item.code === code)
+  return template == null ? props.templates[0] : template
+}
+
+function formatNodeName(name: string): string {
+  let displayName = ''
+  for (let index = 0; index < name.length; index += 1) {
+    const character = name.substring(index, index + 1)
+    const uppercaseIndex = ASCII_UPPERCASE.indexOf(character)
+    displayName +=
+      uppercaseIndex >= 0
+        ? FULLWIDTH_UPPERCASE.substring(uppercaseIndex, uppercaseIndex + 1)
+        : character
+  }
+  if (displayName.length <= 2) return displayName
+  return displayName.substring(0, 2) + '\n' + displayName.substring(2)
+}
+
+function getTouch(event: UniTouchEvent): UniTouch | null {
+  if (event.changedTouches.length > 0) return event.changedTouches[0]
+  return event.touches.length > 0 ? event.touches[0] : null
+}
+
+function startTemplateDrag(template: LearningFlowTemplate, event: UniTouchEvent) {
+  startDrag('template', template.code, template.name, -1, event)
+}
+
+function startNodeDrag(node: LearningFlowNode, index: number, event: UniTouchEvent) {
+  const template = getTemplate(node.templateCode)
+  startDrag('node', node.templateCode, template.name, index, event)
+}
+
+function startTemplateMouseDrag(template: LearningFlowTemplate, event: UniMouseEvent) {
+  event.preventDefault()
+  prepareMouseDrag('template', template.code, template.name, -1, event.clientX, event.clientY)
+}
+
+function startNodeMouseDrag(node: LearningFlowNode, index: number, event: UniMouseEvent) {
+  event.preventDefault()
+  const template = getTemplate(node.templateCode)
+  prepareMouseDrag('node', node.templateCode, template.name, index, event.clientX, event.clientY)
+}
+
+function prepareMouseDrag(
+  type: string,
+  code: string,
+  name: string,
+  index: number,
+  x: number,
+  y: number
+) {
+  mousePending = true
+  mouseType = type
+  mouseCode = code
+  mouseName = name
+  mouseSourceIndex = index
+  mouseStartX = x
+  mouseStartY = y
+}
+
+function startDrag(type: string, code: string, name: string, index: number, event: UniTouchEvent) {
+  const touch = getTouch(event)
+  if (touch == null) return
+
+  startDragAt(type, code, name, index, touch.clientX, touch.clientY)
+}
+
+function startDragAt(
+  type: string,
+  code: string,
+  name: string,
+  index: number,
+  x: number,
+  y: number
+) {
+  dragging.value = true
+  draggingType.value = type
+  draggingCode.value = code
+  draggingName.value = name
+  sourceIndex.value = index
+  pointerX.value = x
+  pointerY.value = y
+  measureDropTargets()
+}
+
+function moveDrag(event: UniTouchEvent) {
+  if (!dragging.value) return
+  event.preventDefault()
+  const touch = getTouch(event)
+  if (touch == null) return
+
+  updatePointer(touch.clientX, touch.clientY)
+}
+
+function moveMouseDrag(event: UniMouseEvent) {
+  if (mousePending && !dragging.value) {
+    const offsetX = event.clientX - mouseStartX
+    const offsetY = event.clientY - mouseStartY
+    if (offsetX * offsetX + offsetY * offsetY < 64) return
+    startDragAt(mouseType, mouseCode, mouseName, mouseSourceIndex, event.clientX, event.clientY)
+  }
+  if (!dragging.value) return
+  updatePointer(event.clientX, event.clientY)
+}
+
+function updatePointer(x: number, y: number) {
+  pointerX.value = x
+  pointerY.value = y
+  trashActive.value = isInside(trashRect.value, x, y)
+  dropIndex.value = isInside(flowRect.value, x, y) ? findDropIndex(x, y) : -1
+}
+
+function finishDrag(event: UniTouchEvent) {
+  if (!dragging.value) return
+  const touch = getTouch(event)
+  if (touch != null) {
+    updatePointer(touch.clientX, touch.clientY)
+  }
+
+  completeDrop()
+}
+
+function finishMouseDrag(event: UniMouseEvent) {
+  if (!dragging.value) {
+    resetMouseDrag()
+    return
+  }
+  updatePointer(event.clientX, event.clientY)
+  completeDrop()
+}
+
+function resetMouseDrag() {
+  mousePending = false
+  mouseType = ''
+  mouseCode = ''
+  mouseName = ''
+  mouseSourceIndex = -1
+}
+
+function completeDrop() {
+  if (trashActive.value && draggingType.value === 'node') {
+    workingNodes.value.splice(sourceIndex.value, 1)
+    emitChange()
+  } else if (dropIndex.value >= 0) {
+    insertDraggedNode(dropIndex.value)
+  }
+  resetDrag()
+}
+
+function cancelDrag() {
+  resetDrag()
+}
+
+function insertDraggedNode(targetIndex: number) {
+  let insertIndex = targetIndex
+  let node: LearningFlowNode
+
+  if (draggingType.value === 'node') {
+    node = workingNodes.value[sourceIndex.value]
+    workingNodes.value.splice(sourceIndex.value, 1)
+    if (sourceIndex.value < insertIndex) insertIndex -= 1
+  } else {
+    nodeSequence += 1
+    node = {
+      id: 'flow-' + Date.now() + '-' + nodeSequence,
+      templateCode: draggingCode.value,
+    }
+  }
+
+  workingNodes.value.splice(insertIndex, 0, node)
+  emitChange()
+}
+
+function findDropIndex(clientX: number, clientY: number): number {
+  for (let index = 0; index < nodeRects.value.length; index += 1) {
+    const rect = nodeRects.value[index]
+    const top = rect.top as number
+    const bottom = rect.bottom as number
+    if (clientY < top) return index
+    if (clientY <= bottom && clientX < (rect.left as number) + (rect.width as number) / 2)
+      return index
+  }
+  return workingNodes.value.length
+}
+
+function isInside(rect: NodeInfo | null, x: number, y: number): boolean {
+  if (rect == null) return false
+  return (
+    x >= (rect.left as number) &&
+    x <= (rect.right as number) &&
+    y >= (rect.top as number) &&
+    y <= (rect.bottom as number)
+  )
+}
+
+function measureDropTargets() {
+  uni
+    .createSelectorQuery()
+    .in(instance)
+    .select('.learning-flow-editor__flow')
+    .boundingClientRect()
+    .select('.learning-flow-editor__trash')
+    .boundingClientRect()
+    .selectAll('.learning-flow-editor__flow-node')
+    .boundingClientRect()
+    .exec((result) => {
+      if (result.length < 3) return
+      flowRect.value = result[0] as NodeInfo
+      trashRect.value = result[1] as NodeInfo
+      nodeRects.value = result[2] as NodeInfo[]
+    })
+}
+
+function emitChange() {
+  emit(
+    'change',
+    workingNodes.value.map((node) => ({ ...node }))
+  )
+}
+
+function resetFlow() {
+  workingNodes.value = props.defaultNodes.map((node) => ({ ...node }))
+  emitChange()
+}
+
+function confirmSave() {
+  if (workingNodes.value.length === 0) return
+  uni.showModal({
+    title: '确认修改学习流程？',
+    content: '保存后将从新流程的第一个节点开始，已完成的课程和评测记录不会删除。',
+    confirmText: '确认保存',
+    success: (result) => {
+      if (!result.confirm) return
+      emit(
+        'save',
+        workingNodes.value.map((node) => ({ ...node }))
+      )
+    },
+  })
+}
+
+function resetDrag() {
+  resetMouseDrag()
+  dragging.value = false
+  draggingType.value = ''
+  draggingCode.value = ''
+  draggingName.value = ''
+  sourceIndex.value = -1
+  dropIndex.value = -1
+  trashActive.value = false
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.learning-flow-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28rpx;
+  padding-bottom: 150rpx;
+
+  &__section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14rpx;
+  }
+
+  &__title {
+    font-size: 32rpx;
+    font-weight: 700;
+  }
+
+  &__tip,
+  &__empty {
+    color: $color-text-secondary;
+    font-size: 23rpx;
+  }
+
+  &__templates {
+    display: grid;
+    grid-template-columns: repeat(5, 104rpx);
+    gap: 14rpx;
+  }
+
+  &__template,
+  &__flow-node {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    align-items: center;
+    width: 104rpx;
+    height: 104rpx;
+    box-sizing: border-box;
+    padding: 10rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 14rpx;
+    background-color: #fff;
+    font-size: 22rpx;
+    line-height: 1.35;
+    white-space: pre-line;
+  }
+
+  &__template {
+    text-align: center;
+  }
+
+  &__flow {
+    width: 100%;
+    min-height: 260rpx;
+    padding: 24rpx;
+    box-sizing: border-box;
+    border: 2rpx dashed #cfd5e7;
+    border-radius: 18rpx;
+    background-color: #f4f6fb;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: center;
+    gap: 14rpx;
+  }
+
+  &__flow-node {
+    background-color: #fff;
+  }
+
+  &__placeholder {
+    flex-shrink: 0;
+    width: 104rpx;
+    height: 104rpx;
+    box-sizing: border-box;
+    border: 2rpx dashed $color-primary;
+    border-radius: 14rpx;
+    background-color: #edf0ff;
+  }
+
+  &__trash {
+    position: fixed;
+    right: 30rpx;
+    bottom: 34rpx;
+    z-index: 27;
+    width: 148rpx;
+    height: 148rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    opacity: 0.78;
+
+    &.is-active {
+      opacity: 1;
+    }
+  }
+
+  &__actions {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 24rpx;
+  }
+
+  &__reset {
+    color: $color-text-secondary;
+    font-size: 25rpx;
+  }
+
+  &__save {
+    width: 100%;
+    margin: 0;
+  }
+
+  &__ghost {
+    position: fixed;
+    z-index: 30;
+    width: 104rpx;
+    height: 104rpx;
+    box-sizing: border-box;
+    padding: 10rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 14rpx;
+    background-color: #fff;
+    font-size: 22rpx;
+    line-height: 1.35;
+    white-space: pre-line;
+    opacity: 0.96;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    text-align: center;
+  }
+
+  &__drag-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+  }
+}
+</style>

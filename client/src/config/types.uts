@@ -46,6 +46,22 @@ export type LearningStatItem = {
   suffix: string
 }
 
+export type LearningFlowTemplate = {
+  code: string
+  name: string
+  iconName: string
+  route: string
+}
+
+export type LearningFlowNode = {
+  id: string
+  templateCode: string
+}
+
+export type LearningFlowConfig = {
+  nodes: LearningFlowNode[]
+}
+
 export type InfoStepItem = {
   title: string
   text: string
@@ -275,6 +291,11 @@ export type ExampleWordListProps = { items: ExampleWord[] }
 export type InfoStepsProps = { title?: string; items?: InfoStepItem[] }
 export type LearningPathProps = { steps: StageItem[]; currentName: string }
 export type LearningStatsProps = { items?: LearningStatItem[] }
+export type LearningFlowEditorProps = {
+  templates: LearningFlowTemplate[]
+  nodes: LearningFlowNode[]
+  defaultNodes: LearningFlowNode[]
+}
 export type LessonProgressProps = {
   current: number
   total: number

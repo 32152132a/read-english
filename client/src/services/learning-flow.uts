@@ -1,0 +1,62 @@
+import type {
+  LearningFlowConfig,
+  LearningFlowNode,
+  LearningFlowTemplate,
+} from '../config/types.uts'
+
+export const LEARNING_FLOW_TEMPLATES: LearningFlowTemplate[] = [
+  {
+    code: 'phoneme',
+    name: '认识音标',
+    iconName: 'volume-2',
+    route: '/pages/phoneme/detail',
+  },
+  {
+    code: 'syllable',
+    name: '音素音节',
+    iconName: 'audio-waveform',
+    route: '/pages/syllable/index',
+  },
+  {
+    code: 'ipa-decoding',
+    name: '音标拼读',
+    iconName: 'eye',
+    route: '/pages/decoding/ipa',
+  },
+  {
+    code: 'word-decoding',
+    name: '单词拼读',
+    iconName: 'book-open',
+    route: '/pages/decoding/word',
+  },
+  {
+    code: 'evaluation',
+    name: 'AI评测',
+    iconName: 'mic',
+    route: '/pages/evaluation/index',
+  },
+]
+
+export const DEFAULT_LEARNING_FLOW: LearningFlowNode[] = [
+  { id: 'default-phoneme', templateCode: 'phoneme' },
+  { id: 'default-syllable', templateCode: 'syllable' },
+  { id: 'default-ipa-decoding', templateCode: 'ipa-decoding' },
+  { id: 'default-word-decoding', templateCode: 'word-decoding' },
+  { id: 'default-evaluation', templateCode: 'evaluation' },
+]
+
+function cloneNodes(nodes: LearningFlowNode[]): LearningFlowNode[] {
+  return nodes.map((node) => ({ ...node }))
+}
+
+let mockFlowNodes = cloneNodes(DEFAULT_LEARNING_FLOW)
+
+// 当前使用 Mock；接入后端时只替换这两个方法。
+export function getLearningFlow(): Promise<LearningFlowConfig> {
+  return Promise.resolve({ nodes: cloneNodes(mockFlowNodes) })
+}
+
+export function saveLearningFlow(nodes: LearningFlowNode[]): Promise<LearningFlowConfig> {
+  mockFlowNodes = cloneNodes(nodes)
+  return Promise.resolve({ nodes: cloneNodes(mockFlowNodes) })
+}

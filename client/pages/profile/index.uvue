@@ -31,6 +31,7 @@ const pageData = reactive({
   learning: [
     { code: 'progress', iconName: 'circle-check', label: '学习进度' },
     { code: 'libraries', iconName: 'book-open', label: '我的词库' },
+    { code: 'learning-flow', iconName: 'workflow', label: '学习流程' },
   ],
   settings: [
     {
@@ -53,6 +54,10 @@ function handleMenu(code: string) {
   }
   if (code === 'libraries') {
     uni.navigateTo({ url: '/pages/word-list/index' })
+    return
+  }
+  if (code === 'learning-flow') {
+    uni.navigateTo({ url: '/pages/profile/learning-flow' })
     return
   }
   if (code === 'about') {

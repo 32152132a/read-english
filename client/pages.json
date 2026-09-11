@@ -19,15 +19,15 @@
     },
     {
       "path": "pages/syllable/index",
-      "style": { "navigationBarTitleText": "音素与音节" }
+      "style": { "navigationBarTitleText": "音素音节" }
     },
     {
       "path": "pages/decoding/ipa",
-      "style": { "navigationBarTitleText": "看音标拼读" }
+      "style": { "navigationBarTitleText": "音标拼读" }
     },
     {
       "path": "pages/decoding/word",
-      "style": { "navigationBarTitleText": "看单词拆读" }
+      "style": { "navigationBarTitleText": "单词拼读" }
     },
     {
       "path": "pages/word-list/index",
@@ -47,9 +47,13 @@
     },
     {
       "path": "pages/evaluation/index",
-      "style": { "navigationBarTitleText": "跟读评测" }
+      "style": { "navigationBarTitleText": "AI评测" }
     },
     { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } },
+    {
+      "path": "pages/profile/learning-flow",
+      "style": { "navigationBarTitleText": "学习流程" }
+    },
     {
       "path": "pages/error/404",
       "style": { "navigationBarTitleText": "页面不存在" }

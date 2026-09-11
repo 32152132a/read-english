@@ -31,6 +31,8 @@ const iconNames = [
   'eye-off',
   'info',
   'log-out',
+  'workflow',
+  'trash-2',
 ]
 
 const props = withDefaults(defineProps<AppIconProps>(), {
