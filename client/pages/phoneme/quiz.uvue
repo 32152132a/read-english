@@ -24,6 +24,9 @@ import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import ListeningPrompt from '../../components/ListeningPrompt/index.uvue'
 import ChoiceGroup from '../../components/ChoiceGroup/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   id: 'short-vowel-quiz-2',
   current: 1,
@@ -90,7 +93,10 @@ function selectAnswer(value: string) {
 function confirm() {
   const target = pageData.current + 1
   const question = questionList[target - 1]
-  if (question == null) return
+  if (question == null) {
+    completeCurrentStage()
+    return
+  }
 
   pageData.id = question.id
   pageData.current = target

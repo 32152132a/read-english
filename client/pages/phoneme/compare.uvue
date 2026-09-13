@@ -14,6 +14,7 @@
       :total="pageData.total"
       :hint="pageData.actionHint"
       @change="loadStep"
+      @complete="completeCurrentStage"
     />
     <DebugPageNav />
   </view>
@@ -24,6 +25,9 @@ import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import PhonemeComparison from '../../components/PhonemeComparison/index.uvue'
 import WordPairPlayer from '../../components/WordPairPlayer/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   id: 'short-vowel-comparison',
   current: 2,

@@ -3,6 +3,7 @@ import type { LearningFlowNode } from '../config/types.uts'
 import {
   DEFAULT_LEARNING_FLOW,
   LEARNING_FLOW_TEMPLATES,
+  completeLearningStage,
   getLearningFlow,
   saveLearningFlow,
 } from '../services/learning-flow.uts'
@@ -16,6 +17,7 @@ export const useLearningFlowStore = defineStore('learning-flow', () => {
   const defaultNodes = ref(cloneNodes(DEFAULT_LEARNING_FLOW))
   const nodes = ref<LearningFlowNode[]>(cloneNodes(DEFAULT_LEARNING_FLOW))
   const currentNodeIndex = ref(1)
+  const reviewMode = ref(false)
 
   async function loadFlow() {
     const result = await getLearningFlow()
@@ -33,13 +35,36 @@ export const useLearningFlowStore = defineStore('learning-flow', () => {
     currentNodeIndex.value = result.currentNodeIndex
   }
 
+  async function completeCurrentStage(): Promise<string> {
+    const result = await completeLearningStage()
+    nodes.value = cloneNodes(result.nodes)
+    currentNodeIndex.value = result.currentNodeIndex
+    if (currentNodeIndex.value >= nodes.value.length) return ''
+
+    const nextNode = nodes.value[currentNodeIndex.value]
+    const template = templates.value.find((item) => item.code === nextNode.templateCode)
+    return template == null ? '' : template.route
+  }
+
+  function startReview() {
+    reviewMode.value = true
+  }
+
+  function finishReview() {
+    reviewMode.value = false
+  }
+
   return {
     templates,
     defaultNodes,
     nodes,
     currentNodeIndex,
+    reviewMode,
     loadFlow,
     updateFlow,
     submitFlow,
+    completeCurrentStage,
+    startReview,
+    finishReview,
   }
 })

@@ -7,11 +7,17 @@
       :consonants="consonants"
       @select="openDetail"
     />
+    <button class="primary-button phoneme-overview__complete" @click="completeCurrentStage">
+      完成查阅，进入下一阶段
+    </button>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
 import PhonemeCatalog from '../../components/PhonemeCatalog/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   title: '国际音标速查',
   description: '共 44 个音标，点击喇叭试听发音',
@@ -85,3 +91,10 @@ function openDetail(id: string) {
   uni.navigateTo({ url: `${pageData.detailRoute}?id=${id}` })
 }
 </script>
+
+<style lang="scss">
+.phoneme-overview__complete {
+  width: 100%;
+  margin-top: 28rpx;
+}
+</style>

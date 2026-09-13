@@ -16,7 +16,12 @@
       :scores="pageData.scores"
     />
     <CorrectionIssue v-if="resultVisible" :data="pageData.correction" />
-    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <StepActions
+      :current="pageData.current"
+      :total="pageData.total"
+      @change="loadStep"
+      @complete="completeCurrentStage"
+    />
     <DebugPageNav />
   </view>
 </template>
@@ -27,6 +32,9 @@ import EvaluationTarget from '../../components/EvaluationTarget/index.uvue'
 import RecordingPanel from '../../components/RecordingPanel/index.uvue'
 import EvaluationResult from '../../components/EvaluationResult/index.uvue'
 import CorrectionIssue from '../../components/CorrectionIssue/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   current: 2,
   total: 3,

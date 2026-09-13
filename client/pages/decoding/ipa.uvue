@@ -3,7 +3,12 @@
     <LessonProgress :current="pageData.current" :total="pageData.total" />
     <TipCard :title="pageData.tip.title" :text="pageData.tip.text" />
     <IpaReadingCard :data="pageData.card" />
-    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <StepActions
+      :current="pageData.current"
+      :total="pageData.total"
+      @change="loadStep"
+      @complete="completeCurrentStage"
+    />
     <DebugPageNav />
   </view>
 </template>
@@ -12,6 +17,9 @@ import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import IpaReadingCard from '../../components/IpaReadingCard/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   id: 'ipa-decoding-component',
   current: 2,

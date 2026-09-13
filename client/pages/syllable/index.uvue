@@ -14,7 +14,12 @@
     />
     <InfoSteps title="怎么判断" :items="pageData.rules" />
     <SyllableQuiz :data="pageData.question" />
-    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <StepActions
+      :current="pageData.current"
+      :total="pageData.total"
+      @change="loadStep"
+      @complete="completeCurrentStage"
+    />
     <DebugPageNav />
   </view>
 </template>
@@ -25,6 +30,9 @@ import StepActions from '../../components/StepActions/index.uvue'
 import SegmentedWord from '../../components/SegmentedWord/index.uvue'
 import InfoSteps from '../../components/InfoSteps/index.uvue'
 import SyllableQuiz from '../../components/SyllableQuiz/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   id: 'syllable-basic',
   current: 2,

@@ -16,6 +16,7 @@
       :total="pageData.total"
       :hint="pageData.comparisonText"
       @change="loadStep"
+      @complete="completeCurrentStage"
       @hint-click="goCompare"
     />
     <DebugPageNav />
@@ -29,6 +30,9 @@ import StepActions from '../../components/StepActions/index.uvue'
 import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
 import PronunciationGuide from '../../components/PronunciationGuide/index.uvue'
 import ExampleWordList from '../../components/ExampleWordList/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 const pageData = reactive({
   id: 'phoneme-ae',
   current: 2,

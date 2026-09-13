@@ -14,11 +14,11 @@
       </button>
       <button
         class="primary-button step-actions__button"
-        :class="isLast ? 'is-disabled' : ''"
-        :disabled="isLast"
+        :class="isUnavailable ? 'is-disabled' : ''"
+        :disabled="isUnavailable"
         @click="changeStep(1)"
       >
-        下一步
+        {{ isLast ? '下一阶段' : '下一步' }}
       </button>
     </view>
   </view>
@@ -28,11 +28,16 @@
 import type { StepActionsProps } from '../../src/config/types.uts'
 
 const props = withDefaults(defineProps<StepActionsProps>(), { hint: '' })
-const emit = defineEmits(['change', 'hint-click'])
+const emit = defineEmits(['change', 'complete', 'hint-click'])
 const isFirst = computed((): boolean => props.total <= 0 || props.current <= 1)
 const isLast = computed((): boolean => props.total <= 0 || props.current >= props.total)
+const isUnavailable = computed((): boolean => props.total <= 0)
 
 function changeStep(offset: number) {
+  if (offset > 0 && isLast.value) {
+    emit('complete')
+    return
+  }
   const target = props.current + offset
   if (target < 1 || target > props.total) return
 

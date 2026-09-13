@@ -4,7 +4,7 @@
       v-for="item in items"
       :key="item.code"
       class="quick-access-list__item"
-      @click="$emit('select', item.route)"
+      @click="$emit('select', item.route, item.code)"
     >
       <AppIcon :name="item.iconName" :size="52" tone="dark" />
       <view class="quick-access-list__content">

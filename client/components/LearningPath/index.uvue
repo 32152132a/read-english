@@ -1,17 +1,23 @@
 <template>
   <view class="learning-path card">
     <view class="learning-path__head">
-      <text class="learning-path__current">当前：{{ currentStep.name }}</text>
-      <text class="learning-path__count">{{ currentIndex + 1 }} / {{ steps.length }}</text>
+      <text class="learning-path__current">
+        {{ currentStep == null ? '本轮学习已完成' : '当前：' + currentStep.name }}
+      </text>
+      <text class="learning-path__count">{{ progressCurrent }} / {{ steps.length }}</text>
     </view>
     <view class="learning-path__steps">
       <view
         v-for="(step, index) in steps"
         :key="step.code"
-        class="learning-path__step"
+        class="learning-path__step-item"
         @click="selectStep(step)"
       >
         <text class="learning-path__number" :class="'is-' + step.state">{{ index + 1 }}</text>
+        <text v-if="index < steps.length - 1 && (index + 1) % 4 !== 0" class="learning-path__arrow">
+          ›
+        </text>
+        <view v-else class="learning-path__arrow-space" />
         <text class="learning-path__name" :class="'is-' + step.state">{{ step.name }}</text>
       </view>
     </view>
@@ -25,6 +31,7 @@ const props = defineProps<LearningPathProps>()
 const emit = defineEmits(['select'])
 
 const currentStep = computed(() => props.steps[props.currentIndex])
+const progressCurrent = computed((): number => Math.min(props.currentIndex + 1, props.steps.length))
 
 function selectStep(step: StageItem) {
   if (step.state !== 'completed') return
@@ -62,19 +69,36 @@ function selectStep(step: StageItem) {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: start;
-    justify-items: center;
     gap: 24rpx 12rpx;
   }
 
-  &__step {
+  &__step-item {
+    width: 100%;
     min-width: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 10rpx;
+    grid-template-columns: minmax(0, 1fr) 16rpx;
+    grid-template-rows: 52rpx auto;
+    row-gap: 10rpx;
+  }
+
+  &__arrow {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    color: $color-text-secondary;
+    font-size: 34rpx;
+  }
+
+  &__arrow-space {
+    grid-column: 2;
+    grid-row: 1;
+    width: 16rpx;
   }
 
   &__number {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
     width: 52rpx;
     height: 52rpx;
     border-radius: 50%;
@@ -95,6 +119,9 @@ function selectStep(step: StageItem) {
   }
 
   &__name {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: center;
     text-align: center;
     font-size: 23rpx;
 

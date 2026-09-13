@@ -72,7 +72,7 @@ function cloneNodes(nodes: LearningFlowNode[]): LearningFlowNode[] {
 let mockFlowNodes = cloneNodes(DEFAULT_LEARNING_FLOW)
 let mockCurrentNodeIndex = 1
 
-// 当前使用 Mock；接入后端时只替换这两个方法。
+// 当前使用 Mock；接入后端时只替换本文件中的流程请求方法。
 export function getLearningFlow(): Promise<LearningFlowConfig> {
   return Promise.resolve({
     nodes: cloneNodes(mockFlowNodes),
@@ -83,6 +83,14 @@ export function getLearningFlow(): Promise<LearningFlowConfig> {
 export function saveLearningFlow(nodes: LearningFlowNode[]): Promise<LearningFlowConfig> {
   mockFlowNodes = cloneNodes(nodes)
   mockCurrentNodeIndex = 0
+  return Promise.resolve({
+    nodes: cloneNodes(mockFlowNodes),
+    currentNodeIndex: mockCurrentNodeIndex,
+  })
+}
+
+export function completeLearningStage(): Promise<LearningFlowConfig> {
+  if (mockCurrentNodeIndex < mockFlowNodes.length) mockCurrentNodeIndex += 1
   return Promise.resolve({
     nodes: cloneNodes(mockFlowNodes),
     currentNodeIndex: mockCurrentNodeIndex,

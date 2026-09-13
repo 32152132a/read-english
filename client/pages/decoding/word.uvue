@@ -8,7 +8,12 @@
       note="规则用于帮助推测，最终以音标和实际发音为准。"
     />
     <WordDecodingCard :data="pageData.exercise" />
-    <StepActions :current="pageData.current" :total="pageData.total" @change="loadStep" />
+    <StepActions
+      :current="pageData.current"
+      :total="pageData.total"
+      @change="loadStep"
+      @complete="completeCurrentStage"
+    />
     <DebugPageNav />
   </view>
 </template>
@@ -17,6 +22,9 @@ import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import WordDecodingCard from '../../components/WordDecodingCard/index.uvue'
+import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+
+const { completeCurrentStage } = useLearningFlowNavigation()
 
 const COMMON_SPLIT_TIPS = [
   '数声音，不数字母：一个元音声音通常对应一个音节。',
