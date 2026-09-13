@@ -10,23 +10,31 @@
       </view>
       <TodayLessonCard :data="pageData.todayTask" @continue="go(pageData.todayTask.route)" />
       <text class="section-title">学习路径</text>
-      <LearningPath :steps="pageData.learningPaths" :current-name="pageData.currentStageName" />
-      <text class="section-title">下一阶段</text>
-      <NextStageList
-        :stages="pageData.nextStages"
-        :locked-text="pageData.nextStageLockedText"
+      <LearningPath
+        v-if="learningSteps.length > 0"
+        :steps="learningSteps"
+        :current-index="safeCurrentIndex"
         @select="go"
       />
+      <text class="section-title">常用功能</text>
+      <QuickAccessList :items="pageData.quickAccess" @select="go" />
     </view>
     <BottomNav active="home" />
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
+import { storeToRefs } from 'pinia'
 import BottomNav from '../../components/BottomNav/index.uvue'
 import TodayLessonCard from '../../components/TodayLessonCard/index.uvue'
 import LearningPath from '../../components/LearningPath/index.uvue'
-import NextStageList from '../../components/NextStageList/index.uvue'
+import QuickAccessList from '../../components/QuickAccessList/index.uvue'
+import type { StageItem } from '../../src/config/types.uts'
+import { useLearningFlowStore } from '../../src/stores/learning-flow.uts'
+
+const learningFlowStore = useLearningFlowStore()
+const { templates, nodes, currentNodeIndex } = storeToRefs(learningFlowStore)
+
 const pageData = reactive({
   greeting: '下午好，永庆',
   subtitle: '看到陌生单词，也能试着读出来',
@@ -41,15 +49,14 @@ const pageData = reactive({
     current: 8,
     total: 20,
   },
-  learningPaths: [
-    { code: 'phoneme', name: '认识音标', state: 'active' },
-    { code: 'syllable', name: '音素音节', state: 'pending' },
-    { code: 'ipa-decoding', name: '音标拼读', state: 'pending' },
-    { code: 'word-decoding', name: '单词拼读', state: 'pending' },
-  ],
-  currentStageName: '认识音标',
-  nextStageLockedText: '完成基础后开启',
-  nextStages: [
+  quickAccess: [
+    {
+      code: 'phoneme-overview',
+      name: '音标总览',
+      description: '快速查阅',
+      iconName: 'volume-2',
+      route: '/pages/phoneme/overview',
+    },
     {
       code: 'word-list',
       name: '专业词库',
@@ -57,17 +64,36 @@ const pageData = reactive({
       iconName: 'book-open',
       route: '/pages/word-list/index',
     },
-    {
-      code: 'evaluation',
-      name: 'AI评测',
-      description: '发现问题',
-      iconName: 'headphones',
-      route: '/pages/evaluation/index',
-    },
   ],
 })
 
+const learningSteps = computed((): StageItem[] =>
+  nodes.value.map((node, index): StageItem => {
+    const template = templates.value.find((item) => item.code === node.templateCode)
+    return {
+      code: node.id,
+      name: template == null ? '学习节点' : template.name,
+      route: template == null ? '' : template.route,
+      state:
+        index < currentNodeIndex.value
+          ? 'completed'
+          : index === currentNodeIndex.value
+            ? 'active'
+            : 'pending',
+    }
+  })
+)
+
+const safeCurrentIndex = computed((): number =>
+  Math.min(currentNodeIndex.value, Math.max(learningSteps.value.length - 1, 0))
+)
+
+onMounted(() => {
+  learningFlowStore.loadFlow()
+})
+
 function go(url: string) {
+  if (url.length === 0) return
   uni.navigateTo({ url })
 }
 </script>

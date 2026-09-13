@@ -29,9 +29,10 @@ export type StageItem = {
   code: string
   name: string
   state: string
+  route: string
 }
 
-export type NextStageItem = {
+export type QuickAccessItem = {
   code: string
   name: string
   description: string
@@ -60,6 +61,7 @@ export type LearningFlowNode = {
 
 export type LearningFlowConfig = {
   nodes: LearningFlowNode[]
+  currentNodeIndex: number
 }
 
 export type InfoStepItem = {
@@ -289,7 +291,7 @@ export type EvaluationResultProps = { title?: string; scores?: EvaluationScore[]
 export type EvaluationTargetProps = { data: EvaluationTargetData }
 export type ExampleWordListProps = { items: ExampleWord[] }
 export type InfoStepsProps = { title?: string; items?: InfoStepItem[] }
-export type LearningPathProps = { steps: StageItem[]; currentName: string }
+export type LearningPathProps = { steps: StageItem[]; currentIndex: number }
 export type LearningStatsProps = { items?: LearningStatItem[] }
 export type LearningFlowEditorProps = {
   templates: LearningFlowTemplate[]
@@ -304,7 +306,7 @@ export type LessonProgressProps = {
 }
 export type ListeningPromptProps = { audios: AudioItem[] }
 export type MouthShapeProps = { type?: string; size?: string; tone?: string }
-export type NextStageListProps = { stages: NextStageItem[]; lockedText?: string }
+export type QuickAccessListProps = { items: QuickAccessItem[] }
 export type PhonemeComparisonProps = { items: PhonemeComparisonItem[] }
 export type PhonemeDisplayProps = { segments: PhonemeSegment[]; size?: string }
 export type PhonemeGridProps = { items: PhonemeGridItem[] }
@@ -345,7 +347,6 @@ export type IpaReadingCardData = {
   audioUrl: string
 }
 export type IpaReadingCardProps = { data: IpaReadingCardData }
-export type StageProgressProps = { steps: StageItem[]; variant?: string }
 export type StepActionsProps = { current: number; total: number; hint?: string }
 export type TipCardProps = {
   title?: string

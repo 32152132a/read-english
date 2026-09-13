@@ -15,11 +15,12 @@ export const useLearningFlowStore = defineStore('learning-flow', () => {
   const templates = ref(LEARNING_FLOW_TEMPLATES)
   const defaultNodes = ref(cloneNodes(DEFAULT_LEARNING_FLOW))
   const nodes = ref<LearningFlowNode[]>(cloneNodes(DEFAULT_LEARNING_FLOW))
-  const currentNodeIndex = ref(0)
+  const currentNodeIndex = ref(1)
 
   async function loadFlow() {
     const result = await getLearningFlow()
     nodes.value = cloneNodes(result.nodes)
+    currentNodeIndex.value = result.currentNodeIndex
   }
 
   function updateFlow(nextNodes: LearningFlowNode[]) {
@@ -29,7 +30,7 @@ export const useLearningFlowStore = defineStore('learning-flow', () => {
   async function submitFlow(nextNodes: LearningFlowNode[]) {
     const result = await saveLearningFlow(nextNodes)
     nodes.value = cloneNodes(result.nodes)
-    currentNodeIndex.value = 0
+    currentNodeIndex.value = result.currentNodeIndex
   }
 
   return {

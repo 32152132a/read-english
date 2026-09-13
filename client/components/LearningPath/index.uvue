@@ -1,18 +1,35 @@
 <template>
-  <view class="learning-path">
-    <StageProgress :steps="steps" variant="path" />
-    <text class="learning-path__current">
-      当前：
-      <text class="learning-path__name">{{ currentName }}</text>
-    </text>
+  <view class="learning-path card">
+    <view class="learning-path__head">
+      <text class="learning-path__current">当前：{{ currentStep.name }}</text>
+      <text class="learning-path__count">{{ currentIndex + 1 }} / {{ steps.length }}</text>
+    </view>
+    <view class="learning-path__steps">
+      <view
+        v-for="(step, index) in steps"
+        :key="step.code"
+        class="learning-path__step"
+        @click="selectStep(step)"
+      >
+        <text class="learning-path__number" :class="'is-' + step.state">{{ index + 1 }}</text>
+        <text class="learning-path__name" :class="'is-' + step.state">{{ step.name }}</text>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="uts">
-import StageProgress from '../StageProgress/index.uvue'
-import type { LearningPathProps } from '../../src/config/types.uts'
+import type { LearningPathProps, StageItem } from '../../src/config/types.uts'
 
-defineProps<LearningPathProps>()
+const props = defineProps<LearningPathProps>()
+const emit = defineEmits(['select'])
+
+const currentStep = computed(() => props.steps[props.currentIndex])
+
+function selectStep(step: StageItem) {
+  if (step.state !== 'completed') return
+  emit('select', step.route)
+}
 </script>
 
 <style lang="scss">
@@ -20,15 +37,75 @@ defineProps<LearningPathProps>()
 
 .learning-path {
   width: 100%;
+  padding: 28rpx;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 26rpx;
+
+  &__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
 
   &__current {
-    display: block;
-    margin: 24rpx 10rpx 0;
+    font-weight: 600;
+  }
+
+  &__count {
     color: $color-text-secondary;
+    font-size: 22rpx;
+  }
+
+  &__steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    justify-items: center;
+    gap: 24rpx 12rpx;
+  }
+
+  &__step {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 10rpx;
+  }
+
+  &__number {
+    width: 52rpx;
+    height: 52rpx;
+    border-radius: 50%;
+    background-color: #eef1ff;
+    color: $color-primary;
+    text-align: center;
+    line-height: 52rpx;
+
+    &.is-active {
+      background-color: $color-primary;
+      color: #fff;
+    }
+
+    &.is-completed {
+      background-color: #e8f8f2;
+      color: #159a6b;
+    }
   }
 
   &__name {
-    color: $color-primary;
+    text-align: center;
+    font-size: 23rpx;
+
+    &.is-active {
+      color: $color-primary;
+      font-weight: 600;
+    }
+
+    &.is-pending {
+      color: $color-text-secondary;
+    }
   }
 }
 </style>

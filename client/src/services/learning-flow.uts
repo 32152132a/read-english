@@ -12,6 +12,24 @@ export const LEARNING_FLOW_TEMPLATES: LearningFlowTemplate[] = [
     route: '/pages/phoneme/detail',
   },
   {
+    code: 'phoneme-overview',
+    name: '音标总览',
+    iconName: 'volume-2',
+    route: '/pages/phoneme/overview',
+  },
+  {
+    code: 'phoneme-compare',
+    name: '易混对比',
+    iconName: 'volume-2',
+    route: '/pages/phoneme/compare',
+  },
+  {
+    code: 'phoneme-quiz',
+    name: '听音辨认',
+    iconName: 'headphones',
+    route: '/pages/phoneme/quiz',
+  },
+  {
     code: 'syllable',
     name: '音素音节',
     iconName: 'audio-waveform',
@@ -39,6 +57,8 @@ export const LEARNING_FLOW_TEMPLATES: LearningFlowTemplate[] = [
 
 export const DEFAULT_LEARNING_FLOW: LearningFlowNode[] = [
   { id: 'default-phoneme', templateCode: 'phoneme' },
+  { id: 'default-phoneme-compare', templateCode: 'phoneme-compare' },
+  { id: 'default-phoneme-quiz', templateCode: 'phoneme-quiz' },
   { id: 'default-syllable', templateCode: 'syllable' },
   { id: 'default-ipa-decoding', templateCode: 'ipa-decoding' },
   { id: 'default-word-decoding', templateCode: 'word-decoding' },
@@ -50,13 +70,21 @@ function cloneNodes(nodes: LearningFlowNode[]): LearningFlowNode[] {
 }
 
 let mockFlowNodes = cloneNodes(DEFAULT_LEARNING_FLOW)
+let mockCurrentNodeIndex = 1
 
 // 当前使用 Mock；接入后端时只替换这两个方法。
 export function getLearningFlow(): Promise<LearningFlowConfig> {
-  return Promise.resolve({ nodes: cloneNodes(mockFlowNodes) })
+  return Promise.resolve({
+    nodes: cloneNodes(mockFlowNodes),
+    currentNodeIndex: mockCurrentNodeIndex,
+  })
 }
 
 export function saveLearningFlow(nodes: LearningFlowNode[]): Promise<LearningFlowConfig> {
   mockFlowNodes = cloneNodes(nodes)
-  return Promise.resolve({ nodes: cloneNodes(mockFlowNodes) })
+  mockCurrentNodeIndex = 0
+  return Promise.resolve({
+    nodes: cloneNodes(mockFlowNodes),
+    currentNodeIndex: mockCurrentNodeIndex,
+  })
 }
