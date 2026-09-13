@@ -83,7 +83,7 @@ defineEmits(['continue'])
   &__duration {
     position: relative;
     z-index: 1;
-    margin-top: 18rpx;
+    margin-top: 28rpx;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -116,7 +116,7 @@ defineEmits(['continue'])
   &__footer {
     position: relative;
     z-index: 1;
-    margin-top: 40rpx;
+    margin-top: 26rpx;
     display: grid;
     grid-template-columns: 190rpx 214rpx;
     justify-content: space-between;
