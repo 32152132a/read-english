@@ -47,7 +47,12 @@
     </view>
 
     <view class="learning-flow-editor__trash" :class="trashActive ? 'is-active' : ''">
-      <AppIcon name="trash-2" :size="84" label="删除节点" />
+      <AppIcon
+        class="learning-flow-editor__trash-icon"
+        name="trash-2"
+        :size="136"
+        label="删除节点"
+      />
     </view>
 
     <view class="learning-flow-editor__actions">
@@ -264,12 +269,30 @@ function resetMouseDrag() {
 
 function completeDrop() {
   if (trashActive.value && draggingType.value === 'node') {
-    workingNodes.value.splice(sourceIndex.value, 1)
-    emitChange()
+    const nodeId = workingNodes.value[sourceIndex.value].id
+    resetDrag()
+    confirmNodeRemoval(nodeId)
+    return
   } else if (dropIndex.value >= 0) {
     insertDraggedNode(dropIndex.value)
   }
   resetDrag()
+}
+
+function confirmNodeRemoval(nodeId: string) {
+  uni.showModal({
+    title: '删除该流程节点？',
+    content: '仅从当前学习流程中移除，不会删除已有的学习记录。',
+    confirmText: '删除',
+    confirmColor: '#df4f55',
+    success: (result) => {
+      if (!result.confirm) return
+      const index = workingNodes.value.findIndex((node) => node.id === nodeId)
+      if (index < 0) return
+      workingNodes.value.splice(index, 1)
+      emitChange()
+    },
+  })
 }
 
 function cancelDrag() {
@@ -462,19 +485,31 @@ function resetDrag() {
 
   &__trash {
     position: fixed;
-    right: 30rpx;
-    bottom: 34rpx;
+    right: 12rpx;
+    bottom: 18rpx;
     z-index: 27;
-    width: 148rpx;
-    height: 148rpx;
+    width: 200rpx;
+    height: 200rpx;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     place-items: center;
     opacity: 0.78;
 
+    &:hover .learning-flow-editor__trash-icon {
+      animation: trash-hover 360ms ease-out;
+    }
+
     &.is-active {
       opacity: 1;
+
+      .learning-flow-editor__trash-icon {
+        animation: trash-active 480ms ease-in-out infinite alternate;
+      }
     }
+  }
+
+  &__trash-icon {
+    transform-origin: center;
   }
 
   &__actions {
@@ -519,6 +554,30 @@ function resetDrag() {
     position: fixed;
     inset: 0;
     z-index: 25;
+  }
+}
+
+@keyframes trash-hover {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  45% {
+    transform: scale(1.12) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.08) rotate(4deg);
+  }
+  100% {
+    transform: scale(1.06) rotate(0deg);
+  }
+}
+
+@keyframes trash-active {
+  from {
+    transform: scale(1.06) rotate(-3deg);
+  }
+  to {
+    transform: scale(1.14) rotate(3deg);
   }
 }
 </style>
