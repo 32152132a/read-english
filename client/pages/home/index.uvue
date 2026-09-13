@@ -2,11 +2,8 @@
   <view class="screen">
     <view class="page home">
       <view class="home-head">
-        <view>
-          <text class="greeting">{{ pageData.greeting }}</text>
-          <text class="subtitle">{{ pageData.subtitle }}</text>
-        </view>
-        <AppIcon name="search" :size="52" label="搜索" />
+        <text class="greeting">{{ pageData.greeting }}</text>
+        <text class="subtitle">{{ pageData.subtitle }}</text>
       </view>
       <TodayLessonCard :data="todayTask" @continue="go(todayTaskRoute)" />
       <text class="section-title">学习路径</text>
@@ -134,9 +131,6 @@ function openQuickAccess(url: string, code: string) {
 }
 
 .home-head {
-  display: grid;
-  grid-template-columns: 1fr auto;
-
   .greeting {
     display: block;
     font-size: 48rpx;
