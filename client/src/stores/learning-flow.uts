@@ -1,70 +1,40 @@
 import { defineStore } from 'pinia'
-import type { LearningFlowNode } from '../config/types.uts'
+import type { LearningFlowNode, LearningFlowTemplate } from '../config/types.uts'
+import type { FlowNode, FlowConfig } from '../config/api-types.uts'
 import {
   DEFAULT_LEARNING_FLOW,
-  LEARNING_FLOW_TEMPLATES,
-  completeLearningStage,
   getLearningFlow,
+  getLearningFlowTemplates,
   saveLearningFlow,
 } from '../services/learning-flow.uts'
 
-function cloneNodes(nodes: LearningFlowNode[]): LearningFlowNode[] {
-  return nodes.map((node) => ({ ...node }))
-}
-
 export const useLearningFlowStore = defineStore('learning-flow', () => {
-  const templates = ref(LEARNING_FLOW_TEMPLATES)
-  const defaultNodes = ref(cloneNodes(DEFAULT_LEARNING_FLOW))
-  const nodes = ref<LearningFlowNode[]>(cloneNodes(DEFAULT_LEARNING_FLOW))
-  const currentNodeIndex = ref(1)
-  const reviewMode = ref(false)
+  const templates = ref<LearningFlowTemplate[]>([])
+  const nodes = ref<FlowNode[]>([])
+  const currentNodeIndex = ref(0)
+  const version = ref(0)
+  const defaultNodes = DEFAULT_LEARNING_FLOW
 
-  async function loadFlow() {
-    const result = await getLearningFlow()
-    nodes.value = cloneNodes(result.nodes)
-    currentNodeIndex.value = result.currentNodeIndex
+  function applyFlow(flow: FlowConfig) {
+    nodes.value = flow.nodes
+    version.value = flow.version
+    currentNodeIndex.value = flow.currentNodeIndex
   }
 
-  function updateFlow(nextNodes: LearningFlowNode[]) {
-    nodes.value = cloneNodes(nextNodes)
+  async function loadFlow() {
+    const [flow, availableTemplates] = await Promise.all([
+      getLearningFlow(),
+      getLearningFlowTemplates(),
+    ])
+    templates.value = availableTemplates
+      .filter((item) => item.enabled)
+      .map((item) => ({ ...item, iconName: '' }))
+    applyFlow(flow)
   }
 
   async function submitFlow(nextNodes: LearningFlowNode[]) {
-    const result = await saveLearningFlow(nextNodes)
-    nodes.value = cloneNodes(result.nodes)
-    currentNodeIndex.value = result.currentNodeIndex
+    applyFlow(await saveLearningFlow(nextNodes, version.value))
   }
 
-  async function completeCurrentStage(): Promise<string> {
-    const result = await completeLearningStage()
-    nodes.value = cloneNodes(result.nodes)
-    currentNodeIndex.value = result.currentNodeIndex
-    if (currentNodeIndex.value >= nodes.value.length) return ''
-
-    const nextNode = nodes.value[currentNodeIndex.value]
-    const template = templates.value.find((item) => item.code === nextNode.templateCode)
-    return template == null ? '' : template.route
-  }
-
-  function startReview() {
-    reviewMode.value = true
-  }
-
-  function finishReview() {
-    reviewMode.value = false
-  }
-
-  return {
-    templates,
-    defaultNodes,
-    nodes,
-    currentNodeIndex,
-    reviewMode,
-    loadFlow,
-    updateFlow,
-    submitFlow,
-    completeCurrentStage,
-    startReview,
-    finishReview,
-  }
+  return { templates, nodes, currentNodeIndex, defaultNodes, loadFlow, submitFlow }
 })

@@ -1,11 +1,45 @@
-import { clearToken, getAuthorization } from './token.uts'
+import { clearToken, getAuthorization, getRefreshToken, setLoginTokens } from './token.uts'
 import type { HttpError, HttpOptions } from '../config/types.uts'
+import type { ApiResponse, LoginResponse } from '../config/api-types.uts'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const loadingDelay = 150
 
 function createHttpError(statusCode: number, message: string, data: any | null): HttpError {
-  return { statusCode, message, data }
+  return {
+    statusCode,
+    code: data?.code ?? 'NETWORK_ERROR',
+    message: data?.message ?? message,
+    requestId: data?.requestId ?? '',
+    data,
+  }
+}
+
+let refreshPromise: Promise<LoginResponse> | null = null
+
+async function refreshLogin() {
+  if (refreshPromise == null) {
+    refreshPromise = request<LoginResponse>({
+      url: '/auth/refresh',
+      method: 'POST',
+      auth: false,
+      showLoading: false,
+      data: { refreshToken: getRefreshToken() },
+    })
+      .then((login) => {
+        setLoginTokens(login.accessToken, login.refreshToken)
+        return login
+      })
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+  await refreshPromise
+}
+
+export function showRequestError(error: unknown) {
+  const message = (error as HttpError)?.message ?? '操作失败，请重试'
+  uni.showToast({ title: message, icon: 'none' })
 }
 
 let loadingCount = 0
@@ -65,9 +99,9 @@ function handleStatus(statusCode: number) {
   }
 }
 
-export function request<T>(options: HttpOptions): Promise<T> {
+export function request<T>(options: HttpOptions, retry: boolean = true): Promise<T> {
   const shouldShowLoading = options.showLoading !== false
-  const headers: UTSJSONObject = options.header ?? {}
+  const headers: UTSJSONObject = { 'Content-Type': 'application/json', ...options.header }
   const authorization = getAuthorization()
 
   if (options.auth !== false && authorization.length > 0) {
@@ -76,15 +110,35 @@ export function request<T>(options: HttpOptions): Promise<T> {
   if (shouldShowLoading) startLoading(options.loadingText ?? '加载中')
 
   return new Promise<T>((resolve, reject) => {
-    uni.request<T>({
+    uni.request<ApiResponse<T>>({
       url: options.url.startsWith('http') ? options.url : `${apiBaseUrl}${options.url}`,
       method: options.method ?? 'GET',
       data: options.data,
       header: headers,
       timeout: options.timeout ?? 10000,
-      success: (response) => {
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          resolve(response.data)
+      success: async (response) => {
+        if (
+          response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          response.data?.code === 'OK'
+        ) {
+          resolve(response.data.data)
+          return
+        }
+
+        if (
+          response.statusCode === 401 &&
+          options.auth !== false &&
+          retry &&
+          getRefreshToken().length > 0
+        ) {
+          try {
+            await refreshLogin()
+            resolve(await request<T>(options, false))
+          } catch (error) {
+            if ((error as HttpError).statusCode === 401) clearToken()
+            reject(error)
+          }
           return
         }
 

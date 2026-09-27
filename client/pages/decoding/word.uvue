@@ -1,122 +1,45 @@
 <template>
   <view class="page">
-    <LessonProgress :current="pageData.current" :total="pageData.total" />
-    <text class="page-title centered">{{ pageData.title }}</text>
-    <TipCard
-      title="拆分思路"
-      :items="splitTips"
-      note="规则用于帮助推测，最终以音标和实际发音为准。"
-    />
-    <WordDecodingCard :data="pageData.exercise" />
-    <StepActions
-      :current="pageData.current"
-      :total="pageData.total"
-      @change="loadStep"
-      @complete="completeCurrentStage"
-    />
+    <RequestState v-if="unit == null" :error="error" @retry="loadSession" />
+    <template v-else>
+      <LessonProgress :current="current" :total="total" />
+      <text class="page-title centered">{{ unit!.title }}</text>
+      <TipCard
+        title="拆分思路"
+        :items="unit!.content!.commonTips"
+        note="规则用于帮助推测，最终以音标和实际发音为准。"
+      />
+      <WordDecodingCard :key="unit!.id" :data="exercise" />
+      <StepActions
+        :current="current"
+        :total="total"
+        @change="loadStep"
+        @complete="completeCurrentStage"
+      />
+    </template>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
+import RequestState from '../../components/RequestState/index.uvue'
 import LessonProgress from '../../components/LessonProgress/index.uvue'
-import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import { useLearningSession } from '../../src/composables/use-learning-session.uts'
+import TipCard from '../../components/TipCard/index.uvue'
 import WordDecodingCard from '../../components/WordDecodingCard/index.uvue'
-import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+import type { WordContent } from '../../src/config/api-types.uts'
 
-const { completeCurrentStage } = useLearningFlowNavigation()
-
-const COMMON_SPLIT_TIPS = [
-  '数声音，不数字母：一个元音声音通常对应一个音节。',
-  '字母组合不拆家：常见元音、辅音组合尽量保持完整。',
-  '辅音看跟谁读：能自然作为下一音节开头就往后归。',
-]
-
-const pageData = reactive({
-  id: 'word-decoding-component',
-  current: 2,
-  total: 3,
-  title: '根据字母组合推测读音',
-  exercise: {
-    id: 'word-decoding-component',
-    word: 'component',
-    audioUrl: '',
-    specialTips: ['component 拆成 com / po / nent。', '重读在 po，非重读元音可能发生弱化。'],
-    mappings: [
-      { part: 'com', segments: [{ text: 'kəm', tone: 'normal' }], tip: '非重读 o 常弱读为 /ə/' },
-      { part: 'po', segments: [{ text: 'pəʊ', tone: 'stress' }], tip: '开音节 o 常发 /əʊ/' },
-      {
-        part: 'nent',
-        segments: [{ text: 'nənt', tone: 'normal' }],
-        tip: '非重读 e 常弱读为 /ə/',
-      },
-    ],
-  },
-})
-const stepList = [
-  {
-    id: 'word-decoding-fantastic',
-    word: 'fantastic',
-    audioUrl: '',
-    specialTips: ['fantastic 拆成 fan / tas / tic。', '重读在 tas，闭音节中的元音通常发短音。'],
-    mappings: [
-      { part: 'fan', segments: [{ text: 'fæn', tone: 'normal' }], tip: '闭音节 a 常发 /æ/' },
-      { part: 'tas', segments: [{ text: 'ˈtæs', tone: 'stress' }], tip: '重音落在这个音节' },
-      { part: 'tic', segments: [{ text: 'tɪk', tone: 'normal' }], tip: '闭音节 i 常发 /ɪ/' },
-    ],
-  },
-  {
-    id: 'word-decoding-component',
-    word: 'component',
-    audioUrl: '',
-    specialTips: ['component 拆成 com / po / nent。', '重读在 po，非重读元音可能发生弱化。'],
-    mappings: [
-      { part: 'com', segments: [{ text: 'kəm', tone: 'normal' }], tip: '非重读 o 常弱读为 /ə/' },
-      { part: 'po', segments: [{ text: 'pəʊ', tone: 'stress' }], tip: '开音节 o 常发 /əʊ/' },
-      {
-        part: 'nent',
-        segments: [{ text: 'nənt', tone: 'normal' }],
-        tip: '非重读 e 常弱读为 /ə/',
-      },
-    ],
-  },
-  {
-    id: 'word-decoding-important',
-    word: 'important',
-    audioUrl: '',
-    specialTips: ['important 拆成 im / por / tant。', '重读在 por，非重读 a 通常弱读为 /ə/。'],
-    mappings: [
-      { part: 'im', segments: [{ text: 'ɪm', tone: 'normal' }], tip: '闭音节 i 常发 /ɪ/' },
-      {
-        part: 'por',
-        segments: [{ text: 'ˈpɔː', tone: 'stress' }],
-        tip: 'or 在重读音节中常发 /ɔː/',
-      },
-      {
-        part: 'tant',
-        segments: [{ text: 'tənt', tone: 'normal' }],
-        tip: '非重读 a 常弱读为 /ə/',
-      },
-    ],
-  },
-]
-
-const splitTips = computed((): string[] => [...COMMON_SPLIT_TIPS, ...pageData.exercise.specialTips])
-
-function loadStep(target: number) {
-  const step = stepList[target - 1]
-  if (step == null) return
-
-  pageData.id = step.id
-  pageData.current = target
-  pageData.exercise = step
-}
+const { unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
+  useLearningSession<WordContent>('word-decoding')
+const exercise = computed(() => ({
+  id: unit.value?.id ?? '',
+  word: unit.value?.content.word ?? '',
+  audioUrl: unit.value?.content.audioUrl ?? '',
+  specialTips: unit.value?.content.specialTips ?? [],
+  mappings: (unit.value?.content.parts ?? []).map((part) => ({
+    part: part.letters,
+    segments: [{ text: part.ipa, tone: 'primary' }],
+    tip: '',
+  })),
+}))
 </script>
-<style lang="scss">
-@import '../../uni.scss';
-.centered {
-  display: block;
-  text-align: center;
-  margin-top: 48rpx;
-}
-</style>

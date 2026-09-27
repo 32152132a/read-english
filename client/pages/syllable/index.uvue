@@ -1,146 +1,63 @@
 <template>
   <view class="page">
-    <LessonProgress :current="pageData.current" :total="pageData.total" />
-    <view class="center">
-      <text class="page-title">{{ pageData.title }}</text>
-      <text class="muted">{{ pageData.description }}</text>
-    </view>
-    <TipCard class="syllable-page__tip" :title="pageData.tipTitle" :text="pageData.tip" />
-    <SegmentedWord
-      :word="pageData.example.word"
-      :ipa-segments="pageData.example.ipaSegments"
-      :parts="pageData.example.chunks"
-      separator="·"
-    />
-    <InfoSteps title="怎么判断" :items="pageData.rules" />
-    <SyllableQuiz :data="pageData.question" />
-    <StepActions
-      :current="pageData.current"
-      :total="pageData.total"
-      @change="loadStep"
-      @complete="completeCurrentStage"
-    />
+    <RequestState v-if="unit == null" :error="error" @retry="loadSession" />
+    <template v-else>
+      <LessonProgress :current="current" :total="total" />
+      <text class="page-title">{{ unit!.content!.lessonTitle }}</text>
+      <text class="muted">{{ unit!.content!.description }}</text>
+      <TipCard title="记忆小贴士" :text="unit!.content!.memoryTip" />
+      <SegmentedWord :parts="parts" separator="·" />
+      <InfoSteps title="怎么判断" :items="rules" />
+      <SyllableQuiz
+        :key="unit!.id"
+        :data="question"
+        :disabled="submitting"
+        @answer="submitAnswer"
+      />
+      <TipCard v-if="answer != null" :text="answer!.explanation" />
+      <StepActions
+        v-if="answer != null"
+        :current="current"
+        :total="total"
+        @change="loadStep"
+        @complete="completeCurrentStage"
+      />
+    </template>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
+import RequestState from '../../components/RequestState/index.uvue'
 import LessonProgress from '../../components/LessonProgress/index.uvue'
-import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import { useLearningSession } from '../../src/composables/use-learning-session.uts'
+import TipCard from '../../components/TipCard/index.uvue'
 import SegmentedWord from '../../components/SegmentedWord/index.uvue'
 import InfoSteps from '../../components/InfoSteps/index.uvue'
 import SyllableQuiz from '../../components/SyllableQuiz/index.uvue'
-import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+import { useQuizAnswer } from '../../src/composables/use-quiz-answer.uts'
+import type { SyllableContent } from '../../src/config/api-types.uts'
 
-const { completeCurrentStage } = useLearningFlowNavigation()
-const pageData = reactive({
-  id: 'syllable-basic',
-  current: 2,
-  total: 3,
-  title: '一个元音音素，一个音节',
-  description: '每个音节都只有一个元音音素作为核心。',
-  tipTitle: '记忆小贴士',
-  tip: '看元音音素，不是数元音字母。',
-  example: {
-    word: 'computer',
-    ipaSegments: [{ text: '/kəmˈpjuːtər/', tone: 'muted' }],
-    chunks: [
-      { text: 'kəm', emphasized: false },
-      { text: 'pjuː', emphasized: true },
-      { text: 'tər', emphasized: false },
-    ],
-  },
-  rules: [
-    { title: '找元音音素', text: '找出单词中的元音音素。' },
-    { title: '数出元音数量', text: '元音音素的数量 = 音节的数量。' },
-    { title: '按发音节奏拆分', text: '每个元音音素为一个音节的核心。' },
-  ],
-  question: {
-    id: 'syllable-core-count',
-    text: 'computer 有几个音节？',
-    options: [
-      { value: '2', label: 'A', text: '2 个' },
-      { value: '3', label: 'B', text: '3 个' },
-      { value: '4', label: 'C', text: '4 个' },
-      { value: '5', label: 'D', text: '5 个' },
-    ],
-    correctValue: '3',
-  },
-})
-const stepList = [
-  {
-    title: '先找到元音音素',
-    description: '元音音素是划分音节的核心线索。',
-    tip: '先听声音，再看音标中的元音。',
-    question: {
-      id: 'syllable-vowel-count',
-      text: 'computer 中有几个元音音素？',
-      options: [
-        { value: '2', label: 'A', text: '2 个' },
-        { value: '3', label: 'B', text: '3 个' },
-        { value: '4', label: 'C', text: '4 个' },
-        { value: '5', label: 'D', text: '5 个' },
-      ],
-      correctValue: '3',
-    },
-  },
-  {
-    title: '一个元音音素，一个音节',
-    description: '每个音节都只有一个元音音素作为核心。',
-    tip: '看元音音素，不是数元音字母。',
-    question: {
-      id: 'syllable-core-count',
-      text: 'computer 有几个音节？',
-      options: [
-        { value: '2', label: 'A', text: '2 个' },
-        { value: '3', label: 'B', text: '3 个' },
-        { value: '4', label: 'C', text: '4 个' },
-        { value: '5', label: 'D', text: '5 个' },
-      ],
-      correctValue: '3',
-    },
-  },
-  {
-    title: '按发音节奏完成拆分',
-    description: '重读和弱读会形成清楚的音节节奏。',
-    tip: '慢速朗读，更容易听出音节边界。',
-    question: {
-      id: 'syllable-stress-position',
-      text: 'computer 的重读音节是哪一个？',
-      options: [
-        { value: '1', label: 'A', text: '第 1 个' },
-        { value: '2', label: 'B', text: '第 2 个' },
-        { value: '3', label: 'C', text: '第 3 个' },
-        { value: 'none', label: 'D', text: '没有重读' },
-      ],
-      correctValue: '2',
-    },
-  },
-]
-
-function loadStep(target: number) {
-  const step = stepList[target - 1]
-  if (step == null) return
-
-  pageData.current = target
-  pageData.title = step.title
-  pageData.description = step.description
-  pageData.tip = step.tip
-  pageData.question = step.question
-}
+const { session, unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
+  useLearningSession<SyllableContent>('syllable')
+const { answer, submitting, submitAnswer } = useQuizAnswer(
+  () => session.value?.sessionId ?? '',
+  () => unit.value?.content.question.questionId ?? ''
+)
+const parts = computed(() =>
+  (unit.value?.content.segments ?? []).map((text) => ({ text, emphasized: false }))
+)
+const rules = computed(() =>
+  (unit.value?.content.rules ?? []).map((text) => ({ title: text, text: '' }))
+)
+const question = computed(() => ({
+  id: unit.value?.content.question.questionId ?? '',
+  text: unit.value?.content.question.prompt ?? '',
+  options: (unit.value?.content.question.options ?? []).map((item) => ({
+    label: item.id,
+    text: item.label,
+    value: item.id,
+  })),
+  correctValue: answer.value?.correctOptionId ?? '',
+}))
 </script>
-<style lang="scss">
-@import '../../uni.scss';
-.center {
-  text-align: center;
-  margin: 42rpx 0 36rpx;
-}
-.center .muted {
-  display: block;
-  margin-top: 12rpx;
-}
-
-.syllable-page__tip {
-  margin-bottom: 20rpx;
-}
-</style>

@@ -1,4 +1,14 @@
 const TOKEN_KEY = 'token'
+const REFRESH_TOKEN_KEY = 'refresh-token'
+
+export function getRefreshToken(): string {
+  return (uni.getStorageSync(REFRESH_TOKEN_KEY) as string) || ''
+}
+
+export function setLoginTokens(accessToken: string, refreshToken: string) {
+  setToken(accessToken)
+  uni.setStorageSync(REFRESH_TOKEN_KEY, refreshToken)
+}
 
 export function getToken(): string {
   const token = uni.getStorageSync(TOKEN_KEY)
@@ -11,6 +21,7 @@ export function setToken(token: string) {
 
 export function clearToken() {
   uni.removeStorageSync(TOKEN_KEY)
+  uni.removeStorageSync(REFRESH_TOKEN_KEY)
 }
 
 export function getAuthorization(): string {

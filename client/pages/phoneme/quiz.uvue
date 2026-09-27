@@ -1,112 +1,75 @@
 <template>
   <view class="page phoneme-quiz">
-    <LessonProgress :current="pageData.current" :total="pageData.total" />
-    <text class="muted phoneme-quiz__category">{{ pageData.category }}</text>
-    <text class="page-title">{{ pageData.question }}</text>
-    <text class="muted phoneme-quiz__description">{{ pageData.description }}</text>
-    <ListeningPrompt :audios="pageData.audios" />
-    <text class="section-title">请选择</text>
-    <ChoiceGroup :key="pageData.id" :options="pageData.options" @change="selectAnswer" />
-    <TipCard :text="pageData.tip" />
-    <button
-      class="primary-button phoneme-quiz__confirm"
-      :class="selectedAnswer.length === 0 ? 'is-disabled' : ''"
-      :disabled="selectedAnswer.length === 0"
-      @click="confirm"
-    >
-      确认答案
-    </button>
+    <RequestState v-if="unit == null" :error="error" @retry="loadSession" />
+    <template v-else>
+      <LessonProgress :current="current" :total="total" />
+      <text class="page-title">{{ unit!.content!.title }}</text>
+      <text class="muted phoneme-quiz__description">{{ unit!.content!.description }}</text>
+      <ListeningPrompt v-if="audios.length > 0" :audios="audios" />
+      <TipCard v-else text="本题发音音频尚未配置，暂时无法完成听辨练习。" />
+      <text class="section-title">请选择</text>
+      <ChoiceGroup
+        :key="unit!.id"
+        :options="options"
+        :initial-value="selected"
+        :disabled="submitting"
+        :correct-value="answer?.correctOptionId ?? ''"
+        @change="selectAnswer"
+      />
+      <TipCard v-if="answer != null" :text="answer!.explanation" />
+      <button
+        class="primary-button phoneme-quiz__confirm"
+        :disabled="selected.length === 0 || submitting"
+        @click="confirm"
+      >
+        {{ answer == null ? '确认答案' : current < total ? '下一题' : '完成本阶段' }}
+      </button>
+    </template>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
+import RequestState from '../../components/RequestState/index.uvue'
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import ListeningPrompt from '../../components/ListeningPrompt/index.uvue'
 import ChoiceGroup from '../../components/ChoiceGroup/index.uvue'
-import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+import { useLearningSession } from '../../src/composables/use-learning-session.uts'
+import { useQuizAnswer } from '../../src/composables/use-quiz-answer.uts'
+import type { QuizContent } from '../../src/config/api-types.uts'
 
-const { completeCurrentStage } = useLearningFlowNavigation()
-const pageData = reactive({
-  id: 'short-vowel-quiz-2',
-  current: 1,
-  total: 3,
-  category: '短元音练习',
-  question: '你听到的是哪个音？',
-  description: '先听发音，再选择对应的音标',
-  tip: '注意声音是否短促，以及嘴巴张开的程度',
-  audios: [{ id: 'target', text: '点击播放', url: '' }],
-  options: [
-    { label: 'A', text: '/ɪ/', value: 'short-i' },
-    { label: 'B', text: '/iː/', value: 'long-i' },
-    { label: 'C', text: '/e/', value: 'e' },
-    { label: 'D', text: '/æ/', value: 'ae' },
-  ],
-  correctValue: 'ae',
-})
-const questionList = [
-  {
-    id: 'short-vowel-quiz-1',
-    question: '你听到的是哪个音？',
-    description: '先听发音，再选择对应的音标',
-    audios: [{ id: 'target', text: '点击播放', url: '' }],
-    options: [
-      { label: 'A', text: '/e/', value: 'e' },
-      { label: 'B', text: '/æ/', value: 'ae' },
-      { label: 'C', text: '/ʌ/', value: 'caret' },
-      { label: 'D', text: '/ɒ/', value: 'short-o' },
-    ],
-    correctValue: 'ae',
-  },
-  {
-    id: 'short-vowel-quiz-2',
-    question: '哪个音更短促？',
-    description: '听完两个发音后选择答案',
-    audios: [
-      { id: 'audio-a', text: '音频 A', url: '' },
-      { id: 'audio-b', text: '音频 B', url: '' },
-    ],
-    options: [
-      { label: 'A', text: '/ɪ/', value: 'short-i' },
-      { label: 'B', text: '/iː/', value: 'long-i' },
-    ],
-    correctValue: 'short-i',
-  },
-  {
-    id: 'short-vowel-quiz-3',
-    question: '你听到的是长音还是短音？',
-    description: '注意声音持续的时间',
-    audios: [{ id: 'target', text: '点击播放', url: '' }],
-    options: [
-      { label: 'A', text: '长音', value: 'long' },
-      { label: 'B', text: '短音', value: 'short' },
-    ],
-    correctValue: 'long',
-  },
-]
-const selectedAnswer = ref('')
+const { session, unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
+  useLearningSession<QuizContent>('phoneme-quiz')
+const { selected, answer, submitting, submitAnswer } = useQuizAnswer(
+  () => session.value?.sessionId ?? '',
+  () => unit.value?.content.questionId ?? ''
+)
+const options = computed(() =>
+  (unit.value?.content.options ?? []).map((item) => ({
+    label: item.id,
+    text: item.label,
+    value: item.id,
+  }))
+)
+const audios = computed(() =>
+  (unit.value?.content.audioUrls ?? []).map((url, index) => ({
+    id: String(index),
+    text: '点击播放',
+    url,
+  }))
+)
 
 function selectAnswer(value: string) {
-  selectedAnswer.value = value
+  selected.value = value
 }
 
-function confirm() {
-  const target = pageData.current + 1
-  const question = questionList[target - 1]
-  if (question == null) {
-    completeCurrentStage()
+async function confirm() {
+  if (answer.value == null) {
+    await submitAnswer(selected.value)
     return
   }
-
-  pageData.id = question.id
-  pageData.current = target
-  pageData.question = question.question
-  pageData.description = question.description
-  pageData.audios = question.audios
-  pageData.options = question.options
-  pageData.correctValue = question.correctValue
-  selectedAnswer.value = ''
-  uni.pageScrollTo({ scrollTop: 0, duration: 200 })
+  if (current.value < total.value) await loadStep(current.value + 1)
+  else await completeCurrentStage()
 }
 </script>
 <style lang="scss">

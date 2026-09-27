@@ -1,0 +1,33 @@
+import { request, showRequestError } from '../services/http.uts'
+import type { AnswerResponse } from '../config/api-types.uts'
+
+export function useQuizAnswer(getSessionId: () => string, getQuestionId: () => string) {
+  const selected = ref('')
+  const answer = ref<AnswerResponse | null>(null)
+  const submitting = ref(false)
+
+  async function submitAnswer(value: string) {
+    if (submitting.value || answer.value != null || value.length === 0) return
+    const questionId = getQuestionId()
+    selected.value = value
+    submitting.value = true
+    try {
+      const result = await request<AnswerResponse>({
+        url: '/quiz-questions/' + questionId + '/answers',
+        method: 'POST',
+        data: { selectedOptionId: value, sessionId: getSessionId() },
+      })
+      if (questionId === getQuestionId()) answer.value = result
+    } catch (error) {
+      showRequestError(error)
+    } finally {
+      submitting.value = false
+    }
+  }
+
+  watch(getQuestionId, () => {
+    selected.value = ''
+    answer.value = null
+  })
+  return { selected, answer, submitting, submitAnswer }
+}

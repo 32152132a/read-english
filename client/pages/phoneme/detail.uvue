@@ -1,150 +1,78 @@
 <template>
   <view class="page phoneme-detail">
-    <LessonProgress :current="pageData.current" :total="pageData.total" label="" compact />
-    <text class="phoneme-detail__category">{{ pageData.category }}</text>
-    <PhonemeDisplay :segments="pageData.segments" size="hero" />
-    <text class="phoneme-detail__description">{{ pageData.description }}</text>
-    <view class="phoneme-detail__listen">
-      <PlayButton :src="pageData.audioUrl" text="听发音" size="hero" />
-    </view>
-    <PronunciationGuide :mouth-type="pageData.mouthType" :steps="pageData.mouthSteps" />
-    <text class="section-title">例词发音</text>
-    <ExampleWordList :items="pageData.examples" />
-    <TipCard title="记忆技巧" :text="pageData.memoryTip" variant="memory" />
-    <StepActions
-      :current="pageData.current"
-      :total="pageData.total"
-      :hint="pageData.comparisonText"
-      @change="loadStep"
-      @complete="completeCurrentStage"
-      @hint-click="goCompare"
-    />
+    <RequestState v-if="content == null" :error="error" @retry="retry" />
+    <template v-else>
+      <LessonProgress v-if="!browsing" :current="current" :total="total" label="" compact />
+      <text class="phoneme-detail__category">{{ content!.category }}</text>
+      <PhonemeDisplay :segments="[{ text: content!.ipa, tone: 'primary' }]" size="hero" />
+      <text class="phoneme-detail__description">{{ content!.description }}</text>
+      <view class="phoneme-detail__listen">
+        <PlayButton :src="content!.audioUrl ?? ''" text="听发音" size="hero" />
+      </view>
+      <PronunciationGuide :mouth-type="content!.mouth.type" :steps="content!.pronunciationSteps" />
+      <text class="section-title">例词发音</text>
+      <ExampleWordList :items="examples" />
+      <TipCard title="记忆技巧" :text="content!.memoryTip" variant="memory" />
+      <StepActions
+        v-if="!browsing"
+        :current="current"
+        :total="total"
+        @change="loadStep"
+        @complete="completeCurrentStage"
+      />
+    </template>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
+import RequestState from '../../components/RequestState/index.uvue'
 import LessonProgress from '../../components/LessonProgress/index.uvue'
+import StepActions from '../../components/StepActions/index.uvue'
+import { useLearningSession } from '../../src/composables/use-learning-session.uts'
 import PlayButton from '../../components/PlayButton/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
-import StepActions from '../../components/StepActions/index.uvue'
 import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
 import PronunciationGuide from '../../components/PronunciationGuide/index.uvue'
 import ExampleWordList from '../../components/ExampleWordList/index.uvue'
-import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+import { request } from '../../src/services/http.uts'
+import type { PhonemeContent } from '../../src/config/api-types.uts'
+import type { HttpError } from '../../src/config/types.uts'
 
-const { completeCurrentStage } = useLearningFlowNavigation()
-const pageData = reactive({
-  id: 'phoneme-ae',
-  current: 2,
-  total: 3,
-  category: '短元音',
-  ipa: '/æ/',
-  segments: [{ text: '/æ/', tone: 'primary' }],
-  description: '接近「爱」，嘴巴张得更大',
-  memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
-  audioUrl: '',
-  mouthType: 'open',
-  mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
-  examples: [
-    {
-      word: 'cat',
-      segments: [{ text: '/kæt/', tone: 'muted' }],
-      zh: '猫',
-      audioUrl: '',
-    },
-    {
-      word: 'map',
-      segments: [{ text: '/mæp/', tone: 'muted' }],
-      zh: '地图',
-      audioUrl: '',
-    },
-    {
-      word: 'happy',
-      segments: [{ text: "/'hæpi/", tone: 'muted' }],
-      zh: '开心的',
-      audioUrl: '',
-    },
-  ],
-  comparisonText: '容易和哪个音混淆？对比 /e/',
-  comparisonRoute: '/pages/phoneme/compare',
+const { unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
+  useLearningSession<PhonemeContent>('phoneme')
+const detail = ref<PhonemeContent | null>(null)
+const browsing = ref(false)
+let phonemeId = ''
+const content = computed(() => detail.value ?? unit.value?.content ?? null)
+const examples = computed(() =>
+  (content.value?.exampleWords ?? []).map((word) => ({
+    word: word.word,
+    segments: [{ text: word.ipa, tone: 'muted' }],
+    zh: word.meaning,
+    audioUrl: word.audioUrl ?? '',
+  }))
+)
+
+async function retry() {
+  if (!browsing.value) {
+    await loadSession()
+    return
+  }
+  error.value = ''
+  try {
+    detail.value = await request<PhonemeContent>({
+      url: '/phonemes/' + encodeURIComponent(phonemeId),
+    })
+  } catch (failure) {
+    error.value = (failure as HttpError).message
+  }
+}
+
+onLoad((options) => {
+  phonemeId = options['phonemeId'] ?? ''
+  browsing.value = phonemeId.length > 0
+  if (browsing.value) retry()
 })
-const stepList = [
-  {
-    id: 'phoneme-e',
-    category: '短元音',
-    segments: [{ text: '/e/', tone: 'primary' }],
-    description: '接近「哎」，嘴巴自然半开',
-    memoryTip: '声音短促，舌尖轻靠下齿，不要拖长。',
-    mouthSteps: ['嘴巴自然半开', '舌尖靠近下齿', '快速发出短音'],
-    mouthType: 'relaxed',
-    comparisonText: '容易和哪个音混淆？对比 /æ/',
-    examples: [
-      { word: 'bed', segments: [{ text: '/bed/', tone: 'muted' }], zh: '床', audioUrl: '' },
-      { word: 'pen', segments: [{ text: '/pen/', tone: 'muted' }], zh: '钢笔', audioUrl: '' },
-      {
-        word: 'desk',
-        segments: [{ text: '/desk/', tone: 'muted' }],
-        zh: '书桌',
-        audioUrl: '',
-      },
-    ],
-  },
-  {
-    id: 'phoneme-ae',
-    category: '短元音',
-    segments: [{ text: '/æ/', tone: 'primary' }],
-    description: '接近「爱」，嘴巴张得更大',
-    memoryTip: '像突然张嘴说「爱」，但声音更短、更扁。',
-    mouthSteps: ['嘴巴自然张大', '舌尖靠近下齿', '声音短促，不要拖长'],
-    mouthType: 'open',
-    comparisonText: '容易和哪个音混淆？对比 /e/',
-    examples: [
-      { word: 'cat', segments: [{ text: '/kæt/', tone: 'muted' }], zh: '猫', audioUrl: '' },
-      { word: 'map', segments: [{ text: '/mæp/', tone: 'muted' }], zh: '地图', audioUrl: '' },
-      {
-        word: 'happy',
-        segments: [{ text: "/'hæpi/", tone: 'muted' }],
-        zh: '开心的',
-        audioUrl: '',
-      },
-    ],
-  },
-  {
-    id: 'phoneme-caret',
-    category: '短元音',
-    segments: [{ text: '/ʌ/', tone: 'primary' }],
-    description: '接近短促的「啊」，嘴巴自然放松',
-    memoryTip: '从喉咙中部快速发声，嘴唇不要用力。',
-    mouthSteps: ['嘴巴自然打开', '舌头放松居中', '短促收音'],
-    mouthType: 'relaxed',
-    comparisonText: '容易和哪个音混淆？对比 /ɑː/',
-    examples: [
-      { word: 'cup', segments: [{ text: '/kʌp/', tone: 'muted' }], zh: '杯子', audioUrl: '' },
-      { word: 'sun', segments: [{ text: '/sʌn/', tone: 'muted' }], zh: '太阳', audioUrl: '' },
-      { word: 'love', segments: [{ text: '/lʌv/', tone: 'muted' }], zh: '爱', audioUrl: '' },
-    ],
-  },
-]
-
-function loadStep(target: number) {
-  const step = stepList[target - 1]
-  if (step == null) return
-
-  pageData.id = step.id
-  pageData.current = target
-  pageData.category = step.category
-  pageData.segments = step.segments
-  pageData.description = step.description
-  pageData.memoryTip = step.memoryTip
-  pageData.mouthSteps = step.mouthSteps
-  pageData.mouthType = step.mouthType
-  pageData.comparisonText = step.comparisonText
-  pageData.examples = step.examples
-}
-
-function goCompare() {
-  uni.navigateTo({ url: pageData.comparisonRoute })
-}
 </script>
 <style lang="scss">
 @import '../../uni.scss';

@@ -1,0 +1,39 @@
+import { request } from './http.uts'
+import { clearToken, getRefreshToken, setLoginTokens } from './token.uts'
+import type { LoginResponse } from '../config/api-types.uts'
+
+export async function login() {
+  let code = ''
+  // Web 联调使用稳定的独立身份，避免覆盖共享 dev-user 的学习记录。
+  // #ifdef WEB
+  if (!import.meta.env.DEV) throw new Error('请使用微信小程序登录')
+  code = (uni.getStorageSync('local-login-code') as string) || ''
+  if (code.length === 0) {
+    code = 'web-local-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+    uni.setStorageSync('local-login-code', code)
+  }
+  // #endif
+  // #ifdef MP-WEIXIN
+  code = await new Promise<string>((resolve, reject) => {
+    uni.login({ provider: 'weixin', success: (result) => resolve(result.code), fail: reject })
+  })
+  // #endif
+  if (code.length === 0) throw new Error('请使用微信小程序登录')
+  const result = await request<LoginResponse>({
+    url: '/auth/wechat/login',
+    method: 'POST',
+    auth: false,
+    data: { code },
+  })
+  setLoginTokens(result.accessToken, result.refreshToken)
+}
+
+export async function logout() {
+  // 先完成可能发生的令牌轮换，再撤销最新的刷新令牌。
+  await request({ url: '/users/me', showLoading: false })
+  const refreshToken = getRefreshToken()
+  if (refreshToken.length > 0) {
+    await request({ url: '/auth/logout', method: 'POST', data: { refreshToken } })
+  }
+  clearToken()
+}

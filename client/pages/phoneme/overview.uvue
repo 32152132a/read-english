@@ -1,97 +1,75 @@
 <template>
   <view class="page">
-    <PhonemeCatalog
-      :title="pageData.title"
-      :description="pageData.description"
-      :vowels="vowels"
-      :consonants="consonants"
-      @select="openDetail"
-    />
-    <button class="primary-button phoneme-overview__complete" @click="completeCurrentStage">
-      完成查阅，进入下一阶段
-    </button>
+    <RequestState v-if="groups == null" :error="error" @retry="loadOverview" />
+    <template v-else>
+      <PhonemeCatalog
+        title="国际音标速查"
+        :description="description"
+        :vowels="vowels"
+        :consonants="consonants"
+        @select="openDetail"
+      />
+      <button
+        v-if="flowNodeId.length > 0"
+        class="primary-button phoneme-overview__complete"
+        @click="completeOverview"
+      >
+        {{ review ? '返回学习路径' : '完成查阅，进入下一阶段' }}
+      </button>
+    </template>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
 import PhonemeCatalog from '../../components/PhonemeCatalog/index.uvue'
+import RequestState from '../../components/RequestState/index.uvue'
+import { request } from '../../src/services/http.uts'
 import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+import type { PhonemeGroups } from '../../src/config/api-types.uts'
+import type { HttpError } from '../../src/config/types.uts'
 
-const { completeCurrentStage } = useLearningFlowNavigation()
-const pageData = reactive({
-  title: '国际音标速查',
-  description: '共 44 个音标，点击喇叭试听发音',
-  singleVowels: [
-    { id: 'i-long', segments: [{ text: 'iː', tone: 'primary' }], audioUrl: '' },
-    { id: 'i-short', segments: [{ text: 'ɪ', tone: 'primary' }], audioUrl: '' },
-    { id: 'e', segments: [{ text: 'e', tone: 'primary' }], audioUrl: '' },
-    { id: 'ae', segments: [{ text: 'æ', tone: 'primary' }], audioUrl: '' },
-    { id: 'a-long', segments: [{ text: 'ɑː', tone: 'primary' }], audioUrl: '' },
-    { id: 'o-short', segments: [{ text: 'ɒ', tone: 'primary' }], audioUrl: '' },
-    { id: 'o-long', segments: [{ text: 'ɔː', tone: 'primary' }], audioUrl: '' },
-    { id: 'u-short', segments: [{ text: 'ʊ', tone: 'primary' }], audioUrl: '' },
-    { id: 'u-long', segments: [{ text: 'uː', tone: 'primary' }], audioUrl: '' },
-    { id: 'caret', segments: [{ text: 'ʌ', tone: 'primary' }], audioUrl: '' },
-    { id: 'er-long', segments: [{ text: 'ɜː', tone: 'primary' }], audioUrl: '' },
-    { id: 'schwa', segments: [{ text: 'ə', tone: 'primary' }], audioUrl: '' },
-  ],
-  diphthongs: [
-    { id: 'ei', segments: [{ text: 'eɪ', tone: 'primary' }], audioUrl: '' },
-    { id: 'ai', segments: [{ text: 'aɪ', tone: 'primary' }], audioUrl: '' },
-    { id: 'oi', segments: [{ text: 'ɔɪ', tone: 'primary' }], audioUrl: '' },
-    { id: 'au', segments: [{ text: 'aʊ', tone: 'primary' }], audioUrl: '' },
-    { id: 'ou', segments: [{ text: 'əʊ', tone: 'primary' }], audioUrl: '' },
-    { id: 'ia', segments: [{ text: 'ɪə', tone: 'primary' }], audioUrl: '' },
-    { id: 'ea', segments: [{ text: 'eə', tone: 'primary' }], audioUrl: '' },
-    { id: 'ua', segments: [{ text: 'ʊə', tone: 'primary' }], audioUrl: '' },
-  ],
-  plosives: [
-    { id: 'p', segments: [{ text: 'p', tone: 'primary' }], audioUrl: '' },
-    { id: 'b', segments: [{ text: 'b', tone: 'primary' }], audioUrl: '' },
-    { id: 't', segments: [{ text: 't', tone: 'primary' }], audioUrl: '' },
-    { id: 'd', segments: [{ text: 'd', tone: 'primary' }], audioUrl: '' },
-    { id: 'k', segments: [{ text: 'k', tone: 'primary' }], audioUrl: '' },
-    { id: 'g', segments: [{ text: 'g', tone: 'primary' }], audioUrl: '' },
-  ],
-  fricatives: [
-    { id: 'f', segments: [{ text: 'f', tone: 'primary' }], audioUrl: '' },
-    { id: 'v', segments: [{ text: 'v', tone: 'primary' }], audioUrl: '' },
-    { id: 'theta', segments: [{ text: 'θ', tone: 'primary' }], audioUrl: '' },
-    { id: 'eth', segments: [{ text: 'ð', tone: 'primary' }], audioUrl: '' },
-    { id: 's', segments: [{ text: 's', tone: 'primary' }], audioUrl: '' },
-    { id: 'z', segments: [{ text: 'z', tone: 'primary' }], audioUrl: '' },
-    { id: 'esh', segments: [{ text: 'ʃ', tone: 'primary' }], audioUrl: '' },
-    { id: 'ezh', segments: [{ text: 'ʒ', tone: 'primary' }], audioUrl: '' },
-    { id: 'h', segments: [{ text: 'h', tone: 'primary' }], audioUrl: '' },
-  ],
-  affricates: [
-    { id: 't-esh', segments: [{ text: 'tʃ', tone: 'primary' }], audioUrl: '' },
-    { id: 'd-ezh', segments: [{ text: 'dʒ', tone: 'primary' }], audioUrl: '' },
-  ],
-  otherConsonants: [
-    { id: 'm', segments: [{ text: 'm', tone: 'primary' }], audioUrl: '' },
-    { id: 'n', segments: [{ text: 'n', tone: 'primary' }], audioUrl: '' },
-    { id: 'eng', segments: [{ text: 'ŋ', tone: 'primary' }], audioUrl: '' },
-    { id: 'l', segments: [{ text: 'l', tone: 'primary' }], audioUrl: '' },
-    { id: 'r', segments: [{ text: 'r', tone: 'primary' }], audioUrl: '' },
-    { id: 'j', segments: [{ text: 'j', tone: 'primary' }], audioUrl: '' },
-    { id: 'w', segments: [{ text: 'w', tone: 'primary' }], audioUrl: '' },
-  ],
-  detailRoute: '/pages/phoneme/detail',
-})
-const vowels = computed(() => pageData.singleVowels.concat(pageData.diphthongs))
-const consonants = computed(() =>
-  pageData.plosives
-    .concat(pageData.fricatives)
-    .concat(pageData.affricates)
-    .concat(pageData.otherConsonants)
+const groups = ref<PhonemeGroups | null>(null)
+const error = ref('')
+const flowNodeId = ref('')
+const review = ref(false)
+const navigation = useLearningFlowNavigation()
+const vowels = computed(() => itemsFor('VOWEL'))
+const consonants = computed(() => itemsFor('CONSONANT'))
+const description = computed(
+  () => '当前收录 ' + (vowels.value.length + consonants.value.length) + ' 个音标'
 )
 
-function openDetail(id: string) {
-  uni.navigateTo({ url: `${pageData.detailRoute}?id=${id}` })
+function itemsFor(code: string) {
+  return (groups.value?.groups.find((group) => group.code === code)?.items ?? []).map((item) => ({
+    id: item.id,
+    segments: [{ text: item.ipa, tone: 'muted' }],
+    audioUrl: item.audioUrl ?? '',
+  }))
 }
-</script>
 
+async function loadOverview() {
+  error.value = ''
+  try {
+    groups.value = await request<PhonemeGroups>({ url: '/phonemes' })
+  } catch (failure) {
+    error.value = (failure as HttpError).message
+  }
+}
+
+function openDetail(id: string) {
+  uni.navigateTo({ url: '/pages/phoneme/detail?phonemeId=' + encodeURIComponent(id) })
+}
+
+async function completeOverview() {
+  await navigation.completeCurrentStage(flowNodeId.value, '', review.value)
+}
+
+onLoad((options) => {
+  flowNodeId.value = options['flowNodeId'] ?? ''
+  review.value = options['review'] === 'true'
+  loadOverview()
+})
+</script>
 <style lang="scss">
 .phoneme-overview__complete {
   width: 100%;

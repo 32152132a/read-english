@@ -1,0 +1,91 @@
+import { request, showRequestError } from '../services/http.uts'
+import { getLearningFlow } from '../services/learning-flow.uts'
+import { useLearningFlowNavigation } from './use-learning-flow-navigation.uts'
+import type { LearningSession } from '../config/api-types.uts'
+import type { HttpError } from '../config/types.uts'
+
+export function useLearningSession<T>(templateCode: string) {
+  const session = shallowRef<LearningSession<T> | null>(null)
+  const error = ref('')
+  const saving = ref(false)
+  const unit = computed(() => session.value?.units[session.value.currentUnitIndex] ?? null)
+  const current = computed(() => (session.value?.currentUnitIndex ?? 0) + 1)
+  const total = computed(() => session.value?.total ?? 0)
+  const navigation = useLearningFlowNavigation()
+  let flowNodeId = ''
+  let review = false
+  let standalone = false
+
+  async function loadSession() {
+    error.value = ''
+    try {
+      if (standalone) throw new Error('词库专项练习暂未开放，请先查看词库单词')
+      if (flowNodeId.length === 0) {
+        const flow = await getLearningFlow()
+        const node = flow.nodes[flow.currentNodeIndex]
+        if (node == null || node.templateCode !== templateCode) {
+          throw new Error('请从首页当前学习任务或已完成节点进入')
+        }
+        flowNodeId = node.id
+      }
+      session.value = await request<LearningSession<T>>({
+        url:
+          '/learning-stages/' +
+          templateCode +
+          '/session?flowNodeId=' +
+          encodeURIComponent(flowNodeId) +
+          '&review=' +
+          review,
+      })
+    } catch (failure) {
+      error.value = (failure as HttpError).message
+    }
+  }
+
+  async function loadStep(target: number) {
+    const active = session.value
+    if (active == null || saving.value || target < 1 || target > active.total) return
+    saving.value = true
+    try {
+      await request({
+        url: '/learning-stages/sessions/' + active.sessionId + '/position',
+        method: 'PUT',
+        data: { unitId: active.units[target - 1].id, unitIndex: target - 1 },
+      })
+      session.value = { ...active, currentUnitIndex: target - 1 }
+      uni.pageScrollTo({ scrollTop: 0, duration: 0 })
+    } catch (failure) {
+      showRequestError(failure)
+    } finally {
+      saving.value = false
+    }
+  }
+
+  async function completeCurrentStage() {
+    if (session.value == null || unit.value == null || saving.value) return
+    await navigation.completeCurrentStage(
+      session.value.flowNodeId,
+      unit.value.id,
+      session.value.reviewMode
+    )
+  }
+
+  onLoad((options) => {
+    flowNodeId = options['flowNodeId'] ?? ''
+    review = options['review'] === 'true'
+    standalone = options['libraryId'] != null
+    if (options['phonemeId'] == null) loadSession()
+  })
+
+  return {
+    session,
+    unit,
+    current,
+    total,
+    error,
+    saving,
+    loadSession,
+    loadStep,
+    completeCurrentStage,
+  }
+}

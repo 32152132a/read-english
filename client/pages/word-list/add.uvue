@@ -1,6 +1,8 @@
 <template>
   <view class="page">
+    <RequestState v-if="!loaded" :error="error" @retry="loadLibraries" />
     <WordLibrarySelector
+      v-else
       :items="availableLibraries"
       @confirm="addLibraries"
       @custom="openCustomPage"
@@ -8,23 +10,47 @@
     <DebugPageNav />
   </view>
 </template>
-
 <script setup lang="uts">
 import WordLibrarySelector from '../../components/WordLibrarySelector/index.uvue'
+import RequestState from '../../components/RequestState/index.uvue'
 import { storeToRefs } from 'pinia'
 import { useLibraryStore } from '../../src/stores/library.uts'
+import { showRequestError } from '../../src/services/http.uts'
+import type { HttpError } from '../../src/config/types.uts'
 
 const libraryStore = useLibraryStore()
 const { availableLibraries } = storeToRefs(libraryStore)
+const loaded = ref(false)
+const error = ref('')
+let saving = false
 
-function addLibraries(ids: string[]) {
-  // 接入后端后提交所选词库 ID，并在返回主页时重新获取“我的词库”。
-  libraryStore.addLibraries(ids)
-  uni.showToast({ title: '已添加 ' + ids.length + ' 个词库', icon: 'none' })
-  uni.navigateBack()
+async function loadLibraries() {
+  error.value = ''
+  try {
+    await libraryStore.loadAvailable()
+    loaded.value = true
+  } catch (failure) {
+    loaded.value = false
+    error.value = (failure as HttpError).message
+  }
+}
+
+async function addLibraries(ids: string[]) {
+  if (saving || ids.length === 0) return
+  saving = true
+  try {
+    const result = await libraryStore.addLibraries(ids)
+    uni.showToast({ title: '已添加 ' + result.addedLibraryIds.length + ' 个词库', icon: 'none' })
+    uni.navigateBack()
+  } catch (failure) {
+    showRequestError(failure)
+  } finally {
+    saving = false
+  }
 }
 
 function openCustomPage() {
   uni.navigateTo({ url: '/pages/word-list/custom' })
 }
+onShow(loadLibraries)
 </script>

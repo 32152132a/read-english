@@ -1,54 +1,83 @@
 <template>
   <view class="page word-library-detail">
-    <text class="page-title">{{ pageData.title }}</text>
-    <text class="word-library-detail__description">{{ pageData.description }}</text>
-    <ExampleWordList :items="pageData.words" />
-    <button class="primary-button word-library-detail__action" @click="startLearning">
-      去学习
-    </button>
+    <RequestState v-if="library == null" :error="error" @retry="loadDetail" />
+    <template v-else>
+      <text class="page-title">{{ library!.name }}</text>
+      <text class="word-library-detail__description">{{ library!.description }}</text>
+      <ExampleWordList :items="words" />
+      <button v-if="hasMore" class="outline-button" :disabled="loadingMore" @click="loadWords">
+        加载更多
+      </button>
+      <TipCard text="词库专项练习暂未开放，可以先浏览单词与音标。" />
+    </template>
     <DebugPageNav />
   </view>
 </template>
-
 <script setup lang="uts">
 import ExampleWordList from '../../components/ExampleWordList/index.uvue'
+import RequestState from '../../components/RequestState/index.uvue'
+import TipCard from '../../components/TipCard/index.uvue'
+import { request, showRequestError } from '../../src/services/http.uts'
+import type { LibrarySummary, LibraryWordPage } from '../../src/config/api-types.uts'
+import type { ExampleWord, HttpError } from '../../src/config/types.uts'
 
-const libraryId = ref('basic')
-const pageData = reactive({
-  title: '基础拼读词库',
-  description: '先查看词库内容，再进入拆读练习。',
-  words: [
-    {
-      word: 'component',
-      segments: [{ text: '/kəmˈpəʊnənt/', tone: 'muted' }],
-      zh: '组件',
-      audioUrl: '',
-    },
-    {
-      word: 'developer',
-      segments: [{ text: '/dɪˈveləpə/', tone: 'muted' }],
-      zh: '开发者',
-      audioUrl: '',
-    },
-    {
-      word: 'interface',
-      segments: [{ text: '/ˈɪntəfeɪs/', tone: 'muted' }],
-      zh: '接口',
-      audioUrl: '',
-    },
-  ],
-})
+const library = ref<LibrarySummary | null>(null)
+const words = ref<ExampleWord[]>([])
+const hasMore = ref(false)
+const loadingMore = ref(false)
+const error = ref('')
+let libraryId = ''
+let cursor: string | null = null
+
+async function loadWords() {
+  if (loadingMore.value) return
+  loadingMore.value = true
+  try {
+    const page = await request<LibraryWordPage>({
+      url:
+        '/word-libraries/' +
+        encodeURIComponent(libraryId) +
+        '/words?size=20' +
+        (cursor == null ? '' : '&cursor=' + encodeURIComponent(cursor)),
+    })
+    words.value = words.value.concat(
+      page.items.map((word) => ({
+        word: word.word,
+        segments: [{ text: word.ipa, tone: 'muted' }],
+        zh: word.meaning,
+        audioUrl: word.audioUrl ?? '',
+      }))
+    )
+    cursor = page.nextCursor
+    hasMore.value = page.hasMore
+  } catch (failure) {
+    hasMore.value = true
+    showRequestError(failure)
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+async function loadDetail() {
+  error.value = ''
+  try {
+    if (libraryId.length === 0) throw new Error('请从我的词库选择要查看的词库')
+    library.value = await request<LibrarySummary>({
+      url: '/word-libraries/' + encodeURIComponent(libraryId),
+    })
+    words.value = []
+    cursor = null
+    await loadWords()
+  } catch (failure) {
+    error.value = (failure as HttpError).message
+  }
+}
 
 onLoad((options) => {
-  const id = options['id']
-  if (id != null) libraryId.value = id
+  libraryId = options['id'] ?? ''
+  loadDetail()
 })
-
-function startLearning() {
-  uni.navigateTo({ url: '/pages/decoding/word?libraryId=' + libraryId.value })
-}
 </script>
-
 <style lang="scss">
 @import '../../uni.scss';
 

@@ -1,0 +1,203 @@
+export type ApiResponse<T> = {
+  code: string
+  message: string
+  data: T
+  requestId: string
+}
+
+export type UserProfile = {
+  id: string
+  nickname: string
+  avatarUrl: string | null
+  accentPreference: string
+}
+
+export type LoginResponse = {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+  user: UserProfile
+}
+
+export type UserStats = {
+  learnedUnits: number
+  totalUnits: number
+  streakDays: number
+  completedStages: number
+  evaluationCount: number
+}
+
+export type FlowNode = {
+  id: string
+  templateCode: string
+  name: string
+  position: number
+  status: string
+  reviewable: boolean
+  route: string
+}
+
+export type FlowConfig = {
+  id: string
+  version: number
+  currentNodeIndex: number
+  status: string
+  nodes: FlowNode[]
+}
+
+export type FlowTemplate = {
+  code: string
+  name: string
+  route: string
+  enabled: boolean
+  repeatable: boolean
+}
+
+export type CompleteStageResponse = {
+  completedNodeId: string
+  flowCompleted: boolean
+  currentNodeIndex: number
+  nextNode: FlowNode | null
+}
+
+export type HomeTask = {
+  flowNodeId: string
+  templateCode: string
+  title: string
+  description: string
+  estimatedMinutes: number
+  route: string
+  current: number
+  total: number
+}
+export type QuickAction = { code: string; name: string; route: string }
+export type HomeResponse = {
+  greeting: string
+  subtitle: string
+  todayTask: HomeTask | null
+  learningPath: FlowNode[]
+  quickActions: QuickAction[]
+  flowCompleted: boolean
+}
+
+export type LearningUnit<T> = { id: string; title: string; contentType: string; content: T }
+export type LearningSession<T> = {
+  sessionId: string
+  flowNodeId: string
+  templateCode: string
+  reviewMode: boolean
+  currentUnitIndex: number
+  total: number
+  units: LearningUnit<T>[]
+}
+
+export type QuizOption = { id: string; label: string }
+export type QuizContent = {
+  questionId: string
+  title: string
+  prompt: string
+  description: string
+  audioUrls: string[]
+  options: QuizOption[]
+}
+export type AnswerResponse = {
+  correct: boolean
+  selectedOptionId: string
+  correctOptionId: string
+  explanation: string
+}
+
+export type MouthContent = { type: string }
+export type ExampleWordContent = {
+  word: string
+  ipa: string
+  meaning: string
+  audioUrl: string | null
+}
+export type PhonemeContent = {
+  id: string
+  category: string
+  ipa: string
+  description: string
+  audioUrl: string | null
+  mouth: MouthContent
+  pronunciationSteps: string[]
+  exampleWords: ExampleWordContent[]
+  memoryTip: string
+}
+export type ComparePhoneme = {
+  ipa: string
+  description: string
+  mouth: MouthContent
+  audioUrl: string | null
+  examples: string[]
+}
+export type WordAudio = { word: string; audioUrl: string | null }
+export type AudioPair = { left: WordAudio; right: WordAudio }
+export type CompareContent = {
+  category: string
+  title: string
+  description: string
+  phonemes: ComparePhoneme[]
+  audioPairs: AudioPair[]
+  memoryTip: string
+}
+export type SyllableContent = {
+  lessonTitle: string
+  description: string
+  segments: string[]
+  rules: string[]
+  memoryTip: string
+  question: QuizContent
+}
+export type IpaContent = {
+  wordId: string
+  word: string
+  ipa: string
+  audioUrl: string | null
+  syllables: string[]
+  tip: string
+}
+export type WordPart = { letters: string; ipa: string }
+export type WordContent = {
+  wordId: string
+  word: string
+  ipa: string
+  audioUrl: string | null
+  parts: WordPart[]
+  commonTips: string[]
+  specialTips: string[]
+}
+export type EvaluationContent = {
+  wordId: string
+  word: string
+  ipa: string
+  stressParts: string[]
+  standardAudioUrl: string | null
+  recordingMaxSeconds: number
+  prompt: string
+}
+export type PhonemeItem = { id: string; ipa: string; audioUrl: string | null }
+export type PhonemeGroup = { code: string; name: string; items: PhonemeItem[] }
+export type PhonemeGroups = { groups: PhonemeGroup[] }
+export type LibrarySummary = {
+  id: string
+  name: string
+  type: string
+  description: string
+  wordCount: number
+  learnedCount: number
+  removable: boolean
+}
+export type LibraryWord = {
+  id: string
+  word: string
+  ipa: string
+  meaning: string
+  audioUrl: string | null
+}
+export type LibraryWordPage = {
+  items: LibraryWord[]
+  nextCursor: string | null
+  hasMore: boolean
+}

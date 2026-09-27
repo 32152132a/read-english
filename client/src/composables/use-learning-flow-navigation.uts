@@ -1,41 +1,38 @@
-import { useLearningFlowStore } from '../stores/learning-flow.uts'
+import { completeLearningStage } from '../services/learning-flow.uts'
+import { showRequestError } from '../services/http.uts'
 
 export function useLearningFlowNavigation() {
-  const learningFlowStore = useLearningFlowStore()
   let completing = false
 
-  async function completeCurrentStage() {
+  async function completeCurrentStage(flowNodeId: string, lastUnitId: string, review: boolean) {
     if (completing) return
-    completing = true
-
-    if (learningFlowStore.reviewMode) {
-      learningFlowStore.finishReview()
-      completing = false
-      uni.navigateBack()
+    if (review) {
+      uni.navigateBack({ fail: () => uni.reLaunch({ url: '/pages/home/index' }) })
       return
     }
-
-    let nextRoute = ''
+    if (flowNodeId.length === 0) return
+    completing = true
     try {
-      nextRoute = await learningFlowStore.completeCurrentStage()
-    } catch (_error) {
-      uni.showToast({ title: '学习进度保存失败，请重试', icon: 'none' })
-      return
+      // 节点 ID 全局唯一，重试沿用幂等键，避免响应丢失时重复推进。
+      const result = await completeLearningStage(flowNodeId, lastUnitId, 'complete-' + flowNodeId)
+      if (result.nextNode != null) {
+        uni.redirectTo({
+          url: result.nextNode.route + '?flowNodeId=' + encodeURIComponent(result.nextNode.id),
+        })
+      } else {
+        uni.showModal({
+          title: '学习完成',
+          content: '你已经完成本轮学习流程。',
+          showCancel: false,
+          confirmText: '返回首页',
+          success: () => uni.reLaunch({ url: '/pages/home/index' }),
+        })
+      }
+    } catch (error) {
+      showRequestError(error)
     } finally {
       completing = false
     }
-    if (nextRoute.length > 0) {
-      uni.redirectTo({ url: nextRoute })
-      return
-    }
-
-    uni.showModal({
-      title: '学习完成',
-      content: '你已经完成本轮学习流程。',
-      showCancel: false,
-      confirmText: '返回首页',
-      success: () => uni.reLaunch({ url: '/pages/home/index' }),
-    })
   }
 
   return { completeCurrentStage }

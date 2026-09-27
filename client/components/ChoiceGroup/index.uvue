@@ -31,6 +31,7 @@ watch(
 )
 
 function selectOption(value: string) {
+  if (props.disabled || props.correctValue.length > 0) return
   selectedValue.value = value
   emit('change', value)
 }

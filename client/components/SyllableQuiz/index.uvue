@@ -5,6 +5,7 @@
       :options="data.options"
       :initial-value="selectedValue"
       :correct-value="data.correctValue"
+      :disabled="disabled"
       @change="selectAnswer"
     />
   </view>

@@ -1,121 +1,118 @@
 <template>
   <view class="screen">
     <view class="page home">
-      <view class="home-head">
-        <text class="greeting">{{ pageData.greeting }}</text>
-        <text class="subtitle">{{ pageData.subtitle }}</text>
-      </view>
-      <TodayLessonCard :data="todayTask" @continue="go(todayTaskRoute)" />
-      <text class="section-title">学习路径</text>
-      <LearningPath
-        v-if="learningSteps.length > 0"
-        :steps="learningSteps"
-        :current-index="safeCurrentIndex"
-        @select="reviewStage"
-      />
-      <text class="section-title">常用功能</text>
-      <QuickAccessList :items="pageData.quickAccess" @select="openQuickAccess" />
+      <template v-if="!signedIn">
+        <text class="greeting">永庆发音学习</text>
+        <button class="primary-button" :disabled="loggingIn" @click="signIn">
+          {{ loginLabel }}
+        </button>
+      </template>
+      <RequestState v-else-if="home == null" :error="error" @retry="loadHome" />
+      <template v-else>
+        <view class="home-head">
+          <text class="greeting">{{ home!.greeting }}</text>
+          <text class="subtitle">{{ home!.subtitle }}</text>
+        </view>
+        <TodayLessonCard :data="todayTask" @continue="continueLearning" />
+        <text class="section-title">学习路径</text>
+        <LearningPath :steps="learningSteps" :current-index="currentIndex" @select="go" />
+        <text class="section-title">常用功能</text>
+        <QuickAccessList :items="quickActions" @select="go" />
+      </template>
     </view>
     <BottomNav active="home" />
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
-import { storeToRefs } from 'pinia'
 import BottomNav from '../../components/BottomNav/index.uvue'
 import TodayLessonCard from '../../components/TodayLessonCard/index.uvue'
 import LearningPath from '../../components/LearningPath/index.uvue'
 import QuickAccessList from '../../components/QuickAccessList/index.uvue'
-import type { StageItem } from '../../src/config/types.uts'
-import { useLearningFlowStore } from '../../src/stores/learning-flow.uts'
+import RequestState from '../../components/RequestState/index.uvue'
+import { request, showRequestError } from '../../src/services/http.uts'
+import { login } from '../../src/services/auth.uts'
+import { getToken } from '../../src/services/token.uts'
+import type { HomeResponse } from '../../src/config/api-types.uts'
+import type { HttpError } from '../../src/config/types.uts'
 
-const learningFlowStore = useLearningFlowStore()
-const { templates, nodes, currentNodeIndex } = storeToRefs(learningFlowStore)
-
-const pageData = reactive({
-  greeting: '下午好，永庆',
-  subtitle: '看到陌生单词，也能试着读出来',
-  quickAccess: [
-    {
-      code: 'phoneme-overview',
-      name: '音标总览',
-      description: '快速查阅',
-      iconName: 'volume-2',
-      route: '/pages/phoneme/overview',
-    },
-    {
-      code: 'word-list',
-      name: '专业词库',
-      description: '实际应用',
-      iconName: 'book-open',
-      route: '/pages/word-list/index',
-    },
-  ],
-})
-
-const learningSteps = computed((): StageItem[] =>
-  nodes.value.map((node, index): StageItem => {
-    const template = templates.value.find((item) => item.code === node.templateCode)
-    return {
-      code: node.id,
-      name: template == null ? '学习节点' : template.name,
-      route: template == null ? '' : template.route,
-      state:
-        index < currentNodeIndex.value
-          ? 'completed'
-          : index === currentNodeIndex.value
-            ? 'active'
-            : 'pending',
-    }
-  })
+const home = ref<HomeResponse | null>(null)
+const error = ref('')
+const signedIn = ref(false)
+const loggingIn = ref(false)
+const loginLabel = import.meta.env.DEV ? '登录并开始学习（本地联调）' : '微信登录'
+const currentIndex = computed(
+  () => home.value?.learningPath.filter((node) => node.reviewable).length ?? 0
 )
+const learningSteps = computed(() =>
+  (home.value?.learningPath ?? []).map((node, index) => ({
+    code: node.id,
+    name: node.name,
+    route: node.route + '?flowNodeId=' + encodeURIComponent(node.id) + '&review=true',
+    state: node.reviewable ? 'completed' : index === currentIndex.value ? 'active' : 'pending',
+  }))
+)
+const quickActions = computed(() =>
+  (home.value?.quickActions ?? []).map((item) => ({
+    ...item,
+    description: item.code === 'phoneme-overview' ? '快速查阅' : '实际应用',
+    iconName: item.code === 'phoneme-overview' ? 'volume-2' : 'book-open',
+  }))
+)
+const todayTask = computed(() => ({
+  tag: '今日学习',
+  title: home.value?.todayTask?.title ?? '本轮学习已完成',
+  description: home.value?.todayTask?.description ?? '可以调整流程，开始下一轮学习',
+  durationMinutes: home.value?.todayTask?.estimatedMinutes ?? 0,
+  actionText: home.value?.flowCompleted ? '查看学习流程' : '继续学习',
+  progressLabel: '学习流程',
+  current: Math.min(currentIndex.value + 1, learningSteps.value.length),
+  total: learningSteps.value.length,
+}))
 
-const currentTemplate = computed(() => {
-  if (currentNodeIndex.value >= nodes.value.length) return null
-  const currentNode = nodes.value[currentNodeIndex.value]
-  return templates.value.find((item) => item.code === currentNode.templateCode) ?? null
-})
-
-const todayTask = computed(() => {
-  const completed = currentTemplate.value == null
-  return {
-    tag: '今日学习',
-    title: completed ? '本轮学习已完成' : currentTemplate.value!.name,
-    description: completed ? '可以调整流程，开始下一轮学习' : '按照你的学习路径继续练习',
-    durationMinutes: 6,
-    actionText: completed ? '查看学习流程' : '继续学习',
-    progressLabel: '学习流程',
-    current: completed ? nodes.value.length : currentNodeIndex.value + 1,
-    total: nodes.value.length,
+async function loadHome() {
+  signedIn.value = getToken().length > 0
+  if (!signedIn.value) {
+    home.value = null
+    return
   }
-})
+  error.value = ''
+  try {
+    home.value = await request<HomeResponse>({ url: '/home' })
+  } catch (failure) {
+    home.value = null
+    error.value = (failure as HttpError).message
+    signedIn.value = getToken().length > 0
+  }
+}
 
-const todayTaskRoute = computed((): string =>
-  currentTemplate.value == null ? '/pages/profile/learning-flow' : currentTemplate.value.route
-)
-
-const safeCurrentIndex = computed((): number =>
-  Math.min(currentNodeIndex.value, learningSteps.value.length)
-)
-
-onMounted(() => {
-  learningFlowStore.loadFlow()
-})
+async function signIn() {
+  if (loggingIn.value) return
+  loggingIn.value = true
+  try {
+    await login()
+    await loadHome()
+  } catch (failure) {
+    showRequestError(failure)
+  } finally {
+    loggingIn.value = false
+  }
+}
 
 function go(url: string) {
-  if (url.length === 0) return
-  uni.navigateTo({ url })
+  if (url.length > 0) uni.navigateTo({ url })
 }
 
-function reviewStage(url: string) {
-  learningFlowStore.startReview()
-  go(url)
+function continueLearning() {
+  const task = home.value?.todayTask
+  go(
+    task == null
+      ? '/pages/profile/learning-flow'
+      : task.route + '?flowNodeId=' + encodeURIComponent(task.flowNodeId)
+  )
 }
 
-function openQuickAccess(url: string, code: string) {
-  if (code === 'phoneme-overview') learningFlowStore.startReview()
-  go(url)
-}
+onShow(loadHome)
 </script>
 <style lang="scss">
 @import '../../uni.scss';

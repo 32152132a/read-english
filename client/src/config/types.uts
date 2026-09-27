@@ -213,6 +213,7 @@ export type AppIconProps = {
 
 export type ChoiceGroupProps = {
   options: SelectOption[]
+  disabled?: boolean
   initialValue?: string
   correctValue?: string
 }
@@ -224,7 +225,7 @@ export type SyllableQuizData = {
   correctValue: string
 }
 
-export type SyllableQuizProps = { data: SyllableQuizData }
+export type SyllableQuizProps = { data: SyllableQuizData; disabled?: boolean }
 
 export type PlayButtonProps = {
   src?: string
@@ -270,7 +271,9 @@ export type HttpOptions = {
 
 export type HttpError = {
   statusCode: number
+  code: string
   message: string
+  requestId: string
   data: any | null
 }
 

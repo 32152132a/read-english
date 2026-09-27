@@ -35,9 +35,6 @@
 <script setup lang="uts">
 import type { PlayButtonProps, PlayStatus } from '../../src/config/types.uts'
 
-// 临时播放占位音，接入真实音频数据后删除。
-const TEMP_MOCK_AUDIO_URL = '/static/audio/mock-pronunciation.wav'
-
 const props = withDefaults(defineProps<PlayButtonProps>(), {
   src: '',
   text: '',
@@ -55,11 +52,15 @@ const buttonSize = computed((): string =>
 
 function play() {
   if (props.disabled || status.value !== 'idle') return
+  if (props.src.length === 0) {
+    uni.showToast({ title: '暂无发音音频', icon: 'none' })
+    return
+  }
 
   status.value = 'loading'
   const audio = uni.createInnerAudioContext()
   audioContext = audio
-  audio.src = props.src.length > 0 ? props.src : TEMP_MOCK_AUDIO_URL
+  audio.src = props.src
   audio.onPlay(() => {
     status.value = 'playing'
     emit('play')
@@ -88,6 +89,7 @@ function resetAudio() {
 }
 
 onUnmounted(resetAudio)
+watch(() => props.src, resetAudio)
 </script>
 
 <style lang="scss">

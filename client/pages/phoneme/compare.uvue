@@ -1,113 +1,58 @@
 <template>
   <view class="page phoneme-compare">
-    <LessonProgress :current="pageData.current" :total="pageData.total" label="" compact />
-    <text class="phoneme-compare__category">{{ pageData.category }}</text>
-    <text class="page-title">{{ pageData.title }}</text>
-    <text class="phoneme-compare__intro">{{ pageData.description }}</text>
-    <PhonemeComparison :items="pageData.sounds" />
-    <text class="section-title">{{ pageData.pairTitle }}</text>
-    <WordPairPlayer :items="pageData.wordPair" />
-    <text class="phoneme-compare__pair-hint">{{ pageData.pairHint }}</text>
-    <TipCard title="记忆技巧" :text="pageData.tip" variant="memory" />
-    <StepActions
-      :current="pageData.current"
-      :total="pageData.total"
-      :hint="pageData.actionHint"
-      @change="loadStep"
-      @complete="completeCurrentStage"
-    />
+    <RequestState v-if="unit == null" :error="error" @retry="loadSession" />
+    <template v-else>
+      <LessonProgress :current="current" :total="total" />
+      <text class="phoneme-compare__category">{{ unit!.content!.category }}</text>
+      <text class="page-title">{{ unit!.content!.title }}</text>
+      <text class="phoneme-compare__intro">{{ unit!.content!.description }}</text>
+      <PhonemeComparison :items="sounds" />
+      <WordPairPlayer v-for="(pair, index) in wordPairs" :key="index" :items="pair" />
+      <TipCard title="记忆技巧" :text="unit!.content!.memoryTip" variant="memory" />
+      <StepActions
+        :current="current"
+        :total="total"
+        @change="loadStep"
+        @complete="completeCurrentStage"
+      />
+    </template>
     <DebugPageNav />
   </view>
 </template>
 <script setup lang="uts">
+import RequestState from '../../components/RequestState/index.uvue'
 import LessonProgress from '../../components/LessonProgress/index.uvue'
-import TipCard from '../../components/TipCard/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
+import { useLearningSession } from '../../src/composables/use-learning-session.uts'
+import TipCard from '../../components/TipCard/index.uvue'
 import PhonemeComparison from '../../components/PhonemeComparison/index.uvue'
 import WordPairPlayer from '../../components/WordPairPlayer/index.uvue'
-import { useLearningFlowNavigation } from '../../src/composables/use-learning-flow-navigation.uts'
+import type { CompareContent } from '../../src/config/api-types.uts'
 
-const { completeCurrentStage } = useLearningFlowNavigation()
-const pageData = reactive({
-  id: 'short-vowel-comparison',
-  current: 2,
-  total: 3,
-  category: '短元音对比',
-  title: '区分 /ɪ/ 和 /iː/',
-  description: '一个短促放松，一个稍长并向两侧展开',
-  tip: '/ɪ/ 短而放松，/iː/ 像微笑一样向两侧拉开。',
-  sounds: [
-    {
-      ipa: '/ɪ/',
-      segments: [{ text: '/ɪ/', tone: 'primary' }],
-      name: '短促的「衣」',
-      tip: '嘴角放松，快速收音',
-      examples: 'ship · sit · live',
-      audioUrl: '',
-      tone: 'primary',
-      toneColor: '#315cff',
-      mouthType: 'relaxed',
-    },
-    {
-      ipa: '/iː/',
-      segments: [{ text: '/iː/', tone: 'success' }],
-      name: '拉长的「衣」',
-      tip: '嘴角向两侧，声音延长',
-      examples: 'sheep · seat · leave',
-      audioUrl: '',
-      tone: 'success',
-      toneColor: '#11aaa0',
-      mouthType: 'smile',
-    },
-  ],
-  pairTitle: '听一听它们的区别',
-  pairHint: '先分别听，再连续对比',
-  actionHint: '还没记住？可以反复播放',
-  wordPair: [
-    {
-      word: 'ship',
-      segments: [{ text: '/ʃɪp/', tone: 'muted' }],
-      audioUrl: '',
-    },
-    {
-      word: 'sheep',
-      segments: [{ text: '/ʃiːp/', tone: 'muted' }],
-      audioUrl: '',
-    },
-  ],
-})
-const stepList = [
-  {
-    pairTitle: '先听第一组单词',
-    wordPair: [
-      { word: 'ship', segments: [{ text: '/ʃɪp/', tone: 'muted' }], audioUrl: '' },
-      { word: 'sheep', segments: [{ text: '/ʃiːp/', tone: 'muted' }], audioUrl: '' },
-    ],
-  },
-  {
-    pairTitle: '再听一组相似单词',
-    wordPair: [
-      { word: 'sit', segments: [{ text: '/sɪt/', tone: 'muted' }], audioUrl: '' },
-      { word: 'seat', segments: [{ text: '/siːt/', tone: 'muted' }], audioUrl: '' },
-    ],
-  },
-  {
-    pairTitle: '最后听完整单词',
-    wordPair: [
-      { word: 'live', segments: [{ text: '/lɪv/', tone: 'muted' }], audioUrl: '' },
-      { word: 'leave', segments: [{ text: '/liːv/', tone: 'muted' }], audioUrl: '' },
-    ],
-  },
-]
-
-function loadStep(target: number) {
-  const step = stepList[target - 1]
-  if (step == null) return
-
-  pageData.current = target
-  pageData.pairTitle = step.pairTitle
-  pageData.wordPair = step.wordPair
-}
+const { unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
+  useLearningSession<CompareContent>('phoneme-compare')
+const sounds = computed(() =>
+  (unit.value?.content.phonemes ?? []).map((item, index) => ({
+    ipa: item.ipa,
+    segments: [{ text: item.ipa, tone: index === 0 ? 'primary' : 'success' }],
+    name: item.description,
+    audioUrl: item.audioUrl ?? '',
+    toneColor: index === 0 ? '#3154ff' : '#27a778',
+    mouthType: item.mouth.type,
+    tone: index === 0 ? 'primary' : 'success',
+    tip: item.description,
+    examples: item.examples.join(' · '),
+  }))
+)
+const wordPairs = computed(() =>
+  (unit.value?.content.audioPairs ?? []).map((pair) =>
+    [pair.left, pair.right].map((word) => ({
+      word: word.word,
+      audioUrl: word.audioUrl ?? '',
+      segments: [],
+    }))
+  )
+)
 </script>
 <style lang="scss">
 @import '../../uni.scss';

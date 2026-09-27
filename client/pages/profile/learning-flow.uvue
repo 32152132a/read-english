@@ -1,39 +1,57 @@
 <template>
   <view class="page learning-flow-page">
+    <RequestState v-if="!loaded" :error="error" @retry="loadFlow" />
     <LearningFlowEditor
+      v-else
       :templates="templates"
       :nodes="nodes"
       :default-nodes="defaultNodes"
-      @change="updateFlow"
       @save="submitFlow"
     />
     <DebugPageNav />
   </view>
 </template>
-
 <script setup lang="uts">
 import { storeToRefs } from 'pinia'
 import LearningFlowEditor from '../../components/LearningFlowEditor/index.uvue'
-import type { LearningFlowNode } from '../../src/config/types.uts'
+import RequestState from '../../components/RequestState/index.uvue'
+import type { LearningFlowNode, HttpError } from '../../src/config/types.uts'
+import { showRequestError } from '../../src/services/http.uts'
 import { useLearningFlowStore } from '../../src/stores/learning-flow.uts'
 
 const learningFlowStore = useLearningFlowStore()
-const { templates, nodes, defaultNodes } = storeToRefs(learningFlowStore)
+const { templates, nodes } = storeToRefs(learningFlowStore)
+const defaultNodes = learningFlowStore.defaultNodes
+const loaded = ref(false)
+const error = ref('')
+let saving = false
 
-onMounted(() => {
-  learningFlowStore.loadFlow()
-})
-
-function updateFlow(nextNodes: LearningFlowNode[]) {
-  learningFlowStore.updateFlow(nextNodes)
+async function loadFlow() {
+  error.value = ''
+  try {
+    await learningFlowStore.loadFlow()
+    loaded.value = true
+  } catch (failure) {
+    error.value = (failure as HttpError).message
+  }
 }
 
 async function submitFlow(nextNodes: LearningFlowNode[]) {
-  await learningFlowStore.submitFlow(nextNodes)
-  uni.showToast({ title: '学习流程已保存', icon: 'success' })
+  if (saving) return
+  saving = true
+  try {
+    await learningFlowStore.submitFlow(nextNodes)
+    uni.showToast({ title: '学习流程已保存', icon: 'success' })
+  } catch (failure) {
+    showRequestError(failure)
+    if ((failure as HttpError).code === 'FLOW_VERSION_CONFLICT') await loadFlow()
+  } finally {
+    saving = false
+  }
 }
-</script>
 
+onMounted(loadFlow)
+</script>
 <style lang="scss">
 @import '../../uni.scss';
 

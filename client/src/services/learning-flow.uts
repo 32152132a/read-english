@@ -1,98 +1,46 @@
-import type {
-  LearningFlowConfig,
-  LearningFlowNode,
-  LearningFlowTemplate,
-} from '../config/types.uts'
+import { request } from './http.uts'
+import type { LearningFlowNode } from '../config/types.uts'
+import type { FlowConfig, FlowTemplate, CompleteStageResponse } from '../config/api-types.uts'
 
-export const LEARNING_FLOW_TEMPLATES: LearningFlowTemplate[] = [
-  {
-    code: 'phoneme',
-    name: '认识音标',
-    iconName: 'volume-2',
-    route: '/pages/phoneme/detail',
-  },
-  {
-    code: 'phoneme-overview',
-    name: '音标总览',
-    iconName: 'volume-2',
-    route: '/pages/phoneme/overview',
-  },
-  {
-    code: 'phoneme-compare',
-    name: '易混对比',
-    iconName: 'volume-2',
-    route: '/pages/phoneme/compare',
-  },
-  {
-    code: 'phoneme-quiz',
-    name: '听音辨认',
-    iconName: 'headphones',
-    route: '/pages/phoneme/quiz',
-  },
-  {
-    code: 'syllable',
-    name: '音素音节',
-    iconName: 'audio-waveform',
-    route: '/pages/syllable/index',
-  },
-  {
-    code: 'ipa-decoding',
-    name: '音标拼读',
-    iconName: 'eye',
-    route: '/pages/decoding/ipa',
-  },
-  {
-    code: 'word-decoding',
-    name: '单词拼读',
-    iconName: 'book-open',
-    route: '/pages/decoding/word',
-  },
-  {
-    code: 'evaluation',
-    name: 'AI评测',
-    iconName: 'mic',
-    route: '/pages/evaluation/index',
-  },
-]
-
+// 仅供编辑器恢复默认使用；活动流程和模板由后端返回。
 export const DEFAULT_LEARNING_FLOW: LearningFlowNode[] = [
-  { id: 'default-phoneme', templateCode: 'phoneme' },
-  { id: 'default-phoneme-compare', templateCode: 'phoneme-compare' },
-  { id: 'default-phoneme-quiz', templateCode: 'phoneme-quiz' },
-  { id: 'default-syllable', templateCode: 'syllable' },
-  { id: 'default-ipa-decoding', templateCode: 'ipa-decoding' },
-  { id: 'default-word-decoding', templateCode: 'word-decoding' },
-  { id: 'default-evaluation', templateCode: 'evaluation' },
-]
+  'phoneme',
+  'phoneme-compare',
+  'phoneme-quiz',
+  'syllable',
+  'ipa-decoding',
+  'word-decoding',
+  'evaluation',
+].map((templateCode) => ({ id: 'default-' + templateCode, templateCode }))
 
-function cloneNodes(nodes: LearningFlowNode[]): LearningFlowNode[] {
-  return nodes.map((node) => ({ ...node }))
+export function getLearningFlow() {
+  return request<FlowConfig>({ url: '/learning-flow' })
 }
 
-let mockFlowNodes = cloneNodes(DEFAULT_LEARNING_FLOW)
-let mockCurrentNodeIndex = 1
+export function getLearningFlowTemplates() {
+  return request<FlowTemplate[]>({ url: '/learning-flow/templates' })
+}
 
-// 当前使用 Mock；接入后端时只替换本文件中的流程请求方法。
-export function getLearningFlow(): Promise<LearningFlowConfig> {
-  return Promise.resolve({
-    nodes: cloneNodes(mockFlowNodes),
-    currentNodeIndex: mockCurrentNodeIndex,
+export function saveLearningFlow(nodes: LearningFlowNode[], version: number) {
+  return request<FlowConfig>({
+    url: '/learning-flow',
+    method: 'PUT',
+    data: {
+      version,
+      nodes: nodes.map((node) => ({ clientNodeId: node.id, templateCode: node.templateCode })),
+    },
   })
 }
 
-export function saveLearningFlow(nodes: LearningFlowNode[]): Promise<LearningFlowConfig> {
-  mockFlowNodes = cloneNodes(nodes)
-  mockCurrentNodeIndex = 0
-  return Promise.resolve({
-    nodes: cloneNodes(mockFlowNodes),
-    currentNodeIndex: mockCurrentNodeIndex,
-  })
-}
-
-export function completeLearningStage(): Promise<LearningFlowConfig> {
-  if (mockCurrentNodeIndex < mockFlowNodes.length) mockCurrentNodeIndex += 1
-  return Promise.resolve({
-    nodes: cloneNodes(mockFlowNodes),
-    currentNodeIndex: mockCurrentNodeIndex,
+export function completeLearningStage(
+  flowNodeId: string,
+  lastUnitId: string,
+  idempotencyKey: string
+) {
+  return request<CompleteStageResponse>({
+    url: '/learning-flow/current/complete',
+    method: 'POST',
+    header: { 'Idempotency-Key': idempotencyKey },
+    data: { flowNodeId, lastUnitId },
   })
 }

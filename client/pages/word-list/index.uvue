@@ -2,7 +2,9 @@
   <view class="page">
     <text class="muted intro">{{ pageData.description }}</text>
     <text class="section-title">我的词库</text>
+    <RequestState v-if="!loaded" :error="error" @retry="loadLibraries" />
     <WordListCards
+      v-else
       :items="ownedLibraries"
       @learn="startLearning"
       @view="viewWords"
@@ -13,17 +15,23 @@
   </view>
 </template>
 <script setup lang="uts">
+import RequestState from '../../components/RequestState/index.uvue'
+import { showRequestError } from '../../src/services/http.uts'
+import type { HttpError } from '../../src/config/types.uts'
 import WordListCards from '../../components/WordListCards/index.uvue'
 import { storeToRefs } from 'pinia'
 import { useLibraryStore } from '../../src/stores/library.uts'
 
+const loaded = ref(false)
+const error = ref('')
 const pageData = reactive({
   description: '完成基础学习后，用真实词汇检验拼读能力',
 })
 const libraryStore = useLibraryStore()
 const { ownedLibraries } = storeToRefs(libraryStore)
 function startLearning(id: string) {
-  uni.navigateTo({ url: '/pages/decoding/word?libraryId=' + id })
+  uni.showToast({ title: '词库专项练习暂未开放，可先查看单词', icon: 'none' })
+  viewWords(id)
 }
 
 function viewWords(id: string) {
@@ -38,11 +46,27 @@ function removeLibrary(id: string) {
   uni.showModal({
     title: '删除词库',
     content: '删除后将清除该词库的全部学习记录，且无法恢复，确定删除吗？',
-    success: (result) => {
-      if (result.confirm) libraryStore.removeLibrary(id)
+    success: async (result) => {
+      if (!result.confirm) return
+      try {
+        await libraryStore.removeLibrary(id)
+      } catch (failure) {
+        showRequestError(failure)
+      }
     },
   })
 }
+async function loadLibraries() {
+  error.value = ''
+  try {
+    await libraryStore.loadOwned()
+    loaded.value = true
+  } catch (failure) {
+    loaded.value = false
+    error.value = (failure as HttpError).message
+  }
+}
+onShow(loadLibraries)
 </script>
 <style lang="scss">
 @import '../../uni.scss';

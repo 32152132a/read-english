@@ -1,0 +1,20 @@
+<template>
+  <view class="request-state">
+    <text>{{ error.length > 0 ? error : '正在加载…' }}</text>
+    <button v-if="error.length > 0" class="outline-button" @click="$emit('retry')">重试</button>
+  </view>
+</template>
+
+<script setup lang="uts">
+withDefaults(defineProps<{ error?: string }>(), { error: '' })
+defineEmits(['retry'])
+</script>
+
+<style lang="scss">
+.request-state {
+  display: grid;
+  gap: 24rpx;
+  padding: 40rpx 0;
+  text-align: center;
+}
+</style>

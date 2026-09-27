@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:http": "node --experimental-vm-modules --test scripts/test-http.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "node scripts/format.mjs"
