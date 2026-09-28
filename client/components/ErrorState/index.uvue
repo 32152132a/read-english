@@ -25,6 +25,7 @@ defineEmits(['primary', 'secondary'])
 @import '../../uni.scss';
 
 .error-state {
+  width: 100%;
   min-height: 100vh;
   padding: 0 44rpx;
   box-sizing: border-box;
@@ -33,6 +34,11 @@ defineEmits(['primary', 'secondary'])
   grid-template-rows: 1fr auto auto auto 1fr;
   justify-items: center;
   text-align: center;
+
+  /* #ifdef H5 */
+  max-width: $page-max-width;
+  margin: 0 auto;
+  /* #endif */
 
   &__code {
     align-self: end;

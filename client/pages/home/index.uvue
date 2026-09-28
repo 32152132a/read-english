@@ -121,7 +121,6 @@ onShow(loadHome)
   min-height: 100vh;
 }
 .home {
-  width: 100vw;
   overflow-x: hidden;
   padding-top: 84rpx;
   padding-bottom: 164rpx;

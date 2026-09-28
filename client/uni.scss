@@ -5,6 +5,7 @@ $color-text-secondary: #667085;
 $color-primary: #5267f8;
 $color-success: #21a66b;
 $color-border: #e8ebf2;
+$page-max-width: 480px;
 
 page {
   background-color: $color-background;
@@ -13,9 +14,15 @@ page {
 }
 
 .page {
+  width: 100%;
   min-height: 100vh;
   padding: 0 44rpx 48rpx;
   box-sizing: border-box;
+
+  /* #ifdef H5 */
+  max-width: $page-max-width;
+  margin: 0 auto;
+  /* #endif */
 }
 
 .card {

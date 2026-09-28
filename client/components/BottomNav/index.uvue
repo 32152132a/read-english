@@ -47,6 +47,12 @@ function openProfile() {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
 
+  /* #ifdef H5 */
+  width: 100%;
+  max-width: $page-max-width;
+  margin: 0 auto;
+  /* #endif */
+
   &__item {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
