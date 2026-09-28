@@ -30,6 +30,14 @@ npm run test:http
 
 Web 开发环境首页提供本地联调登录，通过后端 Fake WeChat Gateway 建立独立身份；生产 Web 不启用 Fake 登录，微信小程序使用 `uni.login`。后端 MySQL 本地配置需显式启用已有 Fake Gateway。详细范围、缺口和验收结果见 [前后端联调记录](docs/frontend-backend-integration.md)。
 
+### 接口错误提示约定
+
+- 普通请求失败默认在当前页面弹出提示，接口 404/500 不再跳转错误页。
+- 两秒内的连续错误合并提示；同一个错误对象在页面 catch 中再次调用 `showRequestError` 不会重复提示。每个请求仍独立 reject，保留错误码、响应数据及 requestId。
+- 首次加载由页面的 `RequestState` 展示错误和重试时，使用 `request({ url, showError: false })`；该开关只关闭公共提示，不吞掉错误。保存、删除、答题等操作保持默认提示并保留当前页面状态。
+- 登录凭据失效会先尝试刷新；确认失效后统一清理凭据、提示一次，并返回首页登录入口。`showError: false` 不关闭此认证处理；刷新时断网不会清空登录凭据。
+- 提示等待公共 Loading 关闭后显示，避免被 Loading 遮掉；登录失效提示优先于普通错误。
+
 ### 历史 NestJS 服务端
 
 ```bash

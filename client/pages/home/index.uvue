@@ -78,7 +78,7 @@ async function loadHome() {
   }
   error.value = ''
   try {
-    home.value = await request<HomeResponse>({ url: '/home' })
+    home.value = await request<HomeResponse>({ url: '/home', showError: false })
   } catch (failure) {
     home.value = null
     error.value = (failure as HttpError).message

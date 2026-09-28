@@ -14,11 +14,11 @@ export const DEFAULT_LEARNING_FLOW: LearningFlowNode[] = [
 ].map((templateCode) => ({ id: 'default-' + templateCode, templateCode }))
 
 export function getLearningFlow() {
-  return request<FlowConfig>({ url: '/learning-flow' })
+  return request<FlowConfig>({ url: '/learning-flow', showError: false })
 }
 
 export function getLearningFlowTemplates() {
-  return request<FlowTemplate[]>({ url: '/learning-flow/templates' })
+  return request<FlowTemplate[]>({ url: '/learning-flow/templates', showError: false })
 }
 
 export function saveLearningFlow(nodes: LearningFlowNode[], version: number) {

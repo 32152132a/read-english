@@ -29,6 +29,7 @@ export function useLearningSession<T>(templateCode: string) {
         flowNodeId = node.id
       }
       session.value = await request<LearningSession<T>>({
+        showError: false,
         url:
           '/learning-stages/' +
           templateCode +

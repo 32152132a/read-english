@@ -5,7 +5,7 @@
       <text class="page-title">{{ library!.name }}</text>
       <text class="word-library-detail__description">{{ library!.description }}</text>
       <ExampleWordList :items="words" />
-      <button v-if="hasMore" class="outline-button" :disabled="loadingMore" @click="loadWords">
+      <button v-if="hasMore" class="outline-button" :disabled="loadingMore" @click="loadWords()">
         加载更多
       </button>
       <TipCard text="词库专项练习暂未开放，可以先浏览单词与音标。" />
@@ -29,11 +29,12 @@ const error = ref('')
 let libraryId = ''
 let cursor: string | null = null
 
-async function loadWords() {
+async function loadWords(showError: boolean = true) {
   if (loadingMore.value) return
   loadingMore.value = true
   try {
     const page = await request<LibraryWordPage>({
+      showError,
       url:
         '/word-libraries/' +
         encodeURIComponent(libraryId) +
@@ -52,6 +53,7 @@ async function loadWords() {
     hasMore.value = page.hasMore
   } catch (failure) {
     hasMore.value = true
+    if (!showError) throw failure
     showRequestError(failure)
   } finally {
     loadingMore.value = false
@@ -62,13 +64,16 @@ async function loadDetail() {
   error.value = ''
   try {
     if (libraryId.length === 0) throw new Error('请从我的词库选择要查看的词库')
-    library.value = await request<LibrarySummary>({
+    const detail = await request<LibrarySummary>({
+      showError: false,
       url: '/word-libraries/' + encodeURIComponent(libraryId),
     })
     words.value = []
     cursor = null
-    await loadWords()
+    await loadWords(false)
+    library.value = detail
   } catch (failure) {
+    library.value = null
     error.value = (failure as HttpError).message
   }
 }

@@ -61,6 +61,7 @@ async function retry() {
   error.value = ''
   try {
     detail.value = await request<PhonemeContent>({
+      showError: false,
       url: '/phonemes/' + encodeURIComponent(phonemeId),
     })
   } catch (failure) {

@@ -95,8 +95,8 @@ async function loadProfile() {
   error.value = ''
   try {
     const [profile, stats] = await Promise.all([
-      request<UserProfile>({ url: '/users/me' }),
-      request<UserStats>({ url: '/users/me/stats' }),
+      request<UserProfile>({ url: '/users/me', showError: false }),
+      request<UserStats>({ url: '/users/me/stats', showError: false }),
     ])
     pageData.user = {
       avatarText: profile.nickname.slice(0, 2),

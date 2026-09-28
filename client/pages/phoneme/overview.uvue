@@ -50,7 +50,7 @@ function itemsFor(code: string) {
 async function loadOverview() {
   error.value = ''
   try {
-    groups.value = await request<PhonemeGroups>({ url: '/phonemes' })
+    groups.value = await request<PhonemeGroups>({ url: '/phonemes', showError: false })
   } catch (failure) {
     error.value = (failure as HttpError).message
   }

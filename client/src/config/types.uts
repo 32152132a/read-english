@@ -265,6 +265,8 @@ export type HttpOptions = {
   header?: UTSJSONObject | null
   timeout?: number | null
   auth?: boolean | null
+  // false 时由调用方展示错误；登录失效仍统一处理。
+  showError?: boolean | null
   showLoading?: boolean | null
   loadingText?: string | null
 }
@@ -275,6 +277,8 @@ export type HttpError = {
   message: string
   requestId: string
   data: any | null
+  // 同一错误已纳入公共提示（包括并发合并），避免 catch 再次提示。
+  handled?: boolean
 }
 
 export type BottomNavProps = { active?: string }

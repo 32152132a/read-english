@@ -27,12 +27,18 @@ export const useLibraryStore = defineStore('library', () => {
   const availableLibraries = ref<SystemLibraryOption[]>([])
 
   async function loadOwned() {
-    const result = await request<{ items: LibrarySummary[] }>({ url: '/word-libraries/mine' })
+    const result = await request<{ items: LibrarySummary[] }>({
+      url: '/word-libraries/mine',
+      showError: false,
+    })
     ownedLibraries.value = result.items.map(toLibraryCard)
   }
 
   async function loadAvailable() {
-    const result = await request<{ items: LibrarySummary[] }>({ url: '/word-libraries/available' })
+    const result = await request<{ items: LibrarySummary[] }>({
+      url: '/word-libraries/available',
+      showError: false,
+    })
     availableLibraries.value = result.items.map(toLibraryCard)
   }
 

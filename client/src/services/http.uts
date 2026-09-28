@@ -4,26 +4,88 @@ import type { ApiResponse, LoginResponse } from '../config/api-types.uts'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const loadingDelay = 150
+const errorToastDuration = 2000
+
+let refreshPromise: Promise<LoginResponse> | null = null
+let loadingCount = 0
+let loadingTimer = 0
+let loadingVisible = false
+let pendingError: HttpError | null = null
+let lastErrorAt = 0
+let lastErrorWasUnauthorized = false
+let loginExpired = false
 
 function createHttpError(statusCode: number, message: string, data: any | null): HttpError {
   return {
     statusCode,
-    code: data?.code ?? 'NETWORK_ERROR',
+    code: data?.code ?? (statusCode === 0 ? 'NETWORK_ERROR' : 'HTTP_ERROR'),
     message: data?.message ?? message,
     requestId: data?.requestId ?? '',
     data,
   }
 }
 
-let refreshPromise: Promise<LoginResponse> | null = null
+export function getApiBaseUrl(): string {
+  return apiBaseUrl
+}
+
+export function showRequestError(error: unknown) {
+  const failure = error as HttpError
+  if (failure?.handled) return
+  if (failure != null && typeof failure === 'object') failure.handled = true
+
+  // 只保留一个提示，登录失效优先；每个请求仍保留各自的错误和 requestId。
+  if (pendingError == null || failure?.statusCode === 401) {
+    pendingError = createHttpError(
+      failure?.statusCode ?? 0,
+      failure?.message ?? '操作失败，请重试',
+      null
+    )
+  }
+  flushErrorToast()
+}
+
+function flushErrorToast() {
+  if (loadingCount > 0 || pendingError == null) return
+  const failure = pendingError
+  pendingError = null
+  const unauthorized = failure.statusCode === 401
+  const now = Date.now()
+  if (now - lastErrorAt < errorToastDuration && (!unauthorized || lastErrorWasUnauthorized)) return
+
+  lastErrorAt = now
+  lastErrorWasUnauthorized = unauthorized
+  uni.showToast({ title: failure.message, icon: 'none', duration: errorToastDuration })
+}
+
+function startLoading(text: string) {
+  loadingCount += 1
+  if (loadingCount > 1) return
+  loadingTimer = setTimeout(() => {
+    loadingVisible = true
+    uni.showLoading({ title: text, mask: true })
+  }, loadingDelay)
+}
+
+function finishLoading() {
+  loadingCount = loadingCount > 0 ? loadingCount - 1 : 0
+  if (loadingCount > 0) return
+  clearTimeout(loadingTimer)
+  loadingTimer = 0
+  if (loadingVisible) {
+    loadingVisible = false
+    uni.hideLoading()
+  }
+  // Loading 和 Toast 共用平台提示层，先关闭 Loading 再提示错误。
+  flushErrorToast()
+}
 
 async function refreshLogin() {
   if (refreshPromise == null) {
-    refreshPromise = request<LoginResponse>({
+    refreshPromise = sendRequest<LoginResponse>({
       url: '/auth/refresh',
       method: 'POST',
       auth: false,
-      showLoading: false,
       data: { refreshToken: getRefreshToken() },
     })
       .then((login) => {
@@ -37,77 +99,27 @@ async function refreshLogin() {
   await refreshPromise
 }
 
-export function showRequestError(error: unknown) {
-  const message = (error as HttpError)?.message ?? '操作失败，请重试'
-  uni.showToast({ title: message, icon: 'none' })
-}
-
-let loadingCount = 0
-let loadingTimer = 0
-let loadingVisible = false
-let errorPageOpening = false
-
-export function getApiBaseUrl(): string {
-  return apiBaseUrl
-}
-
-function startLoading(text: string) {
-  loadingCount += 1
-  if (loadingCount > 1) return
-
-  loadingTimer = setTimeout(() => {
-    loadingVisible = true
-    uni.showLoading({ title: text, mask: true })
-  }, loadingDelay)
-}
-
-function finishLoading() {
-  loadingCount = loadingCount > 0 ? loadingCount - 1 : 0
-  if (loadingCount > 0) return
-
-  clearTimeout(loadingTimer)
-  loadingTimer = 0
-  if (!loadingVisible) return
-
-  loadingVisible = false
-  uni.hideLoading()
-}
-
-function openErrorPage(statusCode: number) {
-  if (errorPageOpening) return
-
-  errorPageOpening = true
-  uni.navigateTo({
-    url: `/pages/error/${statusCode}`,
-    complete: () => {
-      setTimeout(() => {
-        errorPageOpening = false
-      }, 500)
-    },
-  })
-}
-
-function handleStatus(statusCode: number) {
-  if (statusCode === 401) {
-    clearToken()
-    uni.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+function handleLoginExpired(error: HttpError) {
+  clearToken()
+  if (loginExpired) {
+    error.handled = true
     return
   }
-
-  if (statusCode === 404 || statusCode >= 500) {
-    openErrorPage(statusCode === 404 ? 404 : 500)
+  loginExpired = true
+  error.message = '登录已过期，请重新登录'
+  showRequestError(error)
+  const pages = getCurrentPages()
+  if (pages.length === 0 || pages[pages.length - 1].route !== 'pages/home/index') {
+    uni.reLaunch({ url: '/pages/home/index' })
   }
 }
 
-export function request<T>(options: HttpOptions, retry: boolean = true): Promise<T> {
-  const shouldShowLoading = options.showLoading !== false
+function sendRequest<T>(options: HttpOptions): Promise<T> {
   const headers: UTSJSONObject = { 'Content-Type': 'application/json', ...options.header }
   const authorization = getAuthorization()
-
   if (options.auth !== false && authorization.length > 0) {
     headers['Authorization'] = authorization
   }
-  if (shouldShowLoading) startLoading(options.loadingText ?? '加载中')
 
   return new Promise<T>((resolve, reject) => {
     uni.request<ApiResponse<T>>({
@@ -116,44 +128,59 @@ export function request<T>(options: HttpOptions, retry: boolean = true): Promise
       data: options.data,
       header: headers,
       timeout: options.timeout ?? 10000,
-      success: async (response) => {
+      success: (response) => {
         if (
           response.statusCode >= 200 &&
           response.statusCode < 300 &&
           response.data?.code === 'OK'
         ) {
           resolve(response.data.data)
-          return
+        } else {
+          reject(
+            createHttpError(
+              response.statusCode,
+              `请求失败（${response.statusCode}）`,
+              response.data
+            )
+          )
         }
-
-        if (
-          response.statusCode === 401 &&
-          options.auth !== false &&
-          retry &&
-          getRefreshToken().length > 0
-        ) {
-          try {
-            await refreshLogin()
-            resolve(await request<T>(options, false))
-          } catch (error) {
-            if ((error as HttpError).statusCode === 401) clearToken()
-            reject(error)
-          }
-          return
-        }
-
-        handleStatus(response.statusCode)
-        reject(
-          createHttpError(response.statusCode, `请求失败（${response.statusCode}）`, response.data)
-        )
       },
       fail: (error) => {
-        uni.showToast({ title: '网络连接失败，请稍后重试', icon: 'none' })
-        reject(createHttpError(0, error.errMsg, null))
-      },
-      complete: () => {
-        if (shouldShowLoading) finishLoading()
+        const message = error.errMsg.includes('timeout')
+          ? '请求超时，请稍后重试'
+          : '网络连接失败，请稍后重试'
+        reject(createHttpError(0, message, error))
       },
     })
   })
+}
+
+export function request<T>(options: HttpOptions): Promise<T> {
+  const shouldShowLoading = options.showLoading !== false
+  if (options.auth !== false && getAuthorization().length > 0) loginExpired = false
+  if (shouldShowLoading) startLoading(options.loadingText ?? '加载中')
+
+  return sendRequest<T>(options)
+    .catch(async (error) => {
+      if (
+        (error as HttpError).statusCode !== 401 ||
+        options.auth === false ||
+        getRefreshToken().length === 0
+      ) {
+        throw error
+      }
+      await refreshLogin()
+      return await sendRequest<T>(options)
+    })
+    .finally(() => {
+      if (shouldShowLoading) finishLoading()
+    })
+    .catch((error) => {
+      if ((error as HttpError).statusCode === 401 && options.auth !== false) {
+        handleLoginExpired(error as HttpError)
+      } else if (options.showError !== false) {
+        showRequestError(error)
+      }
+      throw error
+    })
 }
