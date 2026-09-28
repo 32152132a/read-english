@@ -4,7 +4,8 @@
     <template v-else>
       <text class="page-title">{{ library!.name }}</text>
       <text class="word-library-detail__description">{{ library!.description }}</text>
-      <ExampleWordList :items="words" />
+      <text v-if="words.length === 0" class="muted">词库暂无单词</text>
+      <ExampleWordList v-else :items="words" />
       <button v-if="hasMore" class="outline-button" :disabled="loadingMore" @click="loadWords()">
         加载更多
       </button>
