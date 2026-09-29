@@ -43,6 +43,7 @@
       v-for="item in history"
       :key="item.id"
       class="outline-button"
+      :disabled="busy"
       @click="selectJob(item.id)"
     >
       {{ item.name }} · {{ statusText(item.status) }}
@@ -85,7 +86,13 @@ function stop() {
   clearTimeout(timer)
   timer = 0
 }
+function updateJob(result: ContentJob) {
+  job.value = result
+  history.value = history.value.map((item) => (item.id === result.id ? result : item))
+}
 async function poll() {
+  clearTimeout(timer)
+  timer = 0
   const id = job.value?.id
   if (!id || !visible) return
   try {
@@ -95,17 +102,19 @@ async function poll() {
       showError: false,
     })
     if (job.value?.id !== id) return
-    job.value = result
+    updateJob(result)
     error.value = ''
   } catch (e) {
-    error.value = (e as Error).message
+    if (job.value?.id === id) error.value = (e as Error).message
   } finally {
     if (
       visible &&
       job.value?.id === id &&
       (job.value?.status === 'PENDING' || job.value?.status === 'PROCESSING')
-    )
+    ) {
+      clearTimeout(timer)
       timer = setTimeout(poll, 2000)
+    }
   }
 }
 async function refreshHistory() {
@@ -114,7 +123,7 @@ async function refreshHistory() {
     showLoading: false,
     showError: false,
   })
-  history.value = result.items
+  history.value = result.items.map((item) => (item.id === job.value?.id ? job.value! : item))
 }
 async function create() {
   if (busy.value) return
@@ -137,8 +146,8 @@ async function create() {
       data: { name: name.value.trim(), wordsText: words.value },
     })
     clearTimeout(timer)
-    await refreshHistory()
     poll()
+    await refreshHistory()
   } catch (e) {
     error.value = (e as Error).message
     showRequestError(e)
@@ -147,12 +156,16 @@ async function create() {
   }
 }
 async function selectJob(id: string) {
+  if (busy.value) return
+  busy.value = true
   clearTimeout(timer)
   try {
-    job.value = await request<ContentJob>({ url: '/word-libraries/custom-jobs/' + id })
+    updateJob(await request<ContentJob>({ url: '/word-libraries/custom-jobs/' + id }))
     poll()
   } catch (e) {
     showRequestError(e)
+  } finally {
+    busy.value = false
   }
 }
 async function retry() {

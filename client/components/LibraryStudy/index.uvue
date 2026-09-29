@@ -85,6 +85,9 @@ watch(() => props.libraryId, load, { immediate: true })
 </script>
 <style lang="scss">
 .library-study {
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr);
   display: grid;
   gap: 28rpx;
 }

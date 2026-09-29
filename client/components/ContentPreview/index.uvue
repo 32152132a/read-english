@@ -107,6 +107,9 @@ const examples = computed(() =>
 <style lang="scss">
 @import '../../uni.scss';
 .content-preview {
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr);
   display: grid;
   gap: 24rpx;
   min-width: 0;

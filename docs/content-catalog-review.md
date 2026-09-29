@@ -42,23 +42,24 @@
 - 微信小程序真机验证与语音评测。
 - 原有阶段测验的后台编辑页；原有测验仍使用既有数据库题目和接口。
 
-本次没有提交或推送。临时日志、浏览器资料目录、测试服务和凭据均不纳入提交。
+主体功能已有提交：前端 b79c353、后端 c8f56ad。本轮保留历史，仅追加复查修复和交接文档；未执行推送。临时日志、浏览器资料目录、测试服务和凭据均不纳入提交。
 
 ## 本轮验证结果（2026-09-29）
 
-- 后端最终完整验证 20 项通过，打包与 Spotless 检查通过。
+- 后端复查后完整验证 22 项通过，打包与 Spotless 检查通过。
 - 前端 24 项请求层/朗读测试通过，ESLint、H5 构建通过。保留原有 7 条模板索引类型警告，新增组件没有新增构建警告。
 - 390×844 独立浏览器四项流程通过：生成草稿、编辑并发布、答题更新进度、管理员音标维护；没有捕获运行时异常。
 - 已修复验收发现的分类切换时旧列表仍可点击问题。
 - 浏览器使用独立 H2 和本机 AI 固定样本，不代表真实 DeepSeek、MySQL 或微信真机验收。
 
-## 待提交文件清单
+## 本轮功能涉及的文件
 
-以下清单只记录本次任务改动，未执行提交或推送。
+以下清单记录本轮功能范围，主体已提交；补充提交以两个仓库的 git log 为准。新窗口先读 read-java/docs/next-session-handoff.md。
 
-### 后端（17 个文件）
+### 后端（18 个文件）
 
 - `docs/content-catalog.md`
+- `docs/next-session-handoff.md`
 - `src/main/java/com/readenglish/content/ContentConfig.java`
 - `src/main/java/com/readenglish/content/ContentController.java`
 - `src/main/java/com/readenglish/content/ContentJobs.java`
@@ -108,3 +109,11 @@
 - `client/static/images/mouth-closed.svg`
 - `docs/backend-api-product-spec.md`
 - `docs/content-catalog-review.md`
+
+## 提交前复查补充
+
+- 修复生成完成后历史任务状态滞后，以及切换任务期间的重复请求问题。
+- 修复学习配置卡片未占满内容宽度，浏览器验证根容器与卡片实际宽度一致。
+- 后端拒绝超过数据库字段上限或非字符串的内容音频地址。
+- 不同大小写再次导入仍复用人工词条及其已发布内容，不重复生成。
+- 后续顺序：真实 MySQL / DeepSeek 少量联调 → 经确认后完善可视化编辑 → 音标资源与 COS / 有道 → 部署和微信真机。
