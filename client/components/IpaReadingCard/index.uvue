@@ -3,7 +3,7 @@
     <text class="ipa-reading-card__hint">{{ data.hint }}</text>
     <view class="ipa-reading-card__ipa">
       <PhonemeDisplay :segments="data.ipaSegments" size="large" />
-      <PlayButton :src="data.audioUrl" size="tiny" icon="volume" />
+      <PlayButton :src="data.audioUrl" :word="data.word" size="tiny" icon="volume" />
     </view>
     <view class="ipa-reading-card__parts">
       <template v-for="(part, index) in data.parts" :key="part.text">

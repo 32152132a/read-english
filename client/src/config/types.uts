@@ -228,6 +228,8 @@ export type SyllableQuizData = {
 export type SyllableQuizProps = { data: SyllableQuizData; disabled?: boolean }
 
 export type PlayButtonProps = {
+  // 仅单词入口传入，缺少音频时允许 Web 系统朗读。
+  word?: string
   src?: string
   text?: string
   size?: string

@@ -2,12 +2,18 @@
   <view class="word-pair-player card">
     <template v-for="(item, index) in items" :key="item.word">
       <view class="word-pair-player__item" :class="index === 1 ? 'is-reverse' : ''">
-        <PlayButton v-if="index === 0" :src="item.audioUrl" size="mini" />
+        <PlayButton v-if="index === 0" :src="item.audioUrl" :word="item.word" size="mini" />
         <view class="word-pair-player__content">
           <text class="word-pair-player__word">{{ item.word }}</text>
           <PhonemeDisplay :segments="item.segments" size="mini" />
         </view>
-        <PlayButton v-if="index === 1" :src="item.audioUrl" size="mini" color="#11aaa0" />
+        <PlayButton
+          v-if="index === 1"
+          :src="item.audioUrl"
+          :word="item.word"
+          size="mini"
+          color="#11aaa0"
+        />
       </view>
       <text v-if="index === 0" class="word-pair-player__divider">⇄</text>
     </template>

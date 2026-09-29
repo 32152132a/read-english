@@ -26,17 +26,19 @@
       />
       <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
     </view>
-    <text v-if="text.length > 0" class="play-button__text" :style="{ color: color }">
-      {{ text }}
+    <text v-if="label.length > 0" class="play-button__text" :style="{ color: color }">
+      {{ label }}
     </text>
   </view>
 </template>
 
 <script setup lang="uts">
+import { playPronunciation, usesSystemSpeech } from '../../src/services/pronunciation.uts'
 import type { PlayButtonProps, PlayStatus } from '../../src/config/types.uts'
 
 const props = withDefaults(defineProps<PlayButtonProps>(), {
   src: '',
+  word: '',
   text: '',
   size: 'default',
   color: '#5267f8',
@@ -45,51 +47,38 @@ const props = withDefaults(defineProps<PlayButtonProps>(), {
 })
 const emit = defineEmits(['play', 'ended', 'error'])
 const status = ref<PlayStatus>('idle')
-let audioContext: InnerAudioContext | null = null
+let stopPlayback: (() => void) | null = null
+const label = computed(() => (usesSystemSpeech(props.src, props.word) ? '系统朗读' : props.text))
 const buttonSize = computed((): string =>
   ['micro', 'tiny', 'mini', 'large', 'hero', 'pill'].includes(props.size) ? props.size : 'default'
 )
 
+function resetAudio() {
+  stopPlayback?.()
+  stopPlayback = null
+}
+
 function play() {
   if (props.disabled || status.value !== 'idle') return
-  if (props.src.length === 0) {
-    uni.showToast({ title: '暂无发音音频', icon: 'none' })
-    return
-  }
-
-  status.value = 'loading'
-  const audio = uni.createInnerAudioContext()
-  audioContext = audio
-  audio.src = props.src
-  audio.onPlay(() => {
-    status.value = 'playing'
-    emit('play')
-  })
-  audio.onWaiting(() => {
-    status.value = 'loading'
-  })
-  audio.onCanplay(() => {
-    if (status.value === 'loading') status.value = 'playing'
-  })
-  audio.onEnded(() => {
-    emit('ended')
-    resetAudio()
-  })
-  audio.onError((error) => {
-    resetAudio()
-    emit('error', error)
-  })
-  audio.play()
+  stopPlayback = playPronunciation(
+    props.src,
+    props.word,
+    (next) => {
+      const wasPlaying = status.value === 'playing'
+      status.value = next
+      if (next === 'playing' && !wasPlaying) emit('play')
+    },
+    () => emit('ended'),
+    (message) => {
+      uni.showToast({ title: message, icon: 'none' })
+      emit('error', message)
+    }
+  )
 }
 
-function resetAudio() {
-  audioContext?.destroy()
-  audioContext = null
-  status.value = 'idle'
-}
-
+onHide(resetAudio)
 onUnmounted(resetAudio)
-watch(() => props.src, resetAudio)
+watch(() => [props.src, props.word, props.disabled], resetAudio)
 </script>
 
 <style lang="scss">

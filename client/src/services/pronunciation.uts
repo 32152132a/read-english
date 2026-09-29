@@ -1,0 +1,129 @@
+import type { PlayStatus } from '../config/types.uts'
+
+let activeStop: (() => void) | null = null
+
+export function canReadWord(word: string): boolean {
+  return /^[A-Za-z]+(?:['’-][A-Za-z]+)*$/.test(word.trim())
+}
+
+export function usesSystemSpeech(src: string, word: string): boolean {
+  let allowed = false
+  // #ifdef WEB
+  allowed = src.trim().length === 0 && canReadWord(word)
+  // #endif
+  return allowed
+}
+
+export function playPronunciation(
+  src: string,
+  word: string,
+  onStatus: (status: PlayStatus) => void,
+  onEnded: () => void,
+  onError: (message: string) => void
+): () => void {
+  activeStop?.()
+  let stopped = false
+  let dispose: (() => void) | null = null
+  let timeout = 0
+
+  function stop() {
+    if (stopped) return
+    stopped = true
+    clearTimeout(timeout)
+    dispose?.()
+    if (activeStop === stop) activeStop = null
+    onStatus('idle')
+  }
+  function fail(message: string) {
+    if (stopped) return
+    stop()
+    onError(message)
+  }
+  function ended() {
+    if (stopped) return
+    stop()
+    onEnded()
+  }
+  activeStop = stop
+  onStatus('loading')
+  // 防止平台未触发回调时按钮一直停留在加载或播放状态。
+  timeout = setTimeout(() => fail('播放超时，请重试'), 30000)
+
+  try {
+    if (src.trim().length > 0) {
+      const audio = uni.createInnerAudioContext()
+      dispose = () => audio.destroy()
+      audio.onPlay(() => {
+        if (!stopped) onStatus('playing')
+      })
+      audio.onWaiting(() => {
+        if (!stopped) onStatus('loading')
+      })
+      audio.onCanplay(() => {
+        if (!stopped && !audio.paused) onStatus('playing')
+      })
+      audio.onEnded(ended)
+      audio.onError(() => fail('音频加载失败，请重试'))
+      audio.src = src
+      audio.play()
+      return stop
+    }
+
+    // 只有明确传入英文单词的入口允许兜底，不合成 IPA 或题目答案。
+    if (!canReadWord(word)) {
+      fail('暂无发音音频')
+      return stop
+    }
+    // #ifdef WEB
+    if (
+      typeof window.speechSynthesis === 'undefined' ||
+      typeof SpeechSynthesisUtterance === 'undefined'
+    ) {
+      fail('当前浏览器不支持系统朗读')
+      return stop
+    }
+    const synth = window.speechSynthesis
+    let utterance: SpeechSynthesisUtterance | null = null
+    let voiceTimer = 0
+    let started = false
+    function speak() {
+      if (stopped || started) return
+      const voices = synth.getVoices()
+      const voice = voices.find((item) => item.lang.toLowerCase().replace('_', '-') === 'en-us')
+      if (voice == null) return
+      started = true
+      clearTimeout(voiceTimer)
+      synth.removeEventListener('voiceschanged', speak)
+      const speech = new SpeechSynthesisUtterance(word.trim())
+      speech.voice = voice
+      speech.lang = 'en-US'
+      speech.onstart = () => {
+        if (!stopped) onStatus('playing')
+      }
+      speech.onend = ended
+      speech.onerror = () => fail('系统朗读失败，请重试')
+      utterance = speech
+      synth.speak(speech)
+    }
+    dispose = () => {
+      clearTimeout(voiceTimer)
+      synth.removeEventListener('voiceschanged', speak)
+      if (utterance != null) {
+        utterance.onstart = null
+        utterance.onend = null
+        utterance.onerror = null
+        synth.cancel()
+      }
+    }
+    synth.addEventListener('voiceschanged', speak)
+    voiceTimer = setTimeout(() => fail('未找到美式英语声线，请稍后重试或使用标准音频'), 2000)
+    speak()
+    // #endif
+    // #ifndef WEB
+    fail('暂无发音音频')
+    // #endif
+  } catch (_) {
+    fail('播放失败，请重试')
+  }
+  return stop
+}

@@ -13,7 +13,7 @@
           {{ mapping.part }}
         </text>
       </view>
-      <PlayButton :src="data.audioUrl" size="tiny" icon="volume" />
+      <PlayButton :src="data.audioUrl" :word="data.word" size="tiny" icon="volume" />
     </view>
     <PhonemeDisplay :segments="displaySegments" size="large" />
     <text class="word-decoding-card__rule">{{ activeMapping.tip }}</text>

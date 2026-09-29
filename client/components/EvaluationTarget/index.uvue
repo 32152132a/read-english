@@ -3,7 +3,7 @@
     <text class="evaluation-target__word">{{ data.word }}</text>
     <view class="evaluation-target__audio">
       <PhonemeDisplay :segments="data.ipaSegments" />
-      <PlayButton :src="data.audioUrl" size="tiny" icon="volume" />
+      <PlayButton :src="data.audioUrl" :word="data.word" size="tiny" icon="volume" />
     </view>
     <SegmentedWord :parts="data.syllables" separator="·" />
     <text class="evaluation-target__hint">重音在第 {{ data.stressIndex }} 个音节</text>

@@ -5,7 +5,13 @@
         <text class="correction-practice__word-text">{{ data.word }}</text>
         <PhonemeDisplay :segments="data.ipaSegments" size="mini" />
       </view>
-      <PlayButton :src="data.audioUrl" text="标准发音" size="mini" icon="volume" />
+      <PlayButton
+        :src="data.audioUrl"
+        :word="data.word"
+        text="标准发音"
+        size="mini"
+        icon="volume"
+      />
     </view>
     <RecordingPanel
       title="重新跟读"

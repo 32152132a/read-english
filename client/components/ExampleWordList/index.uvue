@@ -1,7 +1,7 @@
 <template>
   <view class="example-word-list card">
     <view v-for="item in items" :key="item.word" class="example-word-list__item">
-      <PlayButton :src="item.audioUrl" size="tiny" />
+      <PlayButton :src="item.audioUrl" :word="item.word" size="tiny" />
       <text class="example-word-list__word">{{ item.word }}</text>
       <PhonemeDisplay class="example-word-list__phoneme" :segments="item.segments" size="mini" />
       <text class="example-word-list__meaning">{{ item.zh }}</text>
