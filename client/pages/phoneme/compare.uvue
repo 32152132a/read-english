@@ -34,11 +34,14 @@ const { unit, current, total, error, loadSession, loadStep, completeCurrentStage
 const sounds = computed(() =>
   (unit.value?.content.phonemes ?? []).map((item, index) => ({
     ipa: item.ipa,
-    segments: [{ text: item.ipa, tone: index === 0 ? 'primary' : 'success' }],
+    segments: item.teachingConfig?.ipaSegments ?? [
+      { text: item.ipa, tone: index === 0 ? 'primary' : 'success' },
+    ],
     name: item.description,
     audioUrl: item.audioUrl ?? '',
     toneColor: index === 0 ? '#3154ff' : '#27a778',
     mouthType: item.mouth.type,
+    mouthImageUrl: item.mouth.imageUrl,
     tone: index === 0 ? 'primary' : 'success',
     tip: item.description,
     examples: item.examples.join(' · '),

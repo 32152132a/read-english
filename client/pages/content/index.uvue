@@ -1,0 +1,6 @@
+<template>
+  <view class="page"><ContentCatalog /></view>
+</template>
+<script setup lang="uts">
+import ContentCatalog from '../../components/ContentCatalog/index.uvue'
+</script>

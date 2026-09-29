@@ -107,9 +107,9 @@ async function setup(web = true, voices = [{ lang: 'en-US' }]) {
   }
 }
 
-test('audio URL takes priority; failure never falls back to speech', async () => {
+test('phoneme audio is played without synthesizing speech', async () => {
   const h = await setup(),
-    p = h.play('/word.mp3')
+    p = h.play('/word.mp3', '')
   assert.equal(h.spoken.length, 0)
   assert.equal(h.audio[0].src, '/word.mp3')
   h.audio[0].callbacks.play()
@@ -143,7 +143,7 @@ test('IPA, empty input and non-Web requests never synthesize speech', async () =
   h.play('', '/ɪ/')
   assert.equal(h.spoken.length, 0)
   assert.equal(h.api.usesSystemSpeech('', 'computer'), true)
-  assert.equal(h.api.usesSystemSpeech('/word.mp3', 'computer'), false)
+  assert.equal(h.api.usesSystemSpeech('/word.mp3', 'computer'), true)
 })
 test('voices may load asynchronously; missing US voice times out without switching accent', async () => {
   const h = await setup(true, []),
@@ -199,4 +199,19 @@ test('unsupported browsers and missing lifecycle callbacks fail without stuck st
   other.expire(30000)
   assert.equal(q.errors.length, 1)
   assert.equal(q.states.at(-1), 'idle')
+})
+
+test('words prefer browser speech even with a recording; unavailable voice uses recording', async () => {
+  const h = await setup()
+  h.play('/word.mp3')
+  assert.equal(h.spoken.length, 1)
+  assert.equal(h.audio.length, 0)
+  const fallback = await setup(true, [])
+  const result = fallback.play('/word.mp3')
+  fallback.expire(2000)
+  assert.equal(fallback.audio[0].src, '/word.mp3')
+  assert.equal(fallback.listeners.size, 0)
+  fallback.audio[0].callbacks.ended()
+  assert.equal(result.ended, 1)
+  assert.equal(fallback.timers.size, 0)
 })

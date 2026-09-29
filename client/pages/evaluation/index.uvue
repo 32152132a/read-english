@@ -24,13 +24,20 @@ const { unit, current, total, error, loadSession } =
   useLearningSession<EvaluationContent>('evaluation')
 const target = computed(() => ({
   word: unit.value?.content.word ?? '',
-  ipaSegments: [{ text: unit.value?.content.ipa ?? '', tone: 'muted' }],
-  syllables: (unit.value?.content.stressParts ?? []).map((text) => ({
-    text,
-    emphasized: text === text.toUpperCase(),
-  })),
+  ipaSegments: unit.value?.content.teachingConfig?.ipaSegments ?? [
+    { text: unit.value?.content.ipa ?? '', tone: 'muted' },
+  ],
+  syllables:
+    unit.value?.content.teachingConfig?.syllables ??
+    (unit.value?.content.stressParts ?? []).map((text) => ({
+      text,
+      emphasized: text === text.toUpperCase(),
+    })),
   stressIndex:
-    (unit.value?.content.stressParts ?? []).findIndex((text) => text === text.toUpperCase()) + 1,
+    unit.value?.content.teachingConfig?.syllables != null
+      ? unit.value!.content.teachingConfig!.syllables!.findIndex((item) => item.stress === 1) + 1
+      : (unit.value?.content.stressParts ?? []).findIndex((text) => text === text.toUpperCase()) +
+        1,
   audioUrl: unit.value?.content.standardAudioUrl ?? '',
 }))
 </script>

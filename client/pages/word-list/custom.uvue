@@ -1,12 +1,6 @@
 <template>
-  <view class="page">
-    <TipCard
-      title="AI 定制词库暂未开放"
-      text="单词解析服务接入后即可创建定制词库，请先添加系统词库。"
-    />
-    <DebugPageNav />
-  </view>
+  <view class="page"><WordImportPanel /></view>
 </template>
 <script setup lang="uts">
-import TipCard from '../../components/TipCard/index.uvue'
+import WordImportPanel from '../../components/WordImportPanel/index.uvue'
 </script>

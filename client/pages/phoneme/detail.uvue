@@ -4,12 +4,21 @@
     <template v-else>
       <LessonProgress v-if="!browsing" :current="current" :total="total" label="" compact />
       <text class="phoneme-detail__category">{{ content!.category }}</text>
-      <PhonemeDisplay :segments="[{ text: content!.ipa, tone: 'primary' }]" size="hero" />
+      <PhonemeDisplay
+        :segments="
+          content!.teachingConfig?.ipaSegments ?? [{ text: content!.ipa, tone: 'primary' }]
+        "
+        size="hero"
+      />
       <text class="phoneme-detail__description">{{ content!.description }}</text>
       <view class="phoneme-detail__listen">
         <PlayButton :src="content!.audioUrl ?? ''" text="听发音" size="hero" />
       </view>
-      <PronunciationGuide :mouth-type="content!.mouth.type" :steps="content!.pronunciationSteps" />
+      <PronunciationGuide
+        :mouth-type="content!.mouth.type"
+        :mouth-image-url="content!.mouth.imageUrl"
+        :steps="content!.pronunciationSteps"
+      />
       <text class="section-title">例词发音</text>
       <ExampleWordList :items="examples" />
       <TipCard title="记忆技巧" :text="content!.memoryTip" variant="memory" />

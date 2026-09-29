@@ -6,7 +6,7 @@
       <text class="page-title centered">{{ unit!.title }}</text>
       <TipCard
         title="拆分思路"
-        :items="unit!.content!.commonTips"
+        :items="unit!.content!.teachingConfig?.commonTips ?? unit!.content!.commonTips"
         note="规则用于帮助推测，最终以音标和实际发音为准。"
       />
       <WordDecodingCard :key="unit!.id" :data="exercise" />
@@ -35,11 +35,18 @@ const exercise = computed(() => ({
   id: unit.value?.id ?? '',
   word: unit.value?.content.word ?? '',
   audioUrl: unit.value?.content.audioUrl ?? '',
-  specialTips: unit.value?.content.specialTips ?? [],
-  mappings: (unit.value?.content.parts ?? []).map((part) => ({
-    part: part.letters,
-    segments: [{ text: part.ipa, tone: 'primary' }],
-    tip: '',
-  })),
+  specialTips:
+    unit.value?.content.teachingConfig?.specialTips ?? unit.value?.content.specialTips ?? [],
+  mappings:
+    unit.value?.content.teachingConfig?.parts?.map((part) => ({
+      part: part.letters,
+      segments: part.segments,
+      tip: part.tip,
+    })) ??
+    (unit.value?.content.parts ?? []).map((part) => ({
+      part: part.letters,
+      segments: [{ text: part.ipa, tone: 'primary' }],
+      tip: '',
+    })),
 }))
 </script>

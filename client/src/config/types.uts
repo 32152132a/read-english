@@ -1,4 +1,5 @@
 export type PhonemeSegment = {
+  bold?: boolean
   text: string
   tone: string
 }
@@ -115,6 +116,7 @@ export type PhonemeComparisonItem = {
   name: string
   audioUrl: string
   toneColor: string
+  mouthImageUrl?: string
   mouthType: string
   tone: string
   tip: string
@@ -228,7 +230,7 @@ export type SyllableQuizData = {
 export type SyllableQuizProps = { data: SyllableQuizData; disabled?: boolean }
 
 export type PlayButtonProps = {
-  // 仅单词入口传入，缺少音频时允许 Web 系统朗读。
+  // 仅单词入口传入，Web 优先系统朗读，不可用时播放音频。
   word?: string
   src?: string
   text?: string
@@ -314,7 +316,7 @@ export type LessonProgressProps = {
   compact?: boolean
 }
 export type ListeningPromptProps = { audios: AudioItem[] }
-export type MouthShapeProps = { type?: string; size?: string; tone?: string }
+export type MouthShapeProps = { imageUrl?: string; type?: string; size?: string; tone?: string }
 export type QuickAccessListProps = { items: QuickAccessItem[] }
 export type PhonemeComparisonProps = { items: PhonemeComparisonItem[] }
 export type PhonemeDisplayProps = { segments: PhonemeSegment[]; size?: string }
@@ -328,6 +330,7 @@ export type PhonemeCatalogProps = {
 export type ProfileMenuProps = { items?: ProfileMenuItem[] }
 export type ProgressBarProps = { current: number; total: number }
 export type PronunciationGuideProps = {
+  mouthImageUrl?: string
   mouthType?: string
   mouthSize?: string
   mouthTone?: string

@@ -2,7 +2,12 @@
   <view class="pronunciation-guide card">
     <text class="pronunciation-guide__title">怎么发音</text>
     <view class="pronunciation-guide__content">
-      <MouthShape :type="mouthType" :size="mouthSize" :tone="mouthTone" />
+      <MouthShape
+        :type="mouthType"
+        :image-url="mouthImageUrl"
+        :size="mouthSize"
+        :tone="mouthTone"
+      />
       <view class="pronunciation-guide__steps">
         <view v-for="step in steps" :key="step" class="pronunciation-guide__step">
           <view class="pronunciation-guide__marker" />

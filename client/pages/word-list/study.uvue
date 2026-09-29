@@ -1,0 +1,10 @@
+<template>
+  <view class="page"><LibraryStudy v-if="libraryId" :library-id="libraryId" /></view>
+</template>
+<script setup lang="uts">
+import LibraryStudy from '../../components/LibraryStudy/index.uvue'
+const libraryId = ref('')
+onLoad((options) => {
+  libraryId.value = options['id'] ?? ''
+})
+</script>

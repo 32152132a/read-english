@@ -1,3 +1,4 @@
+import type { TeachingConfig } from './content-types.uts'
 export type ApiResponse<T> = {
   code: string
   message: string
@@ -107,7 +108,7 @@ export type AnswerResponse = {
   explanation: string
 }
 
-export type MouthContent = { type: string }
+export type MouthContent = { type: string; imageUrl?: string }
 export type ExampleWordContent = {
   word: string
   ipa: string
@@ -115,6 +116,7 @@ export type ExampleWordContent = {
   audioUrl: string | null
 }
 export type PhonemeContent = {
+  teachingConfig?: TeachingConfig
   id: string
   category: string
   ipa: string
@@ -126,6 +128,7 @@ export type PhonemeContent = {
   memoryTip: string
 }
 export type ComparePhoneme = {
+  teachingConfig?: TeachingConfig
   ipa: string
   description: string
   mouth: MouthContent
@@ -151,6 +154,7 @@ export type SyllableContent = {
   question: QuizContent
 }
 export type IpaContent = {
+  teachingConfig?: TeachingConfig
   wordId: string
   word: string
   ipa: string
@@ -160,6 +164,7 @@ export type IpaContent = {
 }
 export type WordPart = { letters: string; ipa: string }
 export type WordContent = {
+  teachingConfig?: TeachingConfig
   wordId: string
   word: string
   ipa: string
@@ -169,6 +174,7 @@ export type WordContent = {
   specialTips: string[]
 }
 export type EvaluationContent = {
+  teachingConfig?: TeachingConfig
   wordId: string
   word: string
   ipa: string
@@ -190,6 +196,7 @@ export type LibrarySummary = {
   removable: boolean
 }
 export type LibraryWord = {
+  teachingConfig?: TeachingConfig
   id: string
   word: string
   ipa: string

@@ -9,7 +9,7 @@
       <button v-if="hasMore" class="outline-button" :disabled="loadingMore" @click="loadWords()">
         加载更多
       </button>
-      <TipCard text="词库专项练习暂未开放，可以先浏览单词与音标。" />
+      <TipCard text="可从「我的词库」点击开始学习，查看完整拆读配置并完成练习。" />
     </template>
     <DebugPageNav />
   </view>
@@ -45,7 +45,7 @@ async function loadWords(showError: boolean = true) {
     words.value = words.value.concat(
       page.items.map((word) => ({
         word: word.word,
-        segments: [{ text: word.ipa, tone: 'muted' }],
+        segments: word.teachingConfig?.ipaSegments ?? [{ text: word.ipa, tone: 'muted' }],
         zh: word.meaning,
         audioUrl: word.audioUrl ?? '',
       }))

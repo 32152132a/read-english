@@ -1,0 +1,72 @@
+export type ContentOption = { id: string; label: string }
+export type ContentSyllable = { text: string; ipa: string; stress: number; emphasized: boolean }
+export type ContentPart = { letters: string; segments: PhonemeSegment[]; tip: string }
+export type ContentMouth = { type: string; imageUrl?: string }
+export type ContentExample = { word: string; ipa: string; meaning: string; audioUrl?: string }
+export type ContentAudio = { url: string; objectKey: string; provider: string }
+import type { PhonemeSegment } from './types.uts'
+export type ContentQuestion = {
+  id: string
+  type: string
+  prompt: string
+  options: ContentOption[]
+  correctOptionId?: string
+  explanation?: string
+  audioUrl?: string
+}
+export type TeachingConfig = {
+  schemaVersion: number
+  kind: string
+  accent: string
+  word?: string
+  wordId?: string
+  ipa: string
+  meaning?: string
+  tip?: string
+  ipaSegments: PhonemeSegment[]
+  syllables?: ContentSyllable[]
+  parts?: ContentPart[]
+  commonTips?: string[]
+  specialTips?: string[]
+  icon?: string
+  category?: string
+  group?: string
+  description?: string
+  mouth?: ContentMouth
+  pronunciationSteps?: string[]
+  exampleWords?: ContentExample[]
+  memoryTip?: string
+  audio: ContentAudio
+  questions: ContentQuestion[]
+}
+export type ContentEntry = {
+  id: string
+  kind: string
+  label: string
+  version: number
+  publishedVersion: number | null
+}
+export type ContentRevision = {
+  version: number
+  origin: string
+  editorId: string
+  createdAt: string
+}
+export type ContentDetail = ContentEntry & { config: TeachingConfig; history: ContentRevision[] }
+export type ContentCapabilities = { admin: boolean; generationEnabled: boolean; userId: string }
+export type ContentJobItem = {
+  position: number
+  word: string
+  status: string
+  entryId: string | null
+  errorMessage: string | null
+  attempts: number
+}
+export type ContentJob = {
+  id: string
+  name: string
+  status: string
+  libraryId: string
+  items: ContentJobItem[]
+}
+export type ContentStudy = { sessionId: string; items: TeachingConfig[] }

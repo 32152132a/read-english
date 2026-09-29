@@ -4,6 +4,7 @@
     :src="imageSource"
     :style="{ width: shapeWidth + 'rpx', height: shapeHeight + 'rpx' }"
     mode="aspectFit"
+    @error="imageFailed = true"
   />
 </template>
 
@@ -15,8 +16,15 @@ const props = withDefaults(defineProps<MouthShapeProps>(), {
   size: 'medium',
   tone: 'primary',
 })
+const imageFailed = ref(false)
+watch(
+  () => props.imageUrl,
+  () => {
+    imageFailed.value = false
+  }
+)
 const shapeType = computed((): string =>
-  ['open', 'relaxed', 'smile'].includes(props.type) ? props.type : 'open'
+  ['open', 'closed', 'relaxed', 'smile'].includes(props.type) ? props.type : 'open'
 )
 const shapeTone = computed((): string => (props.tone === 'success' ? 'success' : 'primary'))
 const shapeWidth = computed((): number => {
@@ -26,6 +34,8 @@ const shapeWidth = computed((): number => {
 })
 const shapeHeight = computed((): number => Math.round(shapeWidth.value * 0.7))
 const imageSource = computed((): string => {
+  if (props.imageUrl && !imageFailed.value) return props.imageUrl
+  if (shapeType.value === 'closed') return '/static/images/mouth-closed.svg'
   if (shapeType.value === 'relaxed') {
     return shapeTone.value === 'success'
       ? '/static/images/mouth-relaxed-success.svg'

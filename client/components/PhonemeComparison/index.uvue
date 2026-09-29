@@ -10,7 +10,12 @@
       <text class="phoneme-comparison__name">{{ item.name }}</text>
       <PlayButton :src="item.audioUrl" text="听发音" icon="volume" :color="item.toneColor" />
       <view class="phoneme-comparison__mouth">
-        <MouthShape :type="item.mouthType" size="medium" :tone="item.tone" />
+        <MouthShape
+          :type="item.mouthType"
+          :image-url="item.mouthImageUrl"
+          size="medium"
+          :tone="item.tone"
+        />
       </view>
       <text class="phoneme-comparison__tip">{{ item.tip }}</text>
       <text class="phoneme-comparison__examples">{{ item.examples }}</text>

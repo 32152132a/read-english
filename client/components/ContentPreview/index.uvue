@@ -1,0 +1,152 @@
+<template>
+  <view class="content-preview">
+    <view class="content-preview__heading">
+      <AppIcon v-if="config.icon" :name="config.icon" :size="36" />
+      <text class="content-preview__title">{{ config.word ?? config.ipa }}</text>
+      <PlayButton
+        :src="config.audio.url"
+        :word="config.kind === 'WORD' ? (config.word ?? '') : ''"
+        size="mini"
+      />
+    </view>
+    <PhonemeDisplay :segments="config.ipaSegments" size="large" />
+    <text v-if="config.meaning">{{ config.meaning }}</text>
+    <text v-if="config.description">{{ config.description }}</text>
+    <MouthShape
+      v-if="config.mouth"
+      :type="config.mouth.type"
+      :image-url="config.mouth.imageUrl ?? ''"
+    />
+    <text v-for="(step, index) in config.pronunciationSteps ?? []" :key="step">
+      {{ Number(index) + 1 }}. {{ step }}
+    </text>
+    <view v-if="(config.syllables ?? []).length > 0" class="content-preview__section">
+      <text class="content-preview__label">音节与重音</text>
+      <view class="content-preview__syllables">
+        <view
+          v-for="(syllable, index) in config.syllables"
+          :key="index"
+          :class="syllable.emphasized ? 'is-emphasized' : ''"
+        >
+          <text>{{ syllable.text }} /{{ syllable.ipa }}/</text>
+          <text class="muted">
+            {{ syllable.stress === 1 ? '主重音' : syllable.stress === 2 ? '次重音' : '非重读' }}
+          </text>
+        </view>
+      </view>
+    </view>
+    <view v-if="(config.parts ?? []).length > 0" class="content-preview__section">
+      <text class="content-preview__label">字母拆读</text>
+      <view v-for="(part, index) in config.parts" :key="index" class="content-preview__part">
+        <text>{{ part.letters }}</text>
+        <PhonemeDisplay :segments="part.segments" />
+        <text class="muted">{{ part.tip }}</text>
+      </view>
+    </view>
+    <TipCard v-if="config.tip" :text="config.tip" />
+    <text v-for="tip in [...(config.commonTips ?? []), ...(config.specialTips ?? [])]" :key="tip">
+      {{ tip }}
+    </text>
+    <ExampleWordList v-if="(config.exampleWords ?? []).length > 0" :items="examples" />
+    <TipCard v-if="config.memoryTip" :text="config.memoryTip" />
+    <view v-for="question in config.questions" :key="question.id" class="content-preview__question">
+      <text class="content-preview__label">{{ question.prompt }}</text>
+      <PlayButton
+        v-if="question.type === 'LISTENING'"
+        :src="question.audioUrl ?? ''"
+        text="听题目"
+      />
+      <button
+        v-for="option in question.options"
+        :key="option.id"
+        class="outline-button"
+        :disabled="busy"
+        @click="$emit('answer', question.id, option.id)"
+      >
+        {{ option.label }}{{ answers[question.id]?.correctOptionId === option.id ? ' ✓' : ''
+        }}{{
+          answers[question.id]?.selectedOptionId === option.id && !answers[question.id]?.correct
+            ? ' ✗'
+            : ''
+        }}
+      </button>
+      <text v-if="answers[question.id]">{{ answers[question.id].explanation }}</text>
+      <text v-if="revealAnswers" class="muted">
+        答案：{{ question.correctOptionId }} · {{ question.explanation }}
+      </text>
+    </view>
+  </view>
+</template>
+<script setup lang="uts">
+import type { TeachingConfig } from '../../src/config/content-types.uts'
+import type { AnswerResponse } from '../../src/config/api-types.uts'
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+import MouthShape from '../MouthShape/index.uvue'
+import ExampleWordList from '../ExampleWordList/index.uvue'
+import TipCard from '../TipCard/index.uvue'
+const props = withDefaults(
+  defineProps<{
+    config: TeachingConfig
+    revealAnswers?: boolean
+    busy?: boolean
+    answers?: Record<string, AnswerResponse>
+  }>(),
+  { revealAnswers: false, busy: false, answers: () => ({}) }
+)
+defineEmits(['answer'])
+const examples = computed(() =>
+  (props.config.exampleWords ?? []).map((item) => ({
+    word: item.word,
+    segments: [{ text: item.ipa, tone: 'muted' }],
+    zh: item.meaning,
+    audioUrl: item.audioUrl ?? '',
+  }))
+)
+</script>
+<style lang="scss">
+@import '../../uni.scss';
+.content-preview {
+  display: grid;
+  gap: 24rpx;
+  min-width: 0;
+  &__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20rpx;
+  }
+  &__title {
+    font-size: 42rpx;
+    font-weight: 700;
+  }
+  &__label {
+    font-weight: 600;
+  }
+  &__section,
+  &__question {
+    display: grid;
+    gap: 16rpx;
+    padding: 24rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 16rpx;
+  }
+  &__syllables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20rpx;
+    view {
+      display: grid;
+      gap: 8rpx;
+    }
+  }
+  &__part {
+    display: grid;
+    gap: 8rpx;
+  }
+  .is-emphasized {
+    font-weight: 700;
+    color: $color-primary;
+  }
+}
+</style>

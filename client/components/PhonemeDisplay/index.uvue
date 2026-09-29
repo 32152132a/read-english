@@ -4,7 +4,7 @@
       v-for="(segment, index) in segments"
       :key="index"
       class="phoneme-display__segment"
-      :class="'is-' + segment.tone"
+      :class="['is-' + segment.tone, { 'is-bold': segment.bold ?? segment.tone === 'stress' }]"
     >
       {{ segment.text }}
     </text>
@@ -60,6 +60,9 @@ const displaySize = computed((): string =>
 
     &.is-stress {
       color: #f29b00;
+    }
+
+    &.is-bold {
       font-weight: 700;
     }
 

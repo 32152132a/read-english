@@ -1,0 +1,235 @@
+<template>
+  <view class="word-import">
+    <text class="word-import__title">AI 定制词库</text>
+    <text class="muted">
+      粘贴 1–200 个单词，以逗号、空格或换行分隔。生成后先保存为草稿，核对发布后进入可添加词库。
+    </text>
+    <input v-model="name" placeholder="词库名称（2–40字）" :maxlength="40" :disabled="busy" />
+    <textarea
+      v-model="words"
+      placeholder="computer, teacher, development"
+      :maxlength="30000"
+      :disabled="busy"
+    />
+    <button class="primary-button" :disabled="busy || !enabled" @click="create">
+      {{ busy ? '正在提交' : '生成词库草稿' }}
+    </button>
+    <text v-if="!enabled" class="muted">DeepSeek 尚未配置，暂时不能生成。</text>
+    <text v-if="error" class="word-import__error">{{ error }}</text>
+    <view v-if="job" class="word-import__result">
+      <text>
+        {{ job!.name }} · {{ statusText(job!.status) }} · {{ done }} / {{ job!.items.length }}
+      </text>
+      <text class="muted">生成可在后台继续。可离开此页，稍后从历史任务打开。</text>
+      <view v-for="item in job!.items" :key="item.position" class="word-import__item">
+        <text>{{ item.word }} · {{ statusText(item.status) }}</text>
+        <text v-if="item.errorMessage" class="muted">{{ item.errorMessage }}</text>
+        <button v-if="item.entryId" class="outline-button" @click="edit(item.entryId!)">
+          核对与发布
+        </button>
+      </view>
+      <button
+        v-if="job!.status === 'PARTIAL_FAILED'"
+        class="outline-button"
+        :disabled="busy"
+        @click="retry"
+      >
+        重试失败项（每词最多3次）
+      </button>
+      <button class="outline-button" @click="openLibraries">前往添加已发布词库</button>
+    </view>
+    <text class="word-import__title">最近任务</text>
+    <button
+      v-for="item in history"
+      :key="item.id"
+      class="outline-button"
+      @click="selectJob(item.id)"
+    >
+      {{ item.name }} · {{ statusText(item.status) }}
+    </button>
+  </view>
+</template>
+<script setup lang="uts">
+import { request, showRequestError } from '../../src/services/http.uts'
+import type { ContentCapabilities, ContentJob } from '../../src/config/content-types.uts'
+const name = ref(''),
+  words = ref(''),
+  error = ref(''),
+  enabled = ref(false),
+  busy = ref(false)
+const job = ref<ContentJob | null>(null),
+  history = ref<ContentJob[]>([])
+const done = computed(
+  () =>
+    job.value?.items.filter((i) => i.status === 'SUCCEEDED' || i.status === 'FAILED').length ?? 0
+)
+let timer = 0,
+  visible = false,
+  requestKey = '',
+  submittedInput = ''
+function statusText(status: string): string {
+  return (
+    ((
+      {
+        PENDING: '等待处理',
+        PROCESSING: '正在生成',
+        SUCCEEDED: '草稿已生成',
+        FAILED: '生成失败',
+        PARTIAL_FAILED: '部分生成失败',
+      } as UTSJSONObject
+    )[status] as string) ?? status
+  )
+}
+function stop() {
+  visible = false
+  clearTimeout(timer)
+  timer = 0
+}
+async function poll() {
+  const id = job.value?.id
+  if (!id || !visible) return
+  try {
+    const result = await request<ContentJob>({
+      url: '/word-libraries/custom-jobs/' + id,
+      showLoading: false,
+      showError: false,
+    })
+    if (job.value?.id !== id) return
+    job.value = result
+    error.value = ''
+  } catch (e) {
+    error.value = (e as Error).message
+  } finally {
+    if (
+      visible &&
+      job.value?.id === id &&
+      (job.value?.status === 'PENDING' || job.value?.status === 'PROCESSING')
+    )
+      timer = setTimeout(poll, 2000)
+  }
+}
+async function refreshHistory() {
+  const result = await request<{ items: ContentJob[] }>({
+    url: '/word-libraries/custom-jobs',
+    showLoading: false,
+    showError: false,
+  })
+  history.value = result.items
+}
+async function create() {
+  if (busy.value) return
+  if (name.value.trim().length < 2 || !words.value.trim()) {
+    error.value = '请填写词库名称和单词'
+    return
+  }
+  busy.value = true
+  error.value = ''
+  const input = name.value + '\n' + words.value
+  if (input !== submittedInput) {
+    submittedInput = input
+    requestKey = 'words-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+  }
+  try {
+    job.value = await request<ContentJob>({
+      url: '/word-libraries/custom-jobs',
+      method: 'POST',
+      header: { 'Idempotency-Key': requestKey },
+      data: { name: name.value.trim(), wordsText: words.value },
+    })
+    clearTimeout(timer)
+    await refreshHistory()
+    poll()
+  } catch (e) {
+    error.value = (e as Error).message
+    showRequestError(e)
+  } finally {
+    busy.value = false
+  }
+}
+async function selectJob(id: string) {
+  clearTimeout(timer)
+  try {
+    job.value = await request<ContentJob>({ url: '/word-libraries/custom-jobs/' + id })
+    poll()
+  } catch (e) {
+    showRequestError(e)
+  }
+}
+async function retry() {
+  if (!job.value || busy.value) return
+  busy.value = true
+  try {
+    job.value = await request<ContentJob>({
+      url: '/word-libraries/custom-jobs/' + job.value.id + '/retry',
+      method: 'POST',
+    })
+    clearTimeout(timer)
+    poll()
+  } catch (e) {
+    showRequestError(e)
+  } finally {
+    busy.value = false
+  }
+}
+function edit(id: string) {
+  uni.navigateTo({ url: '/pages/content/edit?id=' + encodeURIComponent(id) })
+}
+function openLibraries() {
+  uni.navigateTo({ url: '/pages/word-list/add' })
+}
+onShow(async () => {
+  visible = true
+  try {
+    const cap = await request<ContentCapabilities>({
+      url: '/content/capabilities',
+      showError: false,
+    })
+    enabled.value = cap.generationEnabled
+    await refreshHistory()
+    poll()
+  } catch (e) {
+    error.value = (e as Error).message
+  }
+})
+onHide(stop)
+onUnmounted(stop)
+</script>
+<style lang="scss">
+@import '../../uni.scss';
+.word-import {
+  display: grid;
+  gap: 24rpx;
+  input,
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20rpx;
+    background: $color-surface;
+    border: 1rpx solid $color-border;
+    border-radius: 12rpx;
+  }
+  input {
+    height: 80rpx;
+  }
+  textarea {
+    height: 280rpx;
+  }
+  &__title {
+    font-size: 34rpx;
+    font-weight: 700;
+  }
+  &__result,
+  &__item {
+    display: grid;
+    gap: 16rpx;
+  }
+  &__item {
+    padding: 20rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 12rpx;
+  }
+  &__error {
+    color: #cf4040;
+  }
+}
+</style>

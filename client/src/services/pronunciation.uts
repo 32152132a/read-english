@@ -6,10 +6,10 @@ export function canReadWord(word: string): boolean {
   return /^[A-Za-z]+(?:['’-][A-Za-z]+)*$/.test(word.trim())
 }
 
-export function usesSystemSpeech(src: string, word: string): boolean {
+export function usesSystemSpeech(_src: string, word: string): boolean {
   let allowed = false
   // #ifdef WEB
-  allowed = src.trim().length === 0 && canReadWord(word)
+  allowed = canReadWord(word)
   // #endif
   return allowed
 }
@@ -49,23 +49,38 @@ export function playPronunciation(
   // 防止平台未触发回调时按钮一直停留在加载或播放状态。
   timeout = setTimeout(() => fail('播放超时，请重试'), 30000)
 
+  function playAudio(message: string) {
+    if (stopped) return
+    dispose?.()
+    dispose = null
+    try {
+      if (src.trim().length > 0) {
+        const audio = uni.createInnerAudioContext()
+        dispose = () => audio.destroy()
+        audio.onPlay(() => {
+          if (!stopped) onStatus('playing')
+        })
+        audio.onWaiting(() => {
+          if (!stopped) onStatus('loading')
+        })
+        audio.onCanplay(() => {
+          if (!stopped && !audio.paused) onStatus('playing')
+        })
+        audio.onEnded(ended)
+        audio.onError(() => fail('音频加载失败，请重试'))
+        audio.src = src
+        audio.play()
+        return
+      }
+      fail(message)
+    } catch (_) {
+      fail('播放失败，请重试')
+    }
+  }
+
   try {
-    if (src.trim().length > 0) {
-      const audio = uni.createInnerAudioContext()
-      dispose = () => audio.destroy()
-      audio.onPlay(() => {
-        if (!stopped) onStatus('playing')
-      })
-      audio.onWaiting(() => {
-        if (!stopped) onStatus('loading')
-      })
-      audio.onCanplay(() => {
-        if (!stopped && !audio.paused) onStatus('playing')
-      })
-      audio.onEnded(ended)
-      audio.onError(() => fail('音频加载失败，请重试'))
-      audio.src = src
-      audio.play()
+    if (!usesSystemSpeech(src, word)) {
+      playAudio('暂无发音音频')
       return stop
     }
 
@@ -79,7 +94,7 @@ export function playPronunciation(
       typeof window.speechSynthesis === 'undefined' ||
       typeof SpeechSynthesisUtterance === 'undefined'
     ) {
-      fail('当前浏览器不支持系统朗读')
+      playAudio('当前浏览器不支持系统朗读')
       return stop
     }
     const synth = window.speechSynthesis
@@ -101,7 +116,7 @@ export function playPronunciation(
         if (!stopped) onStatus('playing')
       }
       speech.onend = ended
-      speech.onerror = () => fail('系统朗读失败，请重试')
+      speech.onerror = () => playAudio('系统朗读失败，请重试')
       utterance = speech
       synth.speak(speech)
     }
@@ -116,7 +131,7 @@ export function playPronunciation(
       }
     }
     synth.addEventListener('voiceschanged', speak)
-    voiceTimer = setTimeout(() => fail('未找到美式英语声线，请稍后重试或使用标准音频'), 2000)
+    voiceTimer = setTimeout(() => playAudio('未找到美式英语声线，请稍后重试或使用标准音频'), 2000)
     speak()
     // #endif
     // #ifndef WEB

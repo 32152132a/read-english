@@ -30,8 +30,7 @@ const pageData = reactive({
 const libraryStore = useLibraryStore()
 const { ownedLibraries } = storeToRefs(libraryStore)
 function startLearning(id: string) {
-  uni.showToast({ title: '词库专项练习暂未开放，可先查看单词', icon: 'none' })
-  viewWords(id)
+  uni.navigateTo({ url: '/pages/word-list/study?id=' + encodeURIComponent(id) })
 }
 
 function viewWords(id: string) {

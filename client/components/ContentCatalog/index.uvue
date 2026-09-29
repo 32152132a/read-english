@@ -1,0 +1,105 @@
+<template>
+  <view class="content-catalog">
+    <text class="content-catalog__title">内容维护</text>
+    <text class="muted">管理自己的 AI 单词草稿；管理员还可维护公共单词和音标。</text>
+    <view class="content-catalog__search">
+      <input v-model="query" placeholder="搜索单词或音标" />
+      <button class="outline-button" @click="load">搜索</button>
+    </view>
+    <view v-if="capabilities?.admin" class="content-catalog__tabs">
+      <button @click="switchKind('WORD')">单词</button>
+      <button @click="switchKind('PHONEME')">音标</button>
+    </view>
+    <RequestState v-if="!loaded" :error="error" @retry="load" />
+    <text v-else-if="items.length === 0" class="muted">
+      没有可维护内容。可以先创建 AI 词库；公共内容编辑需要管理员授权。
+    </text>
+    <view
+      v-for="item in loaded ? items : []"
+      :key="item.id"
+      class="content-catalog__item"
+      @click="edit(item.id)"
+    >
+      <text>{{ item.label }}</text>
+      <text class="muted">
+        草稿 v{{ item.version }} / 已发布 {{ item.publishedVersion ?? '无' }}
+      </text>
+    </view>
+    <text v-if="loaded && items.length === 100" class="muted">
+      仅显示前 100 条，请输入更具体的搜索词。
+    </text>
+  </view>
+</template>
+<script setup lang="uts">
+import { request } from '../../src/services/http.uts'
+import type { ContentEntry, ContentCapabilities } from '../../src/config/content-types.uts'
+import type { HttpError } from '../../src/config/types.uts'
+import RequestState from '../RequestState/index.uvue'
+const query = ref(''),
+  kind = ref('WORD'),
+  error = ref(''),
+  loaded = ref(false)
+const items = ref<ContentEntry[]>([]),
+  capabilities = ref<ContentCapabilities | null>(null)
+let requestVersion = 0
+async function load() {
+  const version = ++requestVersion
+  loaded.value = false
+  error.value = ''
+  try {
+    capabilities.value = await request<ContentCapabilities>({
+      url: '/content/capabilities',
+      showError: false,
+    })
+    const result = await request<{ items: ContentEntry[] }>({
+      url: '/content?kind=' + kind.value + '&q=' + encodeURIComponent(query.value),
+      showError: false,
+    })
+    if (version !== requestVersion) return
+    items.value = result.items
+    loaded.value = true
+  } catch (e) {
+    if (version === requestVersion) error.value = (e as HttpError).message
+  }
+}
+function switchKind(value: string) {
+  kind.value = value
+  load()
+}
+function edit(id: string) {
+  uni.navigateTo({ url: '/pages/content/edit?id=' + encodeURIComponent(id) })
+}
+onShow(load)
+</script>
+<style lang="scss">
+@import '../../uni.scss';
+.content-catalog {
+  display: grid;
+  gap: 24rpx;
+  &__title {
+    font-size: 36rpx;
+    font-weight: 700;
+  }
+  &__search {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12rpx;
+    align-items: center;
+    input {
+      background: $color-surface;
+      padding: 20rpx;
+    }
+  }
+  &__tabs {
+    display: flex;
+    gap: 12rpx;
+  }
+  &__item {
+    display: grid;
+    gap: 12rpx;
+    padding: 24rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 16rpx;
+  }
+}
+</style>

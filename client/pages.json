@@ -1,6 +1,9 @@
 {
   "pages": [
-    { "path": "pages/home/index", "style": { "navigationStyle": "custom" } },
+    {
+      "path": "pages/home/index",
+      "style": { "navigationStyle": "custom" }
+    },
     {
       "path": "pages/phoneme/detail",
       "style": { "navigationBarTitleText": "认识音标" }
@@ -49,7 +52,10 @@
       "path": "pages/evaluation/index",
       "style": { "navigationBarTitleText": "AI评测" }
     },
-    { "path": "pages/profile/index", "style": { "navigationStyle": "custom" } },
+    {
+      "path": "pages/profile/index",
+      "style": { "navigationStyle": "custom" }
+    },
     {
       "path": "pages/profile/learning-flow",
       "style": { "navigationBarTitleText": "学习流程" }
@@ -61,6 +67,18 @@
     {
       "path": "pages/error/500",
       "style": { "navigationBarTitleText": "服务异常" }
+    },
+    {
+      "path": "pages/content/index",
+      "style": { "navigationBarTitleText": "内容维护" }
+    },
+    {
+      "path": "pages/content/edit",
+      "style": { "navigationBarTitleText": "编辑内容" }
+    },
+    {
+      "path": "pages/word-list/study",
+      "style": { "navigationBarTitleText": "词库学习" }
     }
   ],
   "globalStyle": {

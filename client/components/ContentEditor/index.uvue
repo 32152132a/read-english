@@ -1,0 +1,267 @@
+<template>
+  <view class="content-editor">
+    <RequestState v-if="detail == null" :error="error" @retry="load" />
+    <template v-else-if="draft != null">
+      <text class="content-editor__title">{{ detail!.label }} · 内容维护</text>
+      <text class="muted">
+        草稿 v{{ detail!.version }} / 已发布
+        {{ detail!.publishedVersion ?? '无' }}。保存不会立即影响学习内容。
+      </text>
+      <view class="content-editor__form">
+        <text>美式音标 IPA</text>
+        <input :disabled="busy" v-model="draft!.ipa" placeholder="完整 IPA" />
+        <template v-if="draft!.kind === 'WORD'">
+          <text>中文释义</text>
+          <textarea :disabled="busy" v-model="draft!.meaning" :maxlength="300" auto-height />
+          <text>教学提示</text>
+          <textarea :disabled="busy" v-model="draft!.tip" :maxlength="500" auto-height />
+        </template>
+        <template v-else>
+          <text>分组（VOWEL / CONSONANT）</text>
+          <input :disabled="busy" v-model="draft!.group" />
+          <text>类别</text>
+          <input :disabled="busy" v-model="draft!.category" />
+          <text>发音说明</text>
+          <textarea :disabled="busy" v-model="draft!.description" :maxlength="1000" auto-height />
+          <text>口型类型（open / closed / relaxed / smile）</text>
+          <input :disabled="busy" v-model="draft!.mouth!.type" />
+          <text>口型图片 HTTPS 地址（可留空）</text>
+          <input :disabled="busy" v-model="draft!.mouth!.imageUrl" />
+          <text>记忆提示</text>
+          <textarea :disabled="busy" v-model="draft!.memoryTip" :maxlength="1000" auto-height />
+        </template>
+        <text>内容图标（可留空）</text>
+        <input :disabled="busy" v-model="icon" placeholder="book-open / volume-2 / headphones" />
+        <text>音频 HTTPS 地址（可留空，单词默认使用系统朗读）</text>
+        <input :disabled="busy" v-model="draft!.audio.url" />
+        <text>COS 对象标识（可留空）</text>
+        <input :disabled="busy" v-model="draft!.audio.objectKey" />
+        <text>音频来源（可留空）</text>
+        <input :disabled="busy" v-model="draft!.audio.provider" />
+      </view>
+      <view v-for="section in sections" :key="section.key" class="content-editor__section">
+        <text>{{ section.label }}</text>
+        <text class="muted">{{ section.help }}</text>
+        <textarea
+          :disabled="busy"
+          v-model="section.text"
+          class="content-editor__json"
+          :maxlength="-1"
+        />
+      </view>
+      <text v-if="error" class="content-editor__error">{{ error }}</text>
+      <view class="content-editor__actions">
+        <button class="outline-button" :disabled="busy" @click="preview">校验并预览</button>
+        <button class="primary-button" :disabled="busy" @click="save">保存草稿</button>
+        <button class="outline-button" :disabled="busy" @click="publish">保存并发布</button>
+      </view>
+      <text class="muted">
+        复杂配置暂用分组 JSON 编辑；服务端会检查片段、重音和题目答案。AI 内容需人工核对后发布。
+      </text>
+      <view class="content-editor__history">
+        <text>历史版本（加载后可预览，再保存为新草稿）</text>
+        <button
+          v-for="revision in detail!.history"
+          :key="revision.version"
+          class="outline-button"
+          :disabled="busy"
+          @click="loadRevision(revision.version)"
+        >
+          v{{ revision.version }} · {{ revision.origin }}
+        </button>
+      </view>
+      <ContentPreview v-if="previewConfig" :config="previewConfig" reveal-answers />
+    </template>
+  </view>
+</template>
+<script setup lang="uts">
+import { request, showRequestError } from '../../src/services/http.uts'
+import type { TeachingConfig, ContentDetail } from '../../src/config/content-types.uts'
+import type { HttpError } from '../../src/config/types.uts'
+import RequestState from '../RequestState/index.uvue'
+import ContentPreview from '../ContentPreview/index.uvue'
+const props = defineProps<{ entryId: string }>()
+const detail = ref<ContentDetail | null>(null)
+const draft = ref<TeachingConfig | null>(null)
+const previewConfig = ref<TeachingConfig | null>(null)
+const sections = ref<{ key: string; label: string; help: string; text: string }[]>([])
+const icon = ref('')
+const error = ref('')
+const busy = ref(false)
+function populate(value: ContentDetail) {
+  detail.value = value
+  draft.value = JSON.parse(JSON.stringify(value.config)) as TeachingConfig
+  icon.value = value.config.icon ?? ''
+  const definitions =
+    value.kind === 'WORD'
+      ? [
+          ['ipaSegments', '音标片段与加粗', '每项 text、tone、bold；所有 text 拼接为完整 IPA。'],
+          ['syllables', '音节与重音', '每项 text、ipa、stress（0/1/2）、emphasized。'],
+          ['parts', '字母拆读', '每项 letters、segments（音标片段）、tip。'],
+          ['commonTips', '通用提示', '字符串数组。'],
+          ['specialTips', '特殊提示', '字符串数组。'],
+          [
+            'questions',
+            '选择题与答案',
+            '每项 id、type、prompt、options、correctOptionId、explanation。',
+          ],
+        ]
+      : [
+          ['ipaSegments', '音标片段与加粗', '每项 text、tone、bold。'],
+          ['pronunciationSteps', '发音步骤', '字符串数组。'],
+          ['exampleWords', '例词', '每项 word、ipa、meaning、audioUrl。'],
+          ['questions', '练习题', 'CHOICE 或 LISTENING，听辨题必须配置 audioUrl。'],
+        ]
+  const object = value.config as unknown as UTSJSONObject
+  sections.value = definitions.map((item) => ({
+    key: item[0],
+    label: item[1],
+    help: item[2],
+    text: JSON.stringify(object[item[0]] ?? [], null, 2),
+  }))
+  previewConfig.value = value.config
+}
+async function load() {
+  error.value = ''
+  try {
+    populate(await request<ContentDetail>({ url: '/content/' + props.entryId, showError: false }))
+  } catch (e) {
+    error.value = (e as HttpError).message
+  }
+}
+function assemble(): TeachingConfig {
+  const result = JSON.parse(JSON.stringify(draft.value)) as UTSJSONObject
+  sections.value.forEach((section) => {
+    const value = JSON.parse(section.text)
+    if (!Array.isArray(value)) throw new Error(section.label + '必须是数组')
+    result[section.key] = value
+  })
+  if (icon.value.trim().length > 0) result['icon'] = icon.value.trim()
+  else delete result['icon']
+  return result as unknown as TeachingConfig
+}
+async function preview() {
+  if (busy.value) return
+  busy.value = true
+  try {
+    previewConfig.value = await request<TeachingConfig>({
+      url: '/content/' + props.entryId + '/validate',
+      method: 'POST',
+      data: { version: detail.value!.version, config: assemble() },
+      showError: false,
+    })
+    error.value = ''
+  } catch (e) {
+    error.value = '配置格式不正确：' + (e as Error).message
+  } finally {
+    busy.value = false
+  }
+}
+async function persist() {
+  const config = assemble()
+  const value = await request<ContentDetail>({
+    url: '/content/' + props.entryId,
+    method: 'PUT',
+    data: { version: detail.value!.version, config },
+  })
+  populate(value)
+  return value
+}
+async function save() {
+  if (busy.value) return
+  busy.value = true
+  error.value = ''
+  try {
+    await persist()
+    uni.showToast({ title: '草稿已保存', icon: 'none' })
+  } catch (e) {
+    error.value = (e as Error).message
+    showRequestError(e)
+  } finally {
+    busy.value = false
+  }
+}
+function publish() {
+  uni.showModal({
+    title: '发布内容',
+    content: '确认已核对发音、拆分和题目？新学习将使用此版本，进行中的练习保持原内容。',
+    success: async (result) => {
+      if (!result.confirm || busy.value) return
+      busy.value = true
+      try {
+        const saved = await persist()
+        populate(
+          await request<ContentDetail>({
+            url: '/content/' + props.entryId + '/publish',
+            method: 'POST',
+            data: { version: saved.version },
+          })
+        )
+        uni.showToast({ title: '已发布，可在词库中学习', icon: 'none' })
+      } catch (e) {
+        error.value = (e as Error).message
+        showRequestError(e)
+      } finally {
+        busy.value = false
+      }
+    },
+  })
+}
+async function loadRevision(version: number) {
+  if (busy.value) return
+  busy.value = true
+  try {
+    populate(
+      await request<ContentDetail>({ url: '/content/' + props.entryId + '?revision=' + version })
+    )
+  } catch (e) {
+    showRequestError(e)
+  } finally {
+    busy.value = false
+  }
+}
+watch(() => props.entryId, load, { immediate: true })
+</script>
+<style lang="scss">
+@import '../../uni.scss';
+.content-editor {
+  display: grid;
+  gap: 28rpx;
+  min-width: 0;
+  &__title {
+    font-size: 36rpx;
+    font-weight: 700;
+  }
+  &__form,
+  &__section,
+  &__history {
+    display: grid;
+    gap: 14rpx;
+  }
+  input,
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 18rpx;
+    background: $color-surface;
+    border: 1rpx solid $color-border;
+    border-radius: 12rpx;
+  }
+  input {
+    height: 80rpx;
+  }
+  &__json {
+    height: 260rpx;
+    font-family: monospace;
+    font-size: 24rpx;
+  }
+  &__actions {
+    display: grid;
+    gap: 12rpx;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  &__error {
+    color: #cf4040;
+  }
+}
+</style>

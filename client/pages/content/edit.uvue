@@ -1,0 +1,10 @@
+<template>
+  <view class="page"><ContentEditor v-if="entryId" :entry-id="entryId" /></view>
+</template>
+<script setup lang="uts">
+import ContentEditor from '../../components/ContentEditor/index.uvue'
+const entryId = ref('')
+onLoad((options) => {
+  entryId.value = options['id'] ?? ''
+})
+</script>

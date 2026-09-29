@@ -3,7 +3,7 @@
     <RequestState v-if="unit == null" :error="error" @retry="loadSession" />
     <template v-else>
       <LessonProgress :current="current" :total="total" />
-      <TipCard title="拼读提示" :text="unit!.content!.tip" />
+      <TipCard title="拼读提示" :text="unit!.content!.teachingConfig?.tip ?? unit!.content!.tip" />
       <IpaReadingCard :key="unit!.id" :data="card" />
       <StepActions
         :current="current"
@@ -29,8 +29,12 @@ const { unit, current, total, error, loadSession, loadStep, completeCurrentStage
 const card = computed(() => ({
   word: unit.value?.content.word ?? '',
   hint: '先自己读一遍，再核对发音',
-  ipaSegments: [{ text: unit.value?.content.ipa ?? '', tone: 'muted' }],
-  parts: (unit.value?.content.syllables ?? []).map((text) => ({ text, emphasized: false })),
+  ipaSegments: unit.value?.content.teachingConfig?.ipaSegments ?? [
+    { text: unit.value?.content.ipa ?? '', tone: 'muted' },
+  ],
+  parts:
+    unit.value?.content.teachingConfig?.syllables ??
+    (unit.value?.content.syllables ?? []).map((text) => ({ text, emphasized: false })),
   audioUrl: unit.value?.content.audioUrl ?? '',
 }))
 </script>
