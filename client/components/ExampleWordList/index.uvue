@@ -1,7 +1,12 @@
 <template>
   <view class="example-word-list card">
     <view v-for="item in items" :key="item.word" class="example-word-list__item">
-      <PlayButton :src="item.audioUrl" :word="item.word" size="tiny" />
+      <PlayButton
+        class="example-word-list__play"
+        :src="item.audioUrl"
+        :word="item.word"
+        size="tiny"
+      />
       <text class="example-word-list__word">{{ item.word }}</text>
       <PhonemeDisplay class="example-word-list__phoneme" :segments="item.segments" size="mini" />
       <text class="example-word-list__meaning">{{ item.zh }}</text>
@@ -24,13 +29,12 @@ defineProps<ExampleWordListProps>()
   padding: 0;
 
   &__item {
-    min-height: 96rpx;
-    padding: 16rpx 26rpx;
+    min-height: 78rpx;
+    padding: 14rpx 26rpx;
     box-sizing: border-box;
     border-bottom: 1rpx solid $color-border;
     display: grid;
-    grid-template-columns: 40rpx minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
+    grid-template-columns: 40rpx minmax(0, 1fr) minmax(0, 1fr) minmax(80rpx, auto);
     align-items: center;
     gap: 16rpx;
 
@@ -39,24 +43,31 @@ defineProps<ExampleWordListProps>()
     }
   }
 
+  &__play {
+    grid-column: 1;
+    justify-self: center;
+  }
+
   &__word {
     grid-column: 2;
-    grid-row: 1;
+    min-width: 0;
     font-weight: 600;
+    overflow-wrap: anywhere;
   }
 
   &__phoneme {
-    grid-column: 2 / -1;
-    grid-row: 2;
+    grid-column: 3;
     min-width: 0;
+    justify-self: center;
   }
 
   &__meaning {
-    grid-column: 3;
-    grid-row: 1;
-    max-width: 240rpx;
+    grid-column: 4;
+    min-width: 0;
+    max-width: 180rpx;
     color: $color-text-secondary;
     text-align: right;
+    overflow-wrap: anywhere;
   }
 }
 </style>
