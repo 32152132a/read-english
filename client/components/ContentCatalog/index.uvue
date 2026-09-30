@@ -1,7 +1,7 @@
 <template>
   <view class="content-catalog">
     <text class="content-catalog__title">内容维护</text>
-    <text class="muted">管理自己的 AI 单词草稿；管理员还可维护公共单词和音标。</text>
+    <text class="muted">修改自己的 AI 单词；管理员还可维护公共单词和音标。</text>
     <view class="content-catalog__search">
       <input v-model="query" placeholder="搜索单词或音标" />
       <button class="outline-button" @click="load">搜索</button>
@@ -21,9 +21,7 @@
       @click="edit(item.id)"
     >
       <text>{{ item.label }}</text>
-      <text class="muted">
-        草稿 v{{ item.version }} / 已发布 {{ item.publishedVersion ?? '无' }}
-      </text>
+      <text class="muted">点击修改当前内容</text>
     </view>
     <text v-if="loaded && items.length === 100" class="muted">
       仅显示前 100 条，请输入更具体的搜索词。

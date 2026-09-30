@@ -7,8 +7,7 @@ export type ContentAudio = {
   url: string
   usUrl?: string
   gbUrl?: string
-  objectKey: string
-  provider: string
+  objectKey?: string
 }
 import type { PhonemeSegment } from './types.uts'
 export type ContentQuestion = {
@@ -34,7 +33,6 @@ export type TeachingConfig = {
   parts?: ContentPart[]
   commonTips?: string[]
   specialTips?: string[]
-  icon?: string
   category?: string
   group?: string
   description?: string
@@ -50,15 +48,8 @@ export type ContentEntry = {
   kind: string
   label: string
   version: number
-  publishedVersion: number | null
 }
-export type ContentRevision = {
-  version: number
-  origin: string
-  editorId: string
-  createdAt: string
-}
-export type ContentDetail = ContentEntry & { config: TeachingConfig; history: ContentRevision[] }
+export type ContentDetail = ContentEntry & { config: TeachingConfig }
 export type ContentCapabilities = { admin: boolean; generationEnabled: boolean; userId: string }
 export type ContentJobItem = {
   position: number

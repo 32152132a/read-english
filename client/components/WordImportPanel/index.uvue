@@ -2,7 +2,7 @@
   <view class="word-import">
     <text class="word-import__title">AI 定制词库</text>
     <text class="muted">
-      粘贴 1–200 个单词，以逗号、空格或换行分隔。生成后先保存为草稿，核对发布后进入可添加词库。
+      粘贴 1–200 个单词，以逗号、空格或换行分隔。AI 校验成功后会直接加入词库，个别内容可再修改。
     </text>
     <input v-model="name" placeholder="词库名称（2–40字）" :maxlength="40" :disabled="busy" />
     <textarea
@@ -12,7 +12,7 @@
       :disabled="busy"
     />
     <button class="primary-button" :disabled="busy || !enabled" @click="create">
-      {{ busy ? '正在提交' : '生成词库草稿' }}
+      {{ busy ? '正在提交' : '生成词库' }}
     </button>
     <text v-if="!enabled" class="muted">DeepSeek 尚未配置，暂时不能生成。</text>
     <text v-if="error" class="word-import__error">{{ error }}</text>
@@ -25,7 +25,7 @@
         <text>{{ item.word }} · {{ statusText(item.status) }}</text>
         <text v-if="item.errorMessage" class="muted">{{ item.errorMessage }}</text>
         <button v-if="item.entryId" class="outline-button" @click="edit(item.entryId!)">
-          核对与发布
+          修改内容
         </button>
       </view>
       <button
@@ -36,7 +36,7 @@
       >
         重试失败项（每词最多3次）
       </button>
-      <button class="outline-button" @click="openLibraries">前往添加已发布词库</button>
+      <button class="outline-button" @click="openLibraries">前往添加词库</button>
     </view>
     <text class="word-import__title">最近任务</text>
     <button
@@ -74,7 +74,7 @@ function statusText(status: string): string {
       {
         PENDING: '等待处理',
         PROCESSING: '正在生成',
-        SUCCEEDED: '草稿已生成',
+        SUCCEEDED: '已加入词库',
         FAILED: '生成失败',
         PARTIAL_FAILED: '部分生成失败',
       } as UTSJSONObject

@@ -1,39 +1,39 @@
 <template>
   <view class="content-editor">
     <RequestState v-if="detail == null" :error="error" @retry="load" />
-    <template v-else-if="draft != null">
+    <template v-else-if="form != null">
       <text class="content-editor__title">{{ detail!.label }} · 内容维护</text>
-      <text class="muted">{{ detail!.publishedVersion == null ? '尚未发布，保存后仍可继续修改。' : '已发布。保存草稿不会立即影响学习内容。' }}</text>
+      <text class="muted">保存后立即用于新的学习；已经开始的练习保持原内容。</text>
       <view class="content-editor__form">
         <text>音标 IPA</text>
-        <input :disabled="busy" v-model="draft!.ipa" placeholder="完整 IPA" />
-        <template v-if="draft!.kind === 'WORD'">
+        <input :disabled="busy" v-model="form!.ipa" placeholder="完整 IPA" />
+        <template v-if="form!.kind === 'WORD'">
           <text>中文释义</text>
-          <textarea :disabled="busy" v-model="draft!.meaning" :maxlength="300" auto-height />
+          <textarea :disabled="busy" v-model="form!.meaning" :maxlength="300" auto-height />
           <text>教学提示</text>
-          <textarea :disabled="busy" v-model="draft!.tip" :maxlength="500" auto-height />
+          <textarea :disabled="busy" v-model="form!.tip" :maxlength="500" auto-height />
         </template>
         <template v-else>
           <text>分组（VOWEL / CONSONANT）</text>
-          <input :disabled="busy" v-model="draft!.group" />
+          <input :disabled="busy" v-model="form!.group" />
           <text>类别</text>
-          <input :disabled="busy" v-model="draft!.category" />
+          <input :disabled="busy" v-model="form!.category" />
           <text>发音说明</text>
-          <textarea :disabled="busy" v-model="draft!.description" :maxlength="1000" auto-height />
+          <textarea :disabled="busy" v-model="form!.description" :maxlength="1000" auto-height />
           <text>口型类型（open / closed / relaxed / smile）</text>
-          <input :disabled="busy" v-model="draft!.mouth!.type" />
+          <input :disabled="busy" v-model="form!.mouth!.type" />
           <text>口型图片 HTTPS 地址（可留空）</text>
-          <input :disabled="busy" v-model="draft!.mouth!.imageUrl" />
+          <input :disabled="busy" v-model="form!.mouth!.imageUrl" />
           <text>记忆提示</text>
-          <textarea :disabled="busy" v-model="draft!.memoryTip" :maxlength="1000" auto-height />
+          <textarea :disabled="busy" v-model="form!.memoryTip" :maxlength="1000" auto-height />
         </template>
         <text>标准音频 HTTPS 地址（可留空，单词由浏览器朗读）</text>
-        <input :disabled="busy" v-model="draft!.audio.url" />
-        <template v-if="draft!.kind === 'PHONEME'">
+        <input :disabled="busy" v-model="form!.audio.url" />
+        <template v-if="form!.kind === 'PHONEME'">
           <text>美式发音音频（可留空）</text>
-          <input :disabled="busy" v-model="draft!.audio.usUrl" />
+          <input :disabled="busy" v-model="form!.audio.usUrl" />
           <text>英式发音音频（可留空）</text>
-          <input :disabled="busy" v-model="draft!.audio.gbUrl" />
+          <input :disabled="busy" v-model="form!.audio.gbUrl" />
         </template>
       </view>
       <button class="outline-button content-editor__advanced" @click="showAdvanced = !showAdvanced">
@@ -50,14 +50,10 @@
         />
       </view>
       <text v-if="error" class="content-editor__error">{{ error }}</text>
-      <view class="content-editor__actions">
-        <button class="primary-button" :disabled="busy" @click="save">保存草稿</button>
-        <button class="outline-button" :disabled="busy" @click="publish">保存并发布</button>
-      </view>
+      <button class="primary-button" :disabled="busy" @click="save">保存修改</button>
       <text class="muted">
-        复杂配置暂用分组 JSON 编辑；服务端会检查片段、重音和题目答案。AI 内容需人工核对后发布。
+        复杂配置暂用分组 JSON 编辑；保存时服务端会检查片段、重音和题目答案。
       </text>
-      <ContentPreview v-if="previewConfig" :config="previewConfig" reveal-answers />
     </template>
   </view>
 </template>
@@ -66,18 +62,16 @@ import { request, showRequestError } from '../../src/services/http.uts'
 import type { TeachingConfig, ContentDetail } from '../../src/config/content-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
 import RequestState from '../RequestState/index.uvue'
-import ContentPreview from '../ContentPreview/index.uvue'
 const props = defineProps<{ entryId: string }>()
 const detail = ref<ContentDetail | null>(null)
-const draft = ref<TeachingConfig | null>(null)
-const previewConfig = ref<TeachingConfig | null>(null)
+const form = ref<TeachingConfig | null>(null)
 const sections = ref<{ key: string; label: string; help: string; text: string }[]>([])
 const error = ref('')
 const busy = ref(false)
 const showAdvanced = ref(false)
 function populate(value: ContentDetail) {
   detail.value = value
-  draft.value = JSON.parse(JSON.stringify(value.config)) as TeachingConfig
+  form.value = JSON.parse(JSON.stringify(value.config)) as TeachingConfig
   const definitions =
     value.kind === 'WORD'
       ? [
@@ -105,7 +99,6 @@ function populate(value: ContentDetail) {
     help: item[2],
     text: JSON.stringify(object[item[0]] ?? [], null, 2),
   }))
-  previewConfig.value = value.config
 }
 async function load() {
   error.value = ''
@@ -116,7 +109,7 @@ async function load() {
   }
 }
 function assemble(): TeachingConfig {
-  const result = JSON.parse(JSON.stringify(draft.value)) as UTSJSONObject
+  const result = JSON.parse(JSON.stringify(form.value)) as UTSJSONObject
   sections.value.forEach((section) => {
     const value = JSON.parse(section.text)
     if (!Array.isArray(value)) throw new Error(section.label + '必须是数组')
@@ -140,39 +133,13 @@ async function save() {
   error.value = ''
   try {
     await persist()
-    uni.showToast({ title: '草稿已保存', icon: 'none' })
+    uni.showToast({ title: '修改已保存', icon: 'none' })
   } catch (e) {
     error.value = (e as Error).message
     showRequestError(e)
   } finally {
     busy.value = false
   }
-}
-function publish() {
-  uni.showModal({
-    title: '发布内容',
-    content: '确认已核对发音、拆分和题目？新学习将使用此版本，进行中的练习保持原内容。',
-    success: async (result) => {
-      if (!result.confirm || busy.value) return
-      busy.value = true
-      try {
-        const saved = await persist()
-        populate(
-          await request<ContentDetail>({
-            url: '/content/' + props.entryId + '/publish',
-            method: 'POST',
-            data: { version: saved.version },
-          })
-        )
-        uni.showToast({ title: '已发布，可在词库中学习', icon: 'none' })
-      } catch (e) {
-        error.value = (e as Error).message
-        showRequestError(e)
-      } finally {
-        busy.value = false
-      }
-    },
-  })
 }
 watch(() => props.entryId, load, { immediate: true })
 </script>
@@ -207,11 +174,6 @@ watch(() => props.entryId, load, { immediate: true })
     height: 260rpx;
     font-family: monospace;
     font-size: 24rpx;
-  }
-  &__actions {
-    display: grid;
-    gap: 12rpx;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   &__advanced {
     width: 100%;

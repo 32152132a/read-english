@@ -1,7 +1,6 @@
 <template>
   <view class="content-preview">
     <view class="content-preview__heading">
-      <AppIcon v-if="config.icon" :name="config.icon" :size="36" />
       <text class="content-preview__title">{{ config.word ?? config.ipa }}</text>
       <PlayButton
         :src="config.audio.url"

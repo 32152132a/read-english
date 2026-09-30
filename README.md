@@ -20,7 +20,7 @@ cd client
 .\scripts\web.ps1
 # 后端使用其他端口时显式指定：
 .\scripts\web.ps1 -ApiBaseUrl http://127.0.0.1:18080/api/v1
-# 校验与发布构建：
+# 校验与生产构建：
 npm run lint
 npm run test:http
 .\scripts\web.ps1 -Build
