@@ -3,7 +3,13 @@ export type ContentSyllable = { text: string; ipa: string; stress: number; empha
 export type ContentPart = { letters: string; segments: PhonemeSegment[]; tip: string }
 export type ContentMouth = { type: string; imageUrl?: string }
 export type ContentExample = { word: string; ipa: string; meaning: string; audioUrl?: string }
-export type ContentAudio = { url: string; objectKey: string; provider: string }
+export type ContentAudio = {
+  url: string
+  usUrl?: string
+  gbUrl?: string
+  objectKey: string
+  provider: string
+}
 import type { PhonemeSegment } from './types.uts'
 export type ContentQuestion = {
   id: string

@@ -190,7 +190,7 @@ evaluation        AI评测
 - 词库类型：`BASE`、`SYSTEM`、`AI_CUSTOM`。
 - 词库解析状态：`PENDING`、`PROCESSING`、`SUCCEEDED`、`FAILED`。
 - 评测状态：`PENDING`、`PROCESSING`、`SUCCEEDED`、`FAILED`。
-- 发音偏好：当前仅 `US`；`UK` 预留但不要在前端提供选择。
+- 发音偏好：`US`（美式）或 `GB`（英式），新用户默认 `US`。
 
 ## 6. 详细接口设计
 
@@ -245,7 +245,7 @@ evaluation        AI评测
 { "accentPreference": "US" }
 ```
 
-当前仅允许 `US`，传入未开放值返回 `PREFERENCE_NOT_SUPPORTED`。
+允许 `US`、`GB`，传入其他值返回 `PREFERENCE_NOT_SUPPORTED`。
 
 #### `GET /users/me/stats`
 
@@ -611,7 +611,15 @@ evaluation        AI评测
       "code": "VOWEL",
       "name": "元音",
       "items": [
-        { "id": "p_1", "ipa": "/ɪ/", "audioUrl": "...", "order": 1 }
+        {
+          "id": "p_1",
+          "ipa": "/ɪ/",
+          "audioUrl": null,
+          "audioUsUrl": null,
+          "audioGbUrl": null,
+          "fallbackWord": "sit",
+          "order": 2
+        }
       ]
     },
     {
@@ -623,11 +631,11 @@ evaluation        AI评测
 }
 ```
 
-页面只用于查阅和试听，不返回“已掌握”对号或进度条。
+页面只用于查阅和试听，不返回“已掌握”对号或进度条。当前目录采用国内教学常用的 20 个元音和 28 个辅音/辅音组合；`/tr/`、`/dr/`、`/ts/`、`/dz/` 是教学组合。标准音频为空时，Web 端朗读 `fallbackWord`，不把 IPA 字符交给语音合成器。
 
 #### `GET /phonemes/{id}`
 
-可供认识音标详情或后台管理复用，返回音标、口型、步骤、例词和媒体。
+可供认识音标详情或后台管理复用，返回音标、口型、步骤、例词、英美音频地址和浏览器朗读例词。
 
 ### 6.6 专业词库
 

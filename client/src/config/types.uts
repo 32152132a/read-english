@@ -127,6 +127,9 @@ export type PhonemeGridItem = {
   id: string
   segments: PhonemeSegment[]
   audioUrl: string
+  audioUsUrl?: string
+  audioGbUrl?: string
+  fallbackWord?: string
 }
 
 export type PronunciationMappingItem = {
@@ -230,9 +233,10 @@ export type SyllableQuizData = {
 export type SyllableQuizProps = { data: SyllableQuizData; disabled?: boolean }
 
 export type PlayButtonProps = {
-  // 仅单词入口传入，Web 优先系统朗读，不可用时播放音频。
+  // 有标准音频时优先播放；没有时，Web 可按口音朗读英文例词。
   word?: string
   src?: string
+  accent?: string
   text?: string
   size?: string
   color?: string

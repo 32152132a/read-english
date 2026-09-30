@@ -25,6 +25,7 @@ import { request, showRequestError } from '../../src/services/http.uts'
 import { logout } from '../../src/services/auth.uts'
 import type { UserProfile, UserStats } from '../../src/config/api-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
+import { setAccentPreference } from '../../src/services/accent.uts'
 
 const loaded = ref(false)
 const error = ref('')
@@ -48,7 +49,7 @@ const pageData = reactive({
       iconName: 'volume-2',
       label: '发音偏好',
       value: '美式英语',
-      clickable: false,
+      clickable: true,
     },
     { code: 'about', iconName: 'info', label: '关于产品' },
     { code: 'logout', iconName: 'log-out', label: '退出登录', danger: true },
@@ -73,11 +74,36 @@ function handleMenu(code: string) {
     uni.navigateTo({ url: '/pages/profile/learning-flow' })
     return
   }
+  if (code === 'accent') {
+    chooseAccent()
+    return
+  }
   if (code === 'about') {
     uni.showToast({ title: '永庆发音学习 v1.0.0', icon: 'none' })
     return
   }
   if (code === 'logout') confirmLogout()
+}
+
+function chooseAccent() {
+  uni.showActionSheet({
+    itemList: ['美式英语', '英式英语'],
+    success: async (result) => {
+      const accent = result.tapIndex === 1 ? 'GB' : 'US'
+      try {
+        const profile = await request<UserProfile>({
+          url: '/users/me/preferences',
+          method: 'PATCH',
+          data: { accentPreference: accent },
+        })
+        setAccentPreference(profile.accentPreference)
+        pageData.settings[0].value = profile.accentPreference === 'GB' ? '英式英语' : '美式英语'
+        uni.showToast({ title: '发音偏好已更新', icon: 'none' })
+      } catch (failure) {
+        showRequestError(failure)
+      }
+    },
+  })
 }
 
 function confirmLogout() {
@@ -108,6 +134,8 @@ async function loadProfile() {
       nickname: profile.nickname,
       learningStatus: '一起练习英语发音',
     }
+    setAccentPreference(profile.accentPreference)
+    pageData.settings[0].value = profile.accentPreference === 'GB' ? '英式英语' : '美式英语'
     pageData.stats = [
       {
         code: 'learned',

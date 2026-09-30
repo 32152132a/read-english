@@ -1,0 +1,21 @@
+export type AccentPreference = 'US' | 'GB'
+
+const storageKey = 'accent-preference'
+
+export function normalizeAccent(value: string | null | undefined): AccentPreference {
+  return value?.toUpperCase() === 'GB' ? 'GB' : 'US'
+}
+
+export function getAccentPreference(): AccentPreference {
+  return normalizeAccent(uni.getStorageSync(storageKey) as string)
+}
+
+export function setAccentPreference(value: string | null | undefined): AccentPreference {
+  const accent = normalizeAccent(value)
+  uni.setStorageSync(storageKey, accent)
+  return accent
+}
+
+export function getAccentLanguage(value?: string): string {
+  return normalizeAccent(value ?? getAccentPreference()) === 'GB' ? 'en-GB' : 'en-US'
+}

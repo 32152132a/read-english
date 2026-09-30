@@ -1,6 +1,7 @@
 import { clearToken, getAuthorization, getRefreshToken, setLoginTokens } from './token.uts'
 import type { HttpError, HttpOptions } from '../config/types.uts'
 import type { ApiResponse, LoginResponse } from '../config/api-types.uts'
+import { setAccentPreference } from './accent.uts'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const loadingDelay = 150
@@ -90,6 +91,7 @@ async function refreshLogin() {
     })
       .then((login) => {
         setLoginTokens(login.accessToken, login.refreshToken)
+        if (login.user != null) setAccentPreference(login.user.accentPreference)
         return login
       })
       .finally(() => {

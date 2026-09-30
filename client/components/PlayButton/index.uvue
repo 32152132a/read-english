@@ -26,7 +26,7 @@
       />
       <text v-else class="play-button__icon" :style="{ color: color }">▶</text>
     </view>
-    <text v-if="label.length > 0" class="play-button__text" :style="{ color: color }">
+    <text v-if="showLabel" class="play-button__text" :style="{ color: color }">
       {{ label }}
     </text>
   </view>
@@ -39,6 +39,7 @@ import type { PlayButtonProps, PlayStatus } from '../../src/config/types.uts'
 const props = withDefaults(defineProps<PlayButtonProps>(), {
   src: '',
   word: '',
+  accent: '',
   text: '',
   size: 'default',
   color: '#5267f8',
@@ -48,9 +49,14 @@ const props = withDefaults(defineProps<PlayButtonProps>(), {
 const emit = defineEmits(['play', 'ended', 'error'])
 const status = ref<PlayStatus>('idle')
 let stopPlayback: (() => void) | null = null
-const label = computed(() => (usesSystemSpeech(props.src, props.word) ? '系统朗读' : props.text))
+const label = computed(() =>
+  props.text.length > 0 ? props.text : usesSystemSpeech(props.src, props.word) ? '系统朗读' : ''
+)
 const buttonSize = computed((): string =>
   ['micro', 'tiny', 'mini', 'large', 'hero', 'pill'].includes(props.size) ? props.size : 'default'
+)
+const showLabel = computed(
+  () => label.value.length > 0 && buttonSize.value !== 'micro' && buttonSize.value !== 'tiny'
 )
 
 function resetAudio() {
@@ -72,13 +78,14 @@ function play() {
     (message) => {
       uni.showToast({ title: message, icon: 'none' })
       emit('error', message)
-    }
+    },
+    props.accent
   )
 }
 
 onHide(resetAudio)
 onUnmounted(resetAudio)
-watch(() => [props.src, props.word, props.disabled], resetAudio)
+watch(() => [props.src, props.word, props.accent, props.disabled], resetAudio)
 </script>
 
 <style lang="scss">

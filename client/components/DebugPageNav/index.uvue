@@ -1,5 +1,5 @@
 <template>
-  <view class="debug-page-nav">
+  <view v-if="visible" class="debug-page-nav">
     <view v-if="open" class="debug-page-nav__panel">
       <view class="debug-page-nav__header">
         <text>页面调试</text>
@@ -26,6 +26,7 @@
 import type { NavigationItem } from '../../src/config/types.uts'
 
 const open = ref(false)
+const visible = import.meta.env.DEV
 const pages: NavigationItem[] = [
   { label: '首页', route: '/pages/home/index' },
   { label: '单个音标', route: '/pages/phoneme/detail' },

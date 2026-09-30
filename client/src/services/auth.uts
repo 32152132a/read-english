@@ -1,6 +1,7 @@
 import { request } from './http.uts'
 import { clearToken, getRefreshToken, setLoginTokens } from './token.uts'
 import type { LoginResponse } from '../config/api-types.uts'
+import { setAccentPreference } from './accent.uts'
 
 export async function login() {
   let code = ''
@@ -26,6 +27,7 @@ export async function login() {
     data: { code },
   })
   setLoginTokens(result.accessToken, result.refreshToken)
+  setAccentPreference(result.user.accentPreference)
 }
 
 export async function logout() {

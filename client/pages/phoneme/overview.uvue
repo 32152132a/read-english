@@ -44,6 +44,9 @@ function itemsFor(code: string) {
     id: item.id,
     segments: [{ text: item.ipa, tone: 'muted' }],
     audioUrl: item.audioUrl ?? '',
+    audioUsUrl: item.audioUsUrl ?? '',
+    audioGbUrl: item.audioGbUrl ?? '',
+    fallbackWord: item.fallbackWord ?? '',
   }))
 }
 

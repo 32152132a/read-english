@@ -1,4 +1,5 @@
 import type { PlayStatus } from '../config/types.uts'
+import { getAccentLanguage } from './accent.uts'
 
 let activeStop: (() => void) | null = null
 
@@ -6,10 +7,10 @@ export function canReadWord(word: string): boolean {
   return /^[A-Za-z]+(?:['’-][A-Za-z]+)*$/.test(word.trim())
 }
 
-export function usesSystemSpeech(_src: string, word: string): boolean {
+export function usesSystemSpeech(src: string, word: string): boolean {
   let allowed = false
   // #ifdef WEB
-  allowed = canReadWord(word)
+  allowed = src.trim().length === 0 && canReadWord(word)
   // #endif
   return allowed
 }
@@ -19,7 +20,8 @@ export function playPronunciation(
   word: string,
   onStatus: (status: PlayStatus) => void,
   onEnded: () => void,
-  onError: (message: string) => void
+  onError: (message: string) => void,
+  accent: string = ''
 ): () => void {
   activeStop?.()
   let stopped = false
@@ -79,7 +81,7 @@ export function playPronunciation(
   }
 
   try {
-    if (!usesSystemSpeech(src, word)) {
+    if (src.trim().length > 0 || !usesSystemSpeech(src, word)) {
       playAudio('暂无发音音频')
       return stop
     }
@@ -98,20 +100,25 @@ export function playPronunciation(
       return stop
     }
     const synth = window.speechSynthesis
+    const language = getAccentLanguage(accent)
     let utterance: SpeechSynthesisUtterance | null = null
     let voiceTimer = 0
     let started = false
-    function speak() {
+    function speak(force: boolean = false) {
       if (stopped || started) return
       const voices = synth.getVoices()
-      const voice = voices.find((item) => item.lang.toLowerCase().replace('_', '-') === 'en-us')
-      if (voice == null) return
+      const target = language.toLowerCase()
+      const voice =
+        voices.find((item) => item.lang.toLowerCase().replace('_', '-') === target) ??
+        voices.find((item) => item.lang.toLowerCase().replace('_', '-').startsWith(target)) ??
+        voices.find((item) => item.lang.toLowerCase().startsWith('en'))
+      if (voice == null && !force) return
       started = true
       clearTimeout(voiceTimer)
       synth.removeEventListener('voiceschanged', speak)
       const speech = new SpeechSynthesisUtterance(word.trim())
-      speech.voice = voice
-      speech.lang = 'en-US'
+      if (voice != null) speech.voice = voice
+      speech.lang = language
       speech.onstart = () => {
         if (!stopped) onStatus('playing')
       }
@@ -131,7 +138,7 @@ export function playPronunciation(
       }
     }
     synth.addEventListener('voiceschanged', speak)
-    voiceTimer = setTimeout(() => playAudio('未找到美式英语声线，请稍后重试或使用标准音频'), 2000)
+    voiceTimer = setTimeout(() => speak(true), 2000)
     speak()
     // #endif
     // #ifndef WEB

@@ -107,10 +107,11 @@ defineEmits(['learn', 'view', 'remove'])
     }
 
     &.has-remove {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .is-remove {
+      grid-column: 1 / -1;
       border-color: #e7b9bd;
       color: #c55259;
       background-color: #fff7f7;

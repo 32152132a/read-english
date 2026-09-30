@@ -24,11 +24,13 @@ defineProps<ExampleWordListProps>()
   padding: 0;
 
   &__item {
-    min-height: 78rpx;
-    padding: 0 26rpx;
+    min-height: 96rpx;
+    padding: 16rpx 26rpx;
+    box-sizing: border-box;
     border-bottom: 1rpx solid $color-border;
     display: grid;
-    grid-template-columns: 40rpx minmax(120rpx, 1fr) minmax(0, 1fr) 90rpx;
+    grid-template-columns: 40rpx minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     align-items: center;
     gap: 16rpx;
 
@@ -38,14 +40,21 @@ defineProps<ExampleWordListProps>()
   }
 
   &__word {
+    grid-column: 2;
+    grid-row: 1;
     font-weight: 600;
   }
 
   &__phoneme {
-    justify-self: center;
+    grid-column: 2 / -1;
+    grid-row: 2;
+    min-width: 0;
   }
 
   &__meaning {
+    grid-column: 3;
+    grid-row: 1;
+    max-width: 240rpx;
     color: $color-text-secondary;
     text-align: right;
   }

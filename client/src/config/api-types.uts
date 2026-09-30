@@ -122,6 +122,9 @@ export type PhonemeContent = {
   ipa: string
   description: string
   audioUrl: string | null
+  audioUsUrl?: string | null
+  audioGbUrl?: string | null
+  fallbackWord?: string | null
   mouth: MouthContent
   pronunciationSteps: string[]
   exampleWords: ExampleWordContent[]
@@ -183,7 +186,14 @@ export type EvaluationContent = {
   recordingMaxSeconds: number
   prompt: string
 }
-export type PhonemeItem = { id: string; ipa: string; audioUrl: string | null }
+export type PhonemeItem = {
+  id: string
+  ipa: string
+  audioUrl: string | null
+  audioUsUrl: string | null
+  audioGbUrl: string | null
+  fallbackWord: string | null
+}
 export type PhonemeGroup = { code: string; name: string; items: PhonemeItem[] }
 export type PhonemeGroups = { groups: PhonemeGroup[] }
 export type LibrarySummary = {

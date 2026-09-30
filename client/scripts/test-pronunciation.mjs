@@ -7,6 +7,10 @@ import ts from 'typescript'
 async function setup(web = true, voices = [{ lang: 'en-US' }]) {
   let source = await readFile(new URL('../src/services/pronunciation.uts', import.meta.url), 'utf8')
   source = source
+    .replace(
+      "import { getAccentLanguage } from './accent.uts'",
+      "function getAccentLanguage(value = '') { return value === 'GB' ? 'en-GB' : 'en-US' }"
+    )
     .replace(/\/\/ #ifdef WEB([\s\S]*?)\/\/ #endif/g, (_, body) => (web ? body : ''))
     .replace(/\/\/ #ifndef WEB([\s\S]*?)\/\/ #endif/g, (_, body) => (web ? '' : body))
   const timers = new Map(),
@@ -68,7 +72,7 @@ async function setup(web = true, voices = [{ lang: 'en-US' }]) {
     throw new Error('Unexpected import')
   })
   await module.evaluate()
-  function play(src = '', word = 'computer') {
+  function play(src = '', word = 'computer', accent = '') {
     const states = [],
       errors = []
     let ended = 0
@@ -77,7 +81,8 @@ async function setup(web = true, voices = [{ lang: 'en-US' }]) {
       word,
       (s) => states.push(s),
       () => ended++,
-      (e) => errors.push(e)
+      (e) => errors.push(e),
+      accent
     )
     return {
       states,
@@ -143,9 +148,9 @@ test('IPA, empty input and non-Web requests never synthesize speech', async () =
   h.play('', '/ɪ/')
   assert.equal(h.spoken.length, 0)
   assert.equal(h.api.usesSystemSpeech('', 'computer'), true)
-  assert.equal(h.api.usesSystemSpeech('/word.mp3', 'computer'), true)
+  assert.equal(h.api.usesSystemSpeech('/word.mp3', 'computer'), false)
 })
-test('voices may load asynchronously; missing US voice times out without switching accent', async () => {
+test('voices may load asynchronously and fall back to an available English voice', async () => {
   const h = await setup(true, []),
     p = h.play()
   h.voices.push({ lang: 'en_US' })
@@ -155,10 +160,11 @@ test('voices may load asynchronously; missing US voice times out without switchi
   assert.equal(h.listeners.size, 0)
   const other = await setup(true, [{ lang: 'en-GB' }]),
     q = other.play()
-  other.expire(2000)
-  assert.equal(other.spoken.length, 0)
-  assert.equal(q.errors.length, 1)
-  assert.equal(other.timers.size, 0)
+  assert.equal(other.spoken.length, 1)
+  assert.equal(other.spoken[0].voice.lang, 'en-GB')
+  assert.equal(other.spoken[0].lang, 'en-US')
+  other.spoken[0].onend()
+  assert.equal(q.ended, 1)
 })
 test('switching playback cancels previous owner; stale cleanup cannot cancel new playback', async () => {
   const h = await setup(),
@@ -201,17 +207,13 @@ test('unsupported browsers and missing lifecycle callbacks fail without stuck st
   assert.equal(q.states.at(-1), 'idle')
 })
 
-test('words prefer browser speech even with a recording; unavailable voice uses recording', async () => {
+test('standard audio has priority and GB preference selects a British voice', async () => {
   const h = await setup()
   h.play('/word.mp3')
-  assert.equal(h.spoken.length, 1)
-  assert.equal(h.audio.length, 0)
-  const fallback = await setup(true, [])
-  const result = fallback.play('/word.mp3')
-  fallback.expire(2000)
-  assert.equal(fallback.audio[0].src, '/word.mp3')
-  assert.equal(fallback.listeners.size, 0)
-  fallback.audio[0].callbacks.ended()
-  assert.equal(result.ended, 1)
-  assert.equal(fallback.timers.size, 0)
+  assert.equal(h.spoken.length, 0)
+  assert.equal(h.audio[0].src, '/word.mp3')
+  const british = await setup(true, [{ lang: 'en-US' }, { lang: 'en-GB' }])
+  british.play('', 'computer', 'GB')
+  assert.equal(british.spoken[0].voice.lang, 'en-GB')
+  assert.equal(british.spoken[0].lang, 'en-GB')
 })
