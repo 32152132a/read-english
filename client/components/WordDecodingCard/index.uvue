@@ -4,11 +4,11 @@
     <view class="word-decoding-card__word-row">
       <view class="word-decoding-card__word">
         <text
-          v-for="(mapping, index) in data.mappings"
-          :key="mapping.part"
+          v-for="mapping in data.mappings"
+          :key="mapping.part + ':' + data.mappings.indexOf(mapping)"
           class="word-decoding-card__chunk"
-          :class="activeIndex === index ? 'is-active' : ''"
-          @click="selectMapping(index)"
+          :class="activeMapping === mapping ? 'is-active' : ''"
+          @click="selectMapping(mapping)"
         >
           {{ mapping.part }}
         </text>
@@ -41,7 +41,7 @@ const displaySegments = computed((): PhonemeSegment[] => {
   const segments: PhonemeSegment[] = []
   props.data.mappings.forEach((mapping, mappingIndex) => {
     mapping.segments.forEach((segment, segmentIndex) => {
-      let text = segment.text
+      let text = trimPhonemeSlashes(segment.text)
       if (mappingIndex === 0 && segmentIndex === 0) text = '/' + text
       if (
         mappingIndex === props.data.mappings.length - 1 &&
@@ -62,6 +62,13 @@ const displaySegments = computed((): PhonemeSegment[] => {
   return segments
 })
 
+function trimPhonemeSlashes(text: string): string {
+  let normalized = text
+  while (normalized.startsWith('/')) normalized = normalized.substring(1)
+  while (normalized.endsWith('/')) normalized = normalized.substring(0, normalized.length - 1)
+  return normalized
+}
+
 watch(
   () => props.data.id,
   () => {
@@ -69,8 +76,8 @@ watch(
   }
 )
 
-function selectMapping(index: number) {
-  activeIndex.value = index
+function selectMapping(mapping: PronunciationMappingItem) {
+  activeIndex.value = props.data.mappings.indexOf(mapping)
 }
 </script>
 

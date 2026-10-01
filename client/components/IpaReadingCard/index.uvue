@@ -6,8 +6,8 @@
       <PlayButton :src="data.audioUrl" :word="data.word" size="tiny" icon="volume" />
     </view>
     <view class="ipa-reading-card__parts">
-      <template v-for="(part, index) in data.parts" :key="part.text">
-        <text v-if="index > 0" class="ipa-reading-card__separator">·</text>
+      <template v-for="part in data.parts" :key="part.text + ':' + data.parts.indexOf(part)">
+        <text v-if="part !== data.parts[0]" class="ipa-reading-card__separator">·</text>
         <text :class="part.emphasized ? 'is-emphasized' : ''">{{ part.text }}</text>
       </template>
     </view>

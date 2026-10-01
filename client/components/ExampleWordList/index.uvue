@@ -34,9 +34,9 @@ defineProps<ExampleWordListProps>()
     box-sizing: border-box;
     border-bottom: 1rpx solid $color-border;
     display: grid;
-    grid-template-columns: 40rpx minmax(0, 1fr) minmax(0, 1fr) minmax(80rpx, auto);
+    grid-template-columns: 40rpx minmax(0, 1.2fr) minmax(0, 1fr) minmax(64rpx, auto);
     align-items: center;
-    gap: 16rpx;
+    gap: 10rpx;
 
     &:last-child {
       border-bottom: 0;
@@ -52,7 +52,7 @@ defineProps<ExampleWordListProps>()
     grid-column: 2;
     min-width: 0;
     font-weight: 600;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 
   &__phoneme {

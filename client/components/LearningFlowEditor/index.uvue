@@ -46,7 +46,13 @@
       </view>
     </view>
 
-    <view class="learning-flow-editor__trash" :class="trashActive ? 'is-active' : ''">
+    <view
+      class="learning-flow-editor__trash"
+      :class="[
+        dragging && draggingType === 'node' ? 'is-visible' : '',
+        trashActive ? 'is-active' : '',
+      ]"
+    >
       <AppIcon
         class="learning-flow-editor__trash-icon"
         name="trash-2"
@@ -495,7 +501,13 @@ function resetDrag() {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     place-items: center;
-    opacity: 0.78;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+
+    &.is-visible {
+      opacity: 0.78;
+    }
 
     &:hover .learning-flow-editor__trash-icon {
       animation: trash-hover 360ms ease-out;

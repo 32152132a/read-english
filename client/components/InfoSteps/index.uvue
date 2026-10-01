@@ -1,8 +1,12 @@
 <template>
   <view class="info-steps">
     <text v-if="title" class="info-steps__title">{{ title }}</text>
-    <view v-for="(item, index) in items" :key="item.title" class="info-steps__item">
-      <text class="info-steps__number">{{ index + 1 }}</text>
+    <view
+      v-for="item in items"
+      :key="item.title + ':' + items.indexOf(item)"
+      class="info-steps__item"
+    >
+      <text class="info-steps__number">{{ items.indexOf(item) + 1 }}</text>
       <view>
         <text class="info-steps__item-title">{{ item.title }}</text>
         <text class="info-steps__text">{{ item.text }}</text>

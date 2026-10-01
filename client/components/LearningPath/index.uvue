@@ -8,13 +8,15 @@
     </view>
     <view class="learning-path__steps">
       <view
-        v-for="(step, index) in steps"
+        v-for="step in steps"
         :key="step.code"
         class="learning-path__step-item"
         @click="selectStep(step)"
       >
-        <text class="learning-path__number" :class="'is-' + step.state">{{ index + 1 }}</text>
-        <text v-if="index < steps.length - 1 && (index + 1) % 4 !== 0" class="learning-path__arrow">
+        <text class="learning-path__number" :class="'is-' + step.state">
+          {{ getStepNumber(step) }}
+        </text>
+        <text v-if="showsArrowAfter(step)" class="learning-path__arrow">
           ›
         </text>
         <view v-else class="learning-path__arrow-space" />
@@ -36,6 +38,15 @@ const progressCurrent = computed((): number => Math.min(props.currentIndex + 1, 
 function selectStep(step: StageItem) {
   if (step.state !== 'completed') return
   emit('select', step.route)
+}
+
+function getStepNumber(step: StageItem): number {
+  return props.steps.indexOf(step) + 1
+}
+
+function showsArrowAfter(step: StageItem): boolean {
+  const stepNumber = getStepNumber(step)
+  return stepNumber < props.steps.length && stepNumber % 4 !== 0
 }
 </script>
 

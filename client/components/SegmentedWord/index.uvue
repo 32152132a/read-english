@@ -3,8 +3,10 @@
     <text v-if="word" class="segmented-word__word">{{ word }}</text>
     <PhonemeDisplay v-if="ipaSegments.length > 0" :segments="ipaSegments" size="default" />
     <view class="segmented-word__parts">
-      <template v-for="(part, index) in parts" :key="part.text">
-        <text v-if="separator && index > 0" class="segmented-word__separator">{{ separator }}</text>
+      <template v-for="part in parts" :key="part.text + ':' + parts.indexOf(part)">
+        <text v-if="separator && part !== parts[0]" class="segmented-word__separator">
+          {{ separator }}
+        </text>
         <text :class="part.emphasized ? 'segmented-word__part--emphasized' : ''">
           {{ part.text }}
         </text>

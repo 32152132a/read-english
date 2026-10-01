@@ -26,6 +26,8 @@ const target = computed(() => {
   const content = unit.value?.content
   const teachingSyllables = content?.teachingConfig?.syllables
   const stressParts = content?.stressParts ?? []
+  const teachingStressIndex = teachingSyllables?.findIndex((item) => item.stress === 1) ?? -1
+  const fallbackStressIndex = stressParts.findIndex((text) => text === text.toUpperCase())
 
   return {
     word: content?.word ?? '',
@@ -38,9 +40,7 @@ const target = computed(() => {
         text,
         emphasized: text === text.toUpperCase(),
       })),
-    stressIndex:
-      (teachingSyllables?.findIndex((item) => item.stress === 1) ??
-        stressParts.findIndex((text) => text === text.toUpperCase())) + 1,
+    stressIndex: (teachingStressIndex >= 0 ? teachingStressIndex : fallbackStressIndex) + 1,
     audioUrl: content?.standardAudioUrl ?? '',
   }
 })
