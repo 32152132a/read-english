@@ -16,11 +16,6 @@ export type SelectOption = {
   value: string
 }
 
-export type CategoryTabItem = {
-  value: string
-  label: string
-}
-
 export type NavigationItem = {
   label: string
   route: string
@@ -144,12 +139,6 @@ export type WordDecodingCardData = {
   audioUrl: string
   specialTips: string[]
   mappings: PronunciationMappingItem[]
-}
-
-export type RecentLearningItem = {
-  id: string
-  word: string
-  learnedAt: string
 }
 
 export type ProfileMenuItem = {
@@ -290,8 +279,6 @@ export type HttpError = {
 }
 
 export type BottomNavProps = { active?: string }
-export type CategoryTabsProps = { items?: CategoryTabItem[]; modelValue?: string }
-export type ComingSoonProps = { title?: string }
 export type CorrectionIssueProps = { data: AiCorrectionData }
 export type CorrectionPracticeProps = { data: CorrectionPracticeData }
 export type CorrectionActionsProps = { primaryText: string; secondaryText: string }
@@ -341,7 +328,6 @@ export type PronunciationGuideProps = {
   steps: string[]
 }
 export type WordDecodingCardProps = { data: WordDecodingCardData }
-export type RecentLearningProps = { items?: RecentLearningItem[] }
 export type RecordingPanelProps = {
   title?: string
   activeText?: string
