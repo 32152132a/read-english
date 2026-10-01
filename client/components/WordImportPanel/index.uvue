@@ -11,7 +11,23 @@
       :maxlength="30000"
       :disabled="busy"
     />
-    <button class="primary-button" :disabled="busy || !enabled" @click="create">
+    <text class="word-import__count" :class="tooManyWords ? 'is-over-limit' : ''">
+      已输入 {{ wordCount }} / 200 个单词
+    </text>
+    <view v-if="parsedWords.length > 0" class="word-import__words">
+      <text
+        v-for="item in parsedWords"
+        :key="item.word + ':' + item.position"
+        class="word-import__word"
+      >
+        {{ item.word }}
+      </text>
+    </view>
+    <button
+      class="primary-button"
+      :disabled="busy || !enabled || tooManyWords"
+      @click="create"
+    >
       {{ busy ? '正在提交' : '生成词库' }}
     </button>
     <text v-if="!enabled" class="muted">DeepSeek 尚未配置，暂时不能生成。</text>
@@ -53,6 +69,10 @@
 <script setup lang="uts">
 import { request, showRequestError } from '../../src/services/http.uts'
 import type { ContentCapabilities, ContentJob } from '../../src/config/content-types.uts'
+type ParsedWord = {
+  word: string
+  position: number
+}
 const name = ref(''),
   words = ref(''),
   error = ref(''),
@@ -64,6 +84,18 @@ const done = computed(
   () =>
     job.value?.items.filter((i) => i.status === 'SUCCEEDED' || i.status === 'FAILED').length ?? 0
 )
+const parsedWords = computed((): ParsedWord[] => {
+  const input = words.value.trim()
+  if (!input) return []
+  const result: ParsedWord[] = []
+  input.split(/[\s,，;；]+/).forEach((word) => {
+    if (!word) return
+    result.push({ word: word.toLowerCase(), position: result.length })
+  })
+  return result
+})
+const wordCount = computed((): number => parsedWords.value.length)
+const tooManyWords = computed((): boolean => wordCount.value > 200)
 let timer = 0,
   visible = false,
   requestKey = '',
@@ -133,9 +165,14 @@ async function create() {
     error.value = '请填写词库名称和单词'
     return
   }
+  if (tooManyWords.value) {
+    error.value = '每次最多输入 200 个单词，请删减后再生成'
+    return
+  }
   busy.value = true
   error.value = ''
-  const input = name.value + '\n' + words.value
+  const submittedWords = parsedWords.value.map((item) => item.word)
+  const input = name.value + '\n' + submittedWords.join('\n')
   if (input !== submittedInput) {
     submittedInput = input
     requestKey = 'words-' + Date.now() + '-' + Math.random().toString(36).slice(2)
@@ -145,7 +182,7 @@ async function create() {
       url: '/word-libraries/custom-jobs',
       method: 'POST',
       header: { 'Idempotency-Key': requestKey },
-      data: { name: name.value.trim(), wordsText: words.value },
+      data: { name: name.value.trim(), words: submittedWords },
     })
     poll()
     await refreshHistory()
@@ -243,6 +280,34 @@ onUnmounted(stop)
   }
   &__error {
     color: #cf4040;
+  }
+  &__count {
+    margin-top: -16rpx;
+    color: $color-text-secondary;
+    font-size: 24rpx;
+    text-align: right;
+
+    &.is-over-limit {
+      color: #cf4040;
+    }
+  }
+  &__words {
+    max-height: 220rpx;
+    padding: 16rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 12rpx;
+    background-color: $color-surface;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+    overflow-y: auto;
+  }
+  &__word {
+    padding: 8rpx 16rpx;
+    border-radius: 999rpx;
+    background-color: #edf0ff;
+    color: $color-primary;
+    font-size: 24rpx;
   }
 }
 </style>

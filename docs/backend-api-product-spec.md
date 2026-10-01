@@ -718,9 +718,11 @@ evaluation        AI评测
 ```json
 {
   "name": "我的产品词库",
-  "wordsText": "deploy, repository, dependency, framework"
+  "words": ["deploy", "repository", "dependency", "framework"]
 }
 ```
+
+前端负责把逗号、空格或换行分隔的输入解析为数组；后端校验数组包含 1–200 项，并逐项校验单词格式。
 
 响应：
 
