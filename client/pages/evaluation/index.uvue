@@ -22,22 +22,26 @@ import type { EvaluationContent } from '../../src/config/api-types.uts'
 
 const { unit, current, total, error, loadSession } =
   useLearningSession<EvaluationContent>('evaluation')
-const target = computed(() => ({
-  word: unit.value?.content.word ?? '',
-  ipaSegments: unit.value?.content.teachingConfig?.ipaSegments ?? [
-    { text: unit.value?.content.ipa ?? '', tone: 'muted' },
-  ],
-  syllables:
-    unit.value?.content.teachingConfig?.syllables ??
-    (unit.value?.content.stressParts ?? []).map((text) => ({
-      text,
-      emphasized: text === text.toUpperCase(),
-    })),
-  stressIndex:
-    unit.value?.content.teachingConfig?.syllables != null
-      ? unit.value!.content.teachingConfig!.syllables!.findIndex((item) => item.stress === 1) + 1
-      : (unit.value?.content.stressParts ?? []).findIndex((text) => text === text.toUpperCase()) +
-        1,
-  audioUrl: unit.value?.content.standardAudioUrl ?? '',
-}))
+const target = computed(() => {
+  const content = unit.value?.content
+  const teachingSyllables = content?.teachingConfig?.syllables
+  const stressParts = content?.stressParts ?? []
+
+  return {
+    word: content?.word ?? '',
+    ipaSegments: content?.teachingConfig?.ipaSegments ?? [
+      { text: content?.ipa ?? '', tone: 'muted' },
+    ],
+    syllables:
+      teachingSyllables ??
+      stressParts.map((text) => ({
+        text,
+        emphasized: text === text.toUpperCase(),
+      })),
+    stressIndex:
+      (teachingSyllables?.findIndex((item) => item.stress === 1) ??
+        stressParts.findIndex((text) => text === text.toUpperCase())) + 1,
+    audioUrl: content?.standardAudioUrl ?? '',
+  }
+})
 </script>

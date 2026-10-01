@@ -12,10 +12,10 @@ export function setLoginTokens(accessToken: string, refreshToken: string) {
 
 export function getToken(): string {
   const token = uni.getStorageSync(TOKEN_KEY)
-  return token == null ? '' : (token as string).trim()
+  return (token as string | null)?.trim() ?? ''
 }
 
-export function setToken(token: string) {
+function setToken(token: string) {
   uni.setStorageSync(TOKEN_KEY, token.trim())
 }
 

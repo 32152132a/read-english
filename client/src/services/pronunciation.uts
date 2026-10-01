@@ -3,7 +3,7 @@ import { getAccentLanguage } from './accent.uts'
 
 let activeStop: (() => void) | null = null
 
-export function canReadWord(word: string): boolean {
+function canReadWord(word: string): boolean {
   return /^[A-Za-z]+(?:['’-][A-Za-z]+)*$/.test(word.trim())
 }
 
@@ -86,11 +86,6 @@ export function playPronunciation(
       return stop
     }
 
-    // 只有明确传入英文单词的入口允许兜底，不合成 IPA 或题目答案。
-    if (!canReadWord(word)) {
-      fail('暂无发音音频')
-      return stop
-    }
     // #ifdef WEB
     if (
       typeof window.speechSynthesis === 'undefined' ||

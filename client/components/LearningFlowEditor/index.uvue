@@ -129,7 +129,7 @@ watch(
 
 function getTemplate(code: string): LearningFlowTemplate {
   const template = props.templates.find((item) => item.code === code)
-  return template == null ? props.templates[0] : template
+  return template ?? props.templates[0]
 }
 
 function formatNodeName(name: string): string {

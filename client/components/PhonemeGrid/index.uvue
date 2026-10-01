@@ -26,8 +26,7 @@ const accent = ref(getAccentPreference())
 
 function audioFor(item: PhonemeGridItem): string {
   const preferred = accent.value === 'GB' ? item.audioGbUrl : item.audioUsUrl
-  if (preferred != null && preferred.length > 0) return preferred
-  return item.audioUrl ?? ''
+  return preferred?.length ? preferred : (item.audioUrl ?? '')
 }
 
 onShow(() => {

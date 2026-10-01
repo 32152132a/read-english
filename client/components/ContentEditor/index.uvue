@@ -125,7 +125,6 @@ async function persist() {
     data: { version: detail.value!.version, config },
   })
   populate(value)
-  return value
 }
 async function save() {
   if (busy.value) return

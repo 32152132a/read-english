@@ -29,10 +29,6 @@ function createHttpError(statusCode: number, message: string, data: any | null):
   }
 }
 
-export function getApiBaseUrl(): string {
-  return apiBaseUrl
-}
-
 export function navigateToErrorPage(code: string) {
   const pages = getCurrentPages()
   if (pages.length > 0 && pages[pages.length - 1].route === 'pages/error/index') return
@@ -196,7 +192,7 @@ export function request<T>(options: HttpOptions): Promise<T> {
         throw error
       }
       await refreshLogin()
-      return await sendRequest<T>(options)
+      return sendRequest<T>(options)
     })
     .finally(() => {
       if (shouldShowLoading) finishLoading()

@@ -81,18 +81,20 @@ function statusText(status: string): string {
     )[status] as string) ?? status
   )
 }
-function stop() {
-  visible = false
+function clearPollTimer() {
   clearTimeout(timer)
   timer = 0
+}
+function stop() {
+  visible = false
+  clearPollTimer()
 }
 function updateJob(result: ContentJob) {
   job.value = result
   history.value = history.value.map((item) => (item.id === result.id ? result : item))
 }
 async function poll() {
-  clearTimeout(timer)
-  timer = 0
+  clearPollTimer()
   const id = job.value?.id
   if (!id || !visible) return
   try {
@@ -112,7 +114,7 @@ async function poll() {
       job.value?.id === id &&
       (job.value?.status === 'PENDING' || job.value?.status === 'PROCESSING')
     ) {
-      clearTimeout(timer)
+      clearPollTimer()
       timer = setTimeout(poll, 2000)
     }
   }
@@ -145,7 +147,6 @@ async function create() {
       header: { 'Idempotency-Key': requestKey },
       data: { name: name.value.trim(), wordsText: words.value },
     })
-    clearTimeout(timer)
     poll()
     await refreshHistory()
   } catch (e) {
@@ -158,7 +159,7 @@ async function create() {
 async function selectJob(id: string) {
   if (busy.value) return
   busy.value = true
-  clearTimeout(timer)
+  clearPollTimer()
   try {
     updateJob(await request<ContentJob>({ url: '/word-libraries/custom-jobs/' + id }))
     poll()
@@ -176,7 +177,6 @@ async function retry() {
       url: '/word-libraries/custom-jobs/' + job.value.id + '/retry',
       method: 'POST',
     })
-    clearTimeout(timer)
     poll()
   } catch (e) {
     showRequestError(e)
