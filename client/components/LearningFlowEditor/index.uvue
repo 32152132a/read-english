@@ -426,8 +426,10 @@ function resetDrag() {
   }
 
   &__templates {
-    display: grid;
-    grid-template-columns: repeat(5, 104rpx);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 14rpx;
   }
 

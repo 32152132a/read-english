@@ -76,6 +76,8 @@
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarBackgroundColor": "#F7F8FC",
-    "backgroundColor": "#F7F8FC"
+    "backgroundColor": "#F7F8FC",
+    "rpxCalcMaxDeviceWidth": 375,
+    "rpxCalcBaseDeviceWidth": 375
   }
 }

@@ -39,7 +39,6 @@ const pageData = reactive({
   ],
   learning: [
     { code: 'content', iconName: 'book-open', label: '内容维护' },
-    { code: 'progress', iconName: 'circle-check', label: '学习进度' },
     { code: 'libraries', iconName: 'book-open', label: '我的词库' },
     { code: 'learning-flow', iconName: 'workflow', label: '学习流程' },
   ],
@@ -60,10 +59,6 @@ const pageData = reactive({
 function handleMenu(code: string) {
   if (code === 'content') {
     uni.navigateTo({ url: '/pages/content/index' })
-    return
-  }
-  if (code === 'progress') {
-    uni.reLaunch({ url: '/pages/home/index' })
     return
   }
   if (code === 'libraries') {
