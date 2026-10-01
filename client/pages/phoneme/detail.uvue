@@ -65,7 +65,8 @@ const phonemeAudio = computed(() => {
   const value = content.value
   if (value == null) return ''
   const preferred = accent.value === 'GB' ? value.audioGbUrl : value.audioUsUrl
-  return preferred ?? value.audioUrl ?? ''
+  if (preferred != null && preferred.length > 0) return preferred
+  return value.audioUrl ?? ''
 })
 const examples = computed(() =>
   (content.value?.exampleWords ?? []).map((word) => ({

@@ -2,7 +2,7 @@ param(
     [switch]$Build,
     [string]$HBuilderXDirectory = 'D:\HBuilderX',
     [string]$ApiBaseUrl = '',
-    [int]$Port = 5173
+    [int]$Port = 15173
 )
 
 $ErrorActionPreference = 'Stop'

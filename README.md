@@ -26,7 +26,7 @@ npm run test:http
 .\scripts\web.ps1 -Build
 ```
 
-默认前端地址 `http://127.0.0.1:5173`。HBuilderX 安装目录不同可传 `-HBuilderXDirectory`。脚本只设置当前进程环境，不修改 HBuilderX 安装或系统配置。
+默认前端地址 `http://127.0.0.1:15173`。HBuilderX 安装目录不同可传 `-HBuilderXDirectory`。脚本只设置当前进程环境，不修改 HBuilderX 安装或系统配置。
 
 Web 开发环境首页提供本地联调登录，通过后端 Fake WeChat Gateway 建立独立身份；生产 Web 不启用 Fake 登录，微信小程序使用 `uni.login`。后端 MySQL 本地配置需显式启用已有 Fake Gateway。详细范围、缺口和验收结果见 [前后端联调记录](docs/frontend-backend-integration.md)。
 
@@ -42,7 +42,7 @@ Web 开发环境首页提供本地联调登录，通过后端 Fake WeChat Gatewa
 
 公共入口为 `PlayButton`，通过 `src` 接收音频地址；单词入口额外传入 `word`。优先播放音频；仅在地址为空时，Web 才根据用户偏好尝试美式或英式系统朗读，并显示“系统朗读”。没有匹配声线时交由浏览器选择英语声线；浏览器不支持时提示不可用。音频加载失败只提示重试，不切换朗读来源。
 
-音标的标准资源按 `audioUsUrl`、`audioGbUrl` 预留；资源为空时，Web 朗读配套例词并显示“听例词”，不会直接合成 IPA 字符。听辨题仍只播放标准音频。微信小程序保持音频播放方式，没有音频时提示缺失。切换播放、页面隐藏、组件卸载或输入变化会停止原播放；不同按钮不会同时排队朗读。
+音标播放按当前口音优先选择 `audioUsUrl` 或 `audioGbUrl`，没有对应口音资源时使用通用 `audioUrl`。三者都为空时，Web 朗读配套例词并显示“听例词”，不会直接合成 IPA 字符。听辨题仍只播放标准音频。微信小程序保持音频播放方式，没有音频时提示缺失。切换播放、页面隐藏、组件卸载或输入变化会停止原播放；不同按钮不会同时排队朗读。
 
 播放回归测试（在 client 目录）：`node --experimental-vm-modules --test scripts/test-pronunciation.mjs`。浏览器声线由用户设备提供，可能使用远程服务；系统朗读不等同于经过校对的标准音频。
 
