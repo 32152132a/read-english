@@ -64,6 +64,20 @@ export type ContentJob = {
   name: string
   status: string
   libraryId: string
+  total: number
+  completed: number
+  succeeded: number
+  failed: number
+}
+export type ContentJobDetails = {
+  id: string
+  name: string
+  status: string
+  libraryId: string
+  total: number
+  completed: number
+  succeeded: number
+  failed: number
   items: ContentJobItem[]
 }
 export type ContentStudy = { sessionId: string; items: TeachingConfig[] }

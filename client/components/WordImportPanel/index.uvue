@@ -15,13 +15,13 @@
       已输入 {{ wordCount }} / 200 个单词
     </text>
     <view v-if="parsedWords.length > 0" class="word-import__words">
-      <text
+      <view
         v-for="item in parsedWords"
         :key="item.word + ':' + item.position"
         class="word-import__word"
       >
-        {{ item.word }}
-      </text>
+        <text>{{ item.word }}</text>
+      </view>
     </view>
     <button
       class="primary-button"
@@ -34,10 +34,10 @@
     <text v-if="error" class="word-import__error">{{ error }}</text>
     <view v-if="job" class="word-import__result">
       <text>
-        {{ job!.name }} · {{ statusText(job!.status) }} · {{ done }} / {{ job!.items.length }}
+        {{ job!.name }} · {{ statusText(job!.status) }} · {{ job!.completed }} / {{ job!.total }}
       </text>
       <text class="muted">生成可在后台继续。可离开此页，稍后从历史任务打开。</text>
-      <view v-for="item in job!.items" :key="item.position" class="word-import__item">
+      <view v-for="item in jobItems" :key="item.position" class="word-import__item">
         <text>{{ item.word }} · {{ statusText(item.status) }}</text>
         <text v-if="item.errorMessage" class="muted">{{ item.errorMessage }}</text>
         <button v-if="item.entryId" class="outline-button" @click="edit(item.entryId!)">
@@ -68,7 +68,12 @@
 </template>
 <script setup lang="uts">
 import { request, showRequestError } from '../../src/services/http.uts'
-import type { ContentCapabilities, ContentJob } from '../../src/config/content-types.uts'
+import type {
+  ContentCapabilities,
+  ContentJob,
+  ContentJobDetails,
+  ContentJobItem,
+} from '../../src/config/content-types.uts'
 type ParsedWord = {
   word: string
   position: number
@@ -79,11 +84,8 @@ const name = ref(''),
   enabled = ref(false),
   busy = ref(false)
 const job = ref<ContentJob | null>(null),
-  history = ref<ContentJob[]>([])
-const done = computed(
-  () =>
-    job.value?.items.filter((i) => i.status === 'SUCCEEDED' || i.status === 'FAILED').length ?? 0
-)
+  history = ref<ContentJob[]>([]),
+  jobItems = ref<ContentJobItem[]>([])
 const parsedWords = computed((): ParsedWord[] => {
   const input = words.value.trim()
   if (!input) return []
@@ -125,6 +127,17 @@ function updateJob(result: ContentJob) {
   job.value = result
   history.value = history.value.map((item) => (item.id === result.id ? result : item))
 }
+function isFinished(status: string): boolean {
+  return status === 'SUCCEEDED' || status === 'PARTIAL_FAILED'
+}
+async function loadDetails(id: string) {
+  const result = await request<ContentJobDetails>({
+    url: '/word-libraries/custom-jobs/' + id + '/items',
+    showLoading: false,
+    showError: false,
+  })
+  if (job.value?.id === id) jobItems.value = result.items
+}
 async function poll() {
   clearPollTimer()
   const id = job.value?.id
@@ -137,6 +150,7 @@ async function poll() {
     })
     if (job.value?.id !== id) return
     updateJob(result)
+    if (isFinished(result.status)) await loadDetails(id)
     error.value = ''
   } catch (e) {
     if (job.value?.id === id) error.value = (e as Error).message
@@ -182,6 +196,7 @@ async function create() {
     requestKey = 'words-' + Date.now() + '-' + Math.random().toString(36).slice(2)
   }
   try {
+    jobItems.value = []
     job.value = await request<ContentJob>({
       url: '/word-libraries/custom-jobs',
       method: 'POST',
@@ -202,8 +217,10 @@ async function selectJob(id: string) {
   busy.value = true
   clearPollTimer()
   try {
+    jobItems.value = []
     updateJob(await request<ContentJob>({ url: '/word-libraries/custom-jobs/' + id }))
-    poll()
+    if (job.value != null && isFinished(job.value!.status)) await loadDetails(id)
+    else poll()
   } catch (e) {
     showRequestError(e)
   } finally {
@@ -214,6 +231,7 @@ async function retry() {
   if (!job.value || busy.value) return
   busy.value = true
   try {
+    jobItems.value = []
     job.value = await request<ContentJob>({
       url: '/word-libraries/custom-jobs/' + job.value.id + '/retry',
       method: 'POST',
@@ -302,18 +320,29 @@ onUnmounted(stop)
     border-radius: 12rpx;
     background-color: $color-surface;
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: flex-start;
     gap: 12rpx;
     overflow-y: auto;
   }
   &__word {
-    flex: 0 0 auto;
-    padding: 8rpx 16rpx;
+    width: fit-content;
+    padding: 8rpx 12rpx;
+    box-sizing: border-box;
     border: 1rpx solid $color-border;
     border-radius: 999rpx;
     background-color: #f5f6f8;
     color: $color-text-primary;
     font-size: 24rpx;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
   }
 }
 </style>

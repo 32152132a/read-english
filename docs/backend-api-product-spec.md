@@ -728,13 +728,18 @@ evaluation        AI评测
 
 ```json
 {
-  "jobId": "job_101",
+  "id": "job_101",
   "status": "PENDING",
-  "submittedWordCount": 4
+  "libraryId": "lib_ai_101",
+  "name": "我的产品词库",
+  "total": 4,
+  "completed": 0,
+  "succeeded": 0,
+  "failed": 0
 }
 ```
 
-限制建议：名称 2～40 字；一次 1～200 个词；支持中英文逗号、空格和换行；后端负责 trim、转小写去重和合法性校验。
+限制：名称 2～40 字；一次 1～200 个词；支持中英文逗号、空格和换行；后端负责 trim、转小写和合法性校验。重复项计入 200 项上限并按输入顺序保留。
 
 #### `GET /word-libraries/custom-jobs/{jobId}`
 
@@ -742,18 +747,18 @@ evaluation        AI评测
 
 ```json
 {
-  "jobId": "job_101",
+  "id": "job_101",
   "status": "SUCCEEDED",
-  "progress": 100,
-  "result": {
-    "libraryId": "lib_ai_101",
-    "name": "我的产品词库",
-    "wordCount": 4,
-    "invalidWords": []
-  },
-  "error": null
+  "libraryId": "lib_ai_101",
+  "name": "我的产品词库",
+  "total": 4,
+  "completed": 4,
+  "succeeded": 4,
+  "failed": 0
 }
 ```
+
+轮询只返回汇总数字，避免每两秒重复传输全部逐词结果。任务完成后通过 `GET /word-libraries/custom-jobs/{jobId}/items` 一次读取逐词状态、内容 ID、错误原因和尝试次数。
 
 解析成功后词库进入“可添加词库”，不自动加入“我的词库”。失败时保留可读原因，并允许：
 
