@@ -161,8 +161,12 @@ async function refreshHistory() {
 }
 async function create() {
   if (busy.value) return
-  if (name.value.trim().length < 2 || !words.value.trim()) {
-    error.value = '请填写词库名称和单词'
+  if (name.value.trim().length < 2) {
+    error.value = '词库名称至少需要 2 个字'
+    return
+  }
+  if (wordCount.value === 0) {
+    error.value = '请至少输入 1 个单词'
     return
   }
   if (tooManyWords.value) {
@@ -303,10 +307,12 @@ onUnmounted(stop)
     overflow-y: auto;
   }
   &__word {
+    flex: 0 0 auto;
     padding: 8rpx 16rpx;
+    border: 1rpx solid $color-border;
     border-radius: 999rpx;
-    background-color: #edf0ff;
-    color: $color-primary;
+    background-color: #f5f6f8;
+    color: $color-text-primary;
     font-size: 24rpx;
   }
 }
