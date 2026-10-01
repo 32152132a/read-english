@@ -1,7 +1,7 @@
 <template>
-  <view class="request-state">
-    <text>{{ error.length > 0 ? error : '正在加载…' }}</text>
-    <button v-if="error.length > 0" class="outline-button" @click="$emit('retry')">重试</button>
+  <view v-if="error.length > 0" class="request-state">
+    <text>{{ error }}</text>
+    <button class="outline-button" @click="$emit('retry')">重试</button>
   </view>
 </template>
 
