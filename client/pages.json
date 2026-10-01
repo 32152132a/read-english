@@ -71,6 +71,10 @@
     {
       "path": "pages/word-list/study",
       "style": { "navigationBarTitleText": "词库学习" }
+    },
+    {
+      "path": "pages/error/index",
+      "style": { "navigationStyle": "custom" }
     }
   ],
   "globalStyle": {

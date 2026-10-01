@@ -222,6 +222,21 @@ test('404 and server errors notify in place and preserve request details', async
   }
 })
 
+test('a terminal learning error opens the shared error page without a toast', async () => {
+  const app = await setup(() => ({
+    statusCode: 409,
+    data: {
+      code: 'FLOW_NODE_MISMATCH',
+      message: '学习节点与当前流程不匹配',
+      data: null,
+      requestId: 'flow-node-mismatch',
+    },
+  }))
+  await assert.rejects(app.request({ url: '/learning-stages/phoneme/session', showError: false }))
+  assert.deepEqual(app.navigation, ['/pages/error/index?code=FLOW_NODE_MISMATCH'])
+  assert.equal(app.toasts.length, 0)
+})
+
 test('concurrent failures and page catches produce one toast without losing individual errors', async () => {
   const app = await setup(async (options) => {
     await delay(options.url.endsWith('/first') ? 0 : 15)

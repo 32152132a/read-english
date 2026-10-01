@@ -1,4 +1,4 @@
-import { request, showRequestError } from '../services/http.uts'
+import { navigateToErrorPage, request, showRequestError } from '../services/http.uts'
 import { getLearningFlow } from '../services/learning-flow.uts'
 import { useLearningFlowNavigation } from './use-learning-flow-navigation.uts'
 import type { LearningSession } from '../config/api-types.uts'
@@ -24,7 +24,8 @@ export function useLearningSession<T>(templateCode: string) {
         const flow = await getLearningFlow()
         const node = flow.nodes[flow.currentNodeIndex]
         if (node == null || node.templateCode !== templateCode) {
-          throw new Error('请从首页当前学习任务或已完成节点进入')
+          navigateToErrorPage('INVALID_LEARNING_ACCESS')
+          return
         }
         flowNodeId = node.id
       }

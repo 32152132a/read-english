@@ -15,6 +15,9 @@ let pendingError: HttpError | null = null
 let lastErrorAt = 0
 let lastErrorWasUnauthorized = false
 let loginExpired = false
+let errorPageOpening = false
+
+const terminalErrorCodes = ['FLOW_NODE_MISMATCH']
 
 function createHttpError(statusCode: number, message: string, data: any | null): HttpError {
   return {
@@ -28,6 +31,27 @@ function createHttpError(statusCode: number, message: string, data: any | null):
 
 export function getApiBaseUrl(): string {
   return apiBaseUrl
+}
+
+export function navigateToErrorPage(code: string) {
+  const pages = getCurrentPages()
+  if (pages.length > 0 && pages[pages.length - 1].route === 'pages/error/index') return
+  if (errorPageOpening) return
+
+  errorPageOpening = true
+  uni.reLaunch({
+    url: '/pages/error/index?code=' + encodeURIComponent(code),
+    complete: () => {
+      errorPageOpening = false
+    },
+  })
+}
+
+function handleTerminalError(error: HttpError): boolean {
+  if (!terminalErrorCodes.includes(error.code)) return false
+  error.handled = true
+  navigateToErrorPage(error.code)
+  return true
 }
 
 export function showRequestError(error: unknown) {
@@ -180,6 +204,8 @@ export function request<T>(options: HttpOptions): Promise<T> {
     .catch((error) => {
       if ((error as HttpError).statusCode === 401 && options.auth !== false) {
         handleLoginExpired(error as HttpError)
+      } else if (handleTerminalError(error as HttpError)) {
+        // 终止学习流程的业务错误由统一错误页承接。
       } else if (options.showError !== false) {
         showRequestError(error)
       }
