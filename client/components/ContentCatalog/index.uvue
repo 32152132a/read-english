@@ -73,6 +73,7 @@ onShow(load)
 @import '../../uni.scss';
 .content-catalog {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24rpx;
   &__title {
     font-size: 36rpx;
@@ -94,6 +95,7 @@ onShow(load)
   }
   &__item {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12rpx;
     padding: 24rpx;
     border: 1rpx solid $color-border;
