@@ -4,7 +4,7 @@
     <WordLibrarySelector
       v-else
       :items="availableLibraries"
-      @confirm="addLibraries"
+      @view="viewLibrary"
       @custom="openCustomPage"
     />
     <DebugPageNav />
@@ -15,14 +15,12 @@ import WordLibrarySelector from '../../components/WordLibrarySelector/index.uvue
 import RequestState from '../../components/RequestState/index.uvue'
 import { storeToRefs } from 'pinia'
 import { useLibraryStore } from '../../src/stores/library.uts'
-import { showRequestError } from '../../src/services/http.uts'
 import type { HttpError } from '../../src/config/types.uts'
 
 const libraryStore = useLibraryStore()
 const { availableLibraries } = storeToRefs(libraryStore)
 const loaded = ref(false)
 const error = ref('')
-let saving = false
 
 async function loadLibraries() {
   error.value = ''
@@ -35,18 +33,8 @@ async function loadLibraries() {
   }
 }
 
-async function addLibraries(ids: string[]) {
-  if (saving || ids.length === 0) return
-  saving = true
-  try {
-    const result = await libraryStore.addLibraries(ids)
-    uni.showToast({ title: '已添加 ' + result.addedLibraryIds.length + ' 个词库', icon: 'none' })
-    uni.navigateBack()
-  } catch (failure) {
-    showRequestError(failure)
-  } finally {
-    saving = false
-  }
+function viewLibrary(id: string) {
+  uni.navigateTo({ url: '/pages/word-list/detail?id=' + encodeURIComponent(id) })
 }
 
 function openCustomPage() {

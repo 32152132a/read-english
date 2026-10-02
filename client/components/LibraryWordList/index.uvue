@@ -1,0 +1,126 @@
+<template>
+  <view class="library-word-list">
+    <view v-for="item in items" :key="item.id" class="library-word-list__item">
+      <PlayButton
+        class="library-word-list__play"
+        :src="item.audioUrl ?? ''"
+        :word="item.word"
+        size="tiny"
+      />
+      <view class="library-word-list__content">
+        <view class="library-word-list__heading">
+          <text class="library-word-list__word">{{ item.word }}</text>
+          <PhonemeDisplay :segments="segments(item)" size="mini" />
+          <text v-if="item.learned" class="library-word-list__learned">已学</text>
+        </view>
+        
+        <text class="library-word-list__meaning">{{ item.meaning }}</text>
+      </view>
+      <button
+        v-if="item.editable && item.contentId != null"
+        class="library-word-list__edit"
+        aria-label="修改单词内容"
+        @click="edit(item.contentId!)"
+      >
+        <AppIcon name="pencil" :size="32" label="修改单词内容" />
+      </button>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import AppIcon from '../AppIcon/index.uvue'
+import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
+import PlayButton from '../PlayButton/index.uvue'
+import type { LibraryWord } from '../../src/config/api-types.uts'
+import type { PhonemeSegment } from '../../src/config/types.uts'
+
+defineProps<{ items: LibraryWord[] }>()
+const emit = defineEmits(['edit'])
+
+function segments(item: LibraryWord): PhonemeSegment[] {
+  return item.teachingConfig?.ipaSegments ?? [{ text: item.ipa, tone: 'muted' }]
+}
+
+function edit(contentId: string) {
+  emit('edit', contentId)
+}
+</script>
+
+<style lang="scss">
+@import '../../uni.scss';
+
+.library-word-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14rpx;
+
+  &__item {
+    min-width: 0;
+    padding: 20rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 18rpx;
+    background-color: $color-surface;
+    display: grid;
+    grid-template-columns: 48rpx minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16rpx;
+  }
+
+  &__play {
+    justify-self: center;
+  }
+
+  &__content {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6rpx;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10rpx;
+  }
+
+  &__word {
+    min-width: 0;
+    font-size: 30rpx;
+    font-weight: 700;
+  }
+
+  &__learned {
+    padding: 2rpx 8rpx;
+    border-radius: 999rpx;
+    color: $color-success;
+    background-color: #ecfaf3;
+    font-size: 19rpx;
+  }
+
+  &__meaning {
+    color: $color-text-secondary;
+    font-size: 24rpx;
+    overflow-wrap: anywhere;
+  }
+
+  &__edit {
+    width: 64rpx;
+    height: 64rpx;
+    min-height: 64rpx;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 14rpx;
+    background-color: #f2f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::after {
+      border: 0;
+    }
+  }
+}
+</style>

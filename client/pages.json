@@ -38,11 +38,11 @@
     },
     {
       "path": "pages/word-list/detail",
-      "style": { "navigationBarTitleText": "词库单词" }
+      "style": { "navigationBarTitleText": "词库预览" }
     },
     {
       "path": "pages/word-list/add",
-      "style": { "navigationBarTitleText": "添加词库" }
+      "style": { "navigationBarTitleText": "词库中心" }
     },
     {
       "path": "pages/word-list/custom",

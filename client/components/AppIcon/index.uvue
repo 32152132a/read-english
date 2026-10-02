@@ -33,6 +33,7 @@ const iconNames = [
   'log-out',
   'workflow',
   'trash-2',
+  'pencil',
 ]
 
 const props = withDefaults(defineProps<AppIconProps>(), {

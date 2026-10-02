@@ -205,6 +205,15 @@ export type LibrarySummary = {
   learnedCount: number
   removable: boolean
 }
+export type LibraryDetail = {
+  id: string
+  name: string
+  type: string
+  description: string
+  wordCount: number
+  owned: boolean
+  removable: boolean
+}
 export type LibraryWord = {
   teachingConfig?: TeachingConfig
   id: string
@@ -212,6 +221,10 @@ export type LibraryWord = {
   ipa: string
   meaning: string
   audioUrl: string | null
+  order: number
+  learned: boolean
+  contentId: string | null
+  editable: boolean
 }
 export type LibraryWordPage = {
   items: LibraryWord[]

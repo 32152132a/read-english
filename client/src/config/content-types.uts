@@ -51,14 +51,6 @@ export type ContentEntry = {
 }
 export type ContentDetail = ContentEntry & { config: TeachingConfig }
 export type ContentCapabilities = { admin: boolean; generationEnabled: boolean; userId: string }
-export type ContentJobItem = {
-  position: number
-  word: string
-  status: string
-  entryId: string | null
-  errorMessage: string | null
-  attempts: number
-}
 export type ContentJob = {
   id: string
   name: string
@@ -68,16 +60,5 @@ export type ContentJob = {
   completed: number
   succeeded: number
   failed: number
-}
-export type ContentJobDetails = {
-  id: string
-  name: string
-  status: string
-  libraryId: string
-  total: number
-  completed: number
-  succeeded: number
-  failed: number
-  items: ContentJobItem[]
 }
 export type ContentStudy = { sessionId: string; items: TeachingConfig[] }

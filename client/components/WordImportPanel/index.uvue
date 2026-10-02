@@ -2,7 +2,7 @@
   <view class="word-import">
     <text class="word-import__title">AI 定制词库</text>
     <text class="muted">
-      粘贴 1–200 个单词，以逗号、空格或换行分隔。AI 校验成功后会直接加入词库，个别内容可再修改。
+      粘贴 1–200 个单词，以逗号、空格或换行分隔。生成后先预览内容，确认无误再添加到我的词库。
     </text>
     <input v-model="name" placeholder="词库名称（2–40字）" :maxlength="40" :disabled="busy" />
     <textarea
@@ -36,14 +36,7 @@
       <text>
         {{ job!.name }} · {{ statusText(job!.status) }} · {{ job!.completed }} / {{ job!.total }}
       </text>
-      <text class="muted">生成可在后台继续。可离开此页，稍后从历史任务打开。</text>
-      <view v-for="item in jobItems" :key="item.position" class="word-import__item">
-        <text>{{ item.word }} · {{ statusText(item.status) }}</text>
-        <text v-if="item.errorMessage" class="muted">{{ item.errorMessage }}</text>
-        <button v-if="item.entryId" class="outline-button" @click="edit(item.entryId!)">
-          修改内容
-        </button>
-      </view>
+      <text class="muted">生成完成后会进入词库预览，你可以逐个检查和修改。</text>
       <button
         v-if="job!.status === 'PARTIAL_FAILED'"
         class="outline-button"
@@ -52,28 +45,12 @@
       >
         重试失败项（每词最多3次）
       </button>
-      <button class="outline-button" @click="openLibraries">前往添加词库</button>
     </view>
-    <text class="word-import__title">最近任务</text>
-    <button
-      v-for="item in history"
-      :key="item.id"
-      class="outline-button"
-      :disabled="busy"
-      @click="selectJob(item.id)"
-    >
-      {{ item.name }} · {{ statusText(item.status) }}
-    </button>
   </view>
 </template>
 <script setup lang="uts">
 import { request, showRequestError } from '../../src/services/http.uts'
-import type {
-  ContentCapabilities,
-  ContentJob,
-  ContentJobDetails,
-  ContentJobItem,
-} from '../../src/config/content-types.uts'
+import type { ContentCapabilities, ContentJob } from '../../src/config/content-types.uts'
 type ParsedWord = {
   word: string
   position: number
@@ -83,9 +60,7 @@ const name = ref(''),
   error = ref(''),
   enabled = ref(false),
   busy = ref(false)
-const job = ref<ContentJob | null>(null),
-  history = ref<ContentJob[]>([]),
-  jobItems = ref<ContentJobItem[]>([])
+const job = ref<ContentJob | null>(null)
 const parsedWords = computed((): ParsedWord[] => {
   const input = words.value.trim()
   if (!input) return []
@@ -105,6 +80,7 @@ const invalidWords = computed((): string[] =>
 )
 let timer = 0,
   visible = false,
+  navigating = false,
   requestKey = '',
   submittedInput = ''
 function statusText(status: string): string {
@@ -113,7 +89,7 @@ function statusText(status: string): string {
       {
         PENDING: '等待处理',
         PROCESSING: '正在生成',
-        SUCCEEDED: '已加入词库',
+        SUCCEEDED: '生成完成',
         FAILED: '生成失败',
         PARTIAL_FAILED: '部分生成失败',
       } as UTSJSONObject
@@ -130,18 +106,14 @@ function stop() {
 }
 function updateJob(result: ContentJob) {
   job.value = result
-  history.value = history.value.map((item) => (item.id === result.id ? result : item))
 }
-function isFinished(status: string): boolean {
-  return status === 'SUCCEEDED' || status === 'PARTIAL_FAILED'
-}
-async function loadDetails(id: string) {
-  const result = await request<ContentJobDetails>({
-    url: '/word-libraries/custom-jobs/' + id + '/items',
-    showLoading: false,
-    showError: false,
+function openPreview(libraryId: string) {
+  if (navigating) return
+  navigating = true
+  stop()
+  uni.redirectTo({
+    url: '/pages/word-list/detail?id=' + encodeURIComponent(libraryId),
   })
-  if (job.value?.id === id) jobItems.value = result.items
 }
 async function poll() {
   clearPollTimer()
@@ -155,7 +127,10 @@ async function poll() {
     })
     if (job.value?.id !== id) return
     updateJob(result)
-    if (isFinished(result.status)) await loadDetails(id)
+    if (result.status === 'SUCCEEDED') {
+      openPreview(result.libraryId)
+      return
+    }
     error.value = ''
   } catch (e) {
     if (job.value?.id === id) error.value = (e as Error).message
@@ -170,13 +145,19 @@ async function poll() {
     }
   }
 }
-async function refreshHistory() {
+async function resumeActiveJob() {
   const result = await request<{ items: ContentJob[] }>({
     url: '/word-libraries/custom-jobs',
     showLoading: false,
     showError: false,
   })
-  history.value = result.items.map((item) => (item.id === job.value?.id ? job.value! : item))
+  const active = result.items.find(
+    (item) => item.status === 'PENDING' || item.status === 'PROCESSING' || item.status === 'PARTIAL_FAILED'
+  )
+  if (active != null) {
+    job.value = active
+    poll()
+  }
 }
 async function create() {
   if (busy.value) return
@@ -205,7 +186,6 @@ async function create() {
     requestKey = 'words-' + Date.now() + '-' + Math.random().toString(36).slice(2)
   }
   try {
-    jobItems.value = []
     job.value = await request<ContentJob>({
       url: '/word-libraries/custom-jobs',
       method: 'POST',
@@ -213,24 +193,8 @@ async function create() {
       data: { name: name.value.trim(), words: submittedWords },
     })
     poll()
-    await refreshHistory()
   } catch (e) {
     error.value = (e as Error).message
-    showRequestError(e)
-  } finally {
-    busy.value = false
-  }
-}
-async function selectJob(id: string) {
-  if (busy.value) return
-  busy.value = true
-  clearPollTimer()
-  try {
-    jobItems.value = []
-    updateJob(await request<ContentJob>({ url: '/word-libraries/custom-jobs/' + id }))
-    if (job.value != null && isFinished(job.value!.status)) await loadDetails(id)
-    else poll()
-  } catch (e) {
     showRequestError(e)
   } finally {
     busy.value = false
@@ -240,7 +204,6 @@ async function retry() {
   if (!job.value || busy.value) return
   busy.value = true
   try {
-    jobItems.value = []
     job.value = await request<ContentJob>({
       url: '/word-libraries/custom-jobs/' + job.value.id + '/retry',
       method: 'POST',
@@ -252,22 +215,17 @@ async function retry() {
     busy.value = false
   }
 }
-function edit(id: string) {
-  uni.navigateTo({ url: '/pages/content/edit?id=' + encodeURIComponent(id) })
-}
-function openLibraries() {
-  uni.navigateTo({ url: '/pages/word-list/add' })
-}
 onShow(async () => {
   visible = true
+  navigating = false
   try {
     const cap = await request<ContentCapabilities>({
       url: '/content/capabilities',
       showError: false,
     })
     enabled.value = cap.generationEnabled
-    await refreshHistory()
-    poll()
+    if (job.value == null) await resumeActiveJob()
+    else poll()
   } catch (e) {
     error.value = (e as Error).message
   }
@@ -299,15 +257,9 @@ onUnmounted(stop)
     font-size: 34rpx;
     font-weight: 700;
   }
-  &__result,
-  &__item {
+  &__result {
     display: grid;
     gap: 16rpx;
-  }
-  &__item {
-    padding: 20rpx;
-    border: 1rpx solid $color-border;
-    border-radius: 12rpx;
   }
   &__error {
     color: #cf4040;

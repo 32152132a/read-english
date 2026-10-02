@@ -2,45 +2,73 @@
   <view class="content-editor">
     <RequestState v-if="detail == null" :error="error" @retry="load" />
     <template v-else-if="form != null">
-      <text class="content-editor__title">{{ detail!.label }} · 内容维护</text>
+      <view class="content-editor__hero">
+        <view class="content-editor__hero-copy">
+          <text class="content-editor__eyebrow">
+            {{ form!.kind === 'WORD' ? '单词内容' : '音标内容' }}
+          </text>
+          <text class="content-editor__title">{{ detail!.label }}</text>
+          <text class="content-editor__ipa">/{{ form!.ipa }}/</text>
+        </view>
+        <PlayButton
+          v-if="form!.kind === 'WORD'"
+          :src="form!.audio.url"
+          :word="form!.word ?? detail!.label"
+          size="tiny"
+        />
+      </view>
       <text class="muted">保存后立即用于新的学习；已经开始的练习保持原内容。</text>
-      <view class="content-editor__form">
-        <text>音标 IPA</text>
+
+      <view class="content-editor__card content-editor__form">
+        <text class="content-editor__section-title">基础内容</text>
+        <text class="content-editor__label">音标 IPA</text>
         <input :disabled="busy" v-model="form!.ipa" placeholder="完整 IPA" />
         <template v-if="form!.kind === 'WORD'">
-          <text>中文释义</text>
-          <textarea :disabled="busy" v-model="form!.meaning" :maxlength="300" auto-height />
-          <text>教学提示</text>
-          <textarea :disabled="busy" v-model="form!.tip" :maxlength="500" auto-height />
+          <text class="content-editor__label">中文释义</text>
+          <textarea :disabled="busy" v-model="form!.meaning" :maxlength="300" />
+          <text class="content-editor__label">教学提示</text>
+          <textarea :disabled="busy" v-model="form!.tip" :maxlength="500" />
         </template>
         <template v-else>
-          <text>分组（VOWEL / CONSONANT）</text>
+          <text class="content-editor__label">分组（VOWEL / CONSONANT）</text>
           <input :disabled="busy" v-model="form!.group" />
-          <text>类别</text>
+          <text class="content-editor__label">类别</text>
           <input :disabled="busy" v-model="form!.category" />
-          <text>发音说明</text>
-          <textarea :disabled="busy" v-model="form!.description" :maxlength="1000" auto-height />
-          <text>口型类型（open / closed / relaxed / smile）</text>
+          <text class="content-editor__label">发音说明</text>
+          <textarea :disabled="busy" v-model="form!.description" :maxlength="1000" />
+          <text class="content-editor__label">口型类型（open / closed / relaxed / smile）</text>
           <input :disabled="busy" v-model="form!.mouth!.type" />
-          <text>口型图片 HTTPS 地址（可留空）</text>
+          <text class="content-editor__label">口型图片 HTTPS 地址（可留空）</text>
           <input :disabled="busy" v-model="form!.mouth!.imageUrl" />
-          <text>记忆提示</text>
-          <textarea :disabled="busy" v-model="form!.memoryTip" :maxlength="1000" auto-height />
+          <text class="content-editor__label">记忆提示</text>
+          <textarea :disabled="busy" v-model="form!.memoryTip" :maxlength="1000" />
         </template>
-        <text>标准音频 HTTPS 地址（可留空，单词由浏览器朗读）</text>
+      </view>
+
+      <view class="content-editor__card content-editor__form">
+        <text class="content-editor__section-title">发音资源</text>
+        <text class="content-editor__label">标准音频 HTTPS 地址（可留空）</text>
         <input :disabled="busy" v-model="form!.audio.url" />
+        <text v-if="form!.kind === 'WORD'" class="muted content-editor__help">
+          单词没有标准音频时，Web 会使用浏览器声线朗读。
+        </text>
         <template v-if="form!.kind === 'PHONEME'">
-          <text>美式发音音频（可留空）</text>
+          <text class="content-editor__label">美式发音音频（可留空）</text>
           <input :disabled="busy" v-model="form!.audio.usUrl" />
-          <text>英式发音音频（可留空）</text>
+          <text class="content-editor__label">英式发音音频（可留空）</text>
           <input :disabled="busy" v-model="form!.audio.gbUrl" />
         </template>
       </view>
+
       <button class="outline-button content-editor__advanced" @click="showAdvanced = !showAdvanced">
         {{ showAdvanced ? '收起高级配置' : '编辑拆分、提示和练习题' }}
       </button>
-      <view v-for="section in showAdvanced ? sections : []" :key="section.key" class="content-editor__section">
-        <text>{{ section.label }}</text>
+      <view
+        v-for="section in showAdvanced ? sections : []"
+        :key="section.key"
+        class="content-editor__card content-editor__section"
+      >
+        <text class="content-editor__section-title">{{ section.label }}</text>
         <text class="muted">{{ section.help }}</text>
         <textarea
           :disabled="busy"
@@ -50,18 +78,23 @@
         />
       </view>
       <text v-if="error" class="content-editor__error">{{ error }}</text>
-      <button class="primary-button" :disabled="busy" @click="save">保存修改</button>
+      <button class="primary-button content-editor__save" :disabled="busy" @click="save">
+        {{ busy ? '正在保存' : '保存修改' }}
+      </button>
       <text class="muted">
         复杂配置暂用分组 JSON 编辑；保存时服务端会检查片段、重音和题目答案。
       </text>
     </template>
   </view>
 </template>
+
 <script setup lang="uts">
 import { request, showRequestError } from '../../src/services/http.uts'
 import type { TeachingConfig, ContentDetail } from '../../src/config/content-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
+import PlayButton from '../PlayButton/index.uvue'
 import RequestState from '../RequestState/index.uvue'
+
 const props = defineProps<{ entryId: string }>()
 const detail = ref<ContentDetail | null>(null)
 const form = ref<TeachingConfig | null>(null)
@@ -69,6 +102,7 @@ const sections = ref<{ key: string; label: string; help: string; text: string }[
 const error = ref('')
 const busy = ref(false)
 const showAdvanced = ref(false)
+
 function populate(value: ContentDetail) {
   detail.value = value
   form.value = JSON.parse(JSON.stringify(value.config)) as TeachingConfig
@@ -100,6 +134,7 @@ function populate(value: ContentDetail) {
     text: JSON.stringify(object[item[0]] ?? [], null, 2),
   }))
 }
+
 async function load() {
   error.value = ''
   try {
@@ -108,6 +143,7 @@ async function load() {
     error.value = (e as HttpError).message
   }
 }
+
 function assemble(): TeachingConfig {
   const result = JSON.parse(JSON.stringify(form.value)) as UTSJSONObject
   sections.value.forEach((section) => {
@@ -117,6 +153,7 @@ function assemble(): TeachingConfig {
   })
   return result as unknown as TeachingConfig
 }
+
 async function persist() {
   const config = assemble()
   const value = await request<ContentDetail>({
@@ -126,6 +163,7 @@ async function persist() {
   })
   populate(value)
 }
+
 async function save() {
   if (busy.value) return
   busy.value = true
@@ -140,44 +178,124 @@ async function save() {
     busy.value = false
   }
 }
+
 watch(() => props.entryId, load, { immediate: true })
 </script>
+
 <style lang="scss">
 @import '../../uni.scss';
+
 .content-editor {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 28rpx;
+  width: 100%;
   min-width: 0;
-  &__title {
-    font-size: 36rpx;
-    font-weight: 700;
+
+  &__hero {
+    min-width: 0;
+    padding: 28rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 24rpx;
+    background: linear-gradient(145deg, #fff 0%, #f1f4ff 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 20rpx;
   }
+
+  &__hero-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7rpx;
+  }
+
+  &__eyebrow {
+    color: $color-primary;
+    font-size: 22rpx;
+  }
+
+  &__title {
+    min-width: 0;
+    font-size: 42rpx;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  &__ipa {
+    color: $color-text-secondary;
+    font-size: 27rpx;
+  }
+
+  &__card {
+    min-width: 0;
+    width: 100%;
+    padding: 24rpx;
+    box-sizing: border-box;
+    border: 1rpx solid $color-border;
+    border-radius: 20rpx;
+    background-color: $color-surface;
+  }
+
   &__form,
   &__section {
+    min-width: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 14rpx;
   }
+
+  &__section-title {
+    margin-bottom: 4rpx;
+    font-size: 29rpx;
+    font-weight: 700;
+  }
+
+  &__label {
+    margin-top: 8rpx;
+    font-size: 24rpx;
+    font-weight: 600;
+  }
+
   input,
   textarea {
+    display: block;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
     box-sizing: border-box;
     padding: 18rpx;
-    background: $color-surface;
+    background: #fafbfe;
     border: 1rpx solid $color-border;
     border-radius: 12rpx;
   }
+
   input {
     height: 80rpx;
   }
+
+  textarea {
+    min-height: 150rpx;
+  }
+
+  &__help {
+    font-size: 22rpx;
+  }
+
   &__json {
     height: 260rpx;
     font-family: monospace;
     font-size: 24rpx;
   }
-  &__advanced {
+
+  &__advanced,
+  &__save {
     width: 100%;
     margin: 0;
   }
+
   &__error {
     color: #cf4040;
   }

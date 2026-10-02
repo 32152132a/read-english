@@ -2,33 +2,75 @@
   <view class="page word-library-detail">
     <RequestState v-if="library == null" :error="error" @retry="loadDetail" />
     <template v-else>
-      <text class="page-title">{{ library!.name }}</text>
-      <text class="word-library-detail__description">{{ library!.description }}</text>
+      <view class="word-library-detail__summary">
+        <view class="word-library-detail__summary-copy">
+          <text class="word-library-detail__kind">{{ kindText(library!.type) }}</text>
+          <text class="page-title">{{ library!.name }}</text>
+          <text class="word-library-detail__description">{{ library!.description }}</text>
+        </view>
+        <text class="word-library-detail__count">{{ library!.wordCount }} 词</text>
+      </view>
+
+      <view class="word-library-detail__section-heading">
+        <text class="section-title">词库内容</text>
+        <text v-if="canEdit" class="muted">点击铅笔可以修正 AI 内容</text>
+      </view>
       <text v-if="words.length === 0" class="muted">词库暂无单词</text>
-      <ExampleWordList v-else :items="words" />
+      <LibraryWordList v-else :items="words" @edit="editWord" />
       <button v-if="hasMore" class="outline-button" :disabled="loadingMore" @click="loadWords()">
-        加载更多
+        {{ loadingMore ? '正在加载' : '加载更多' }}
       </button>
-      <TipCard text="可从「我的词库」点击开始学习，查看完整拆读配置并完成练习。" />
+
+      <button
+        v-if="!library!.owned"
+        class="primary-button word-library-detail__primary"
+        :disabled="saving"
+        @click="addLibrary"
+      >
+        {{ saving ? '正在添加' : '添加到我的词库' }}
+      </button>
+      <button
+        v-else
+        class="primary-button word-library-detail__primary"
+        @click="startLearning"
+      >
+        开始学习
+      </button>
+      <TipCard
+        :text="
+          library!.owned
+            ? '学习时会使用这里显示的最新内容。'
+            : '确认单词内容后，再添加到我的词库开始学习。'
+        "
+      />
     </template>
     <DebugPageNav />
   </view>
 </template>
+
 <script setup lang="uts">
-import ExampleWordList from '../../components/ExampleWordList/index.uvue'
+import LibraryWordList from '../../components/LibraryWordList/index.uvue'
 import RequestState from '../../components/RequestState/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import { request, showRequestError } from '../../src/services/http.uts'
-import type { LibrarySummary, LibraryWordPage } from '../../src/config/api-types.uts'
-import type { ExampleWord, HttpError } from '../../src/config/types.uts'
+import type { LibraryDetail, LibraryWord, LibraryWordPage } from '../../src/config/api-types.uts'
+import type { HttpError } from '../../src/config/types.uts'
 
-const library = ref<LibrarySummary | null>(null)
-const words = ref<ExampleWord[]>([])
+const library = ref<LibraryDetail | null>(null)
+const words = ref<LibraryWord[]>([])
 const hasMore = ref(false)
 const loadingMore = ref(false)
+const saving = ref(false)
 const error = ref('')
+const canEdit = computed((): boolean => words.value.some((item) => item.editable))
 let libraryId = ''
 let cursor: string | null = null
+
+function kindText(type: string): string {
+  if (type === 'BASE') return '基础词库'
+  if (type === 'AI_CUSTOM') return '我的定制'
+  return '专业词库'
+}
 
 async function loadWords(showError: boolean = true) {
   if (loadingMore.value) return
@@ -42,14 +84,7 @@ async function loadWords(showError: boolean = true) {
         '/words?size=20' +
         (cursor == null ? '' : '&cursor=' + encodeURIComponent(cursor)),
     })
-    words.value = words.value.concat(
-      page.items.map((word) => ({
-        word: word.word,
-        segments: word.teachingConfig?.ipaSegments ?? [{ text: word.ipa, tone: 'muted' }],
-        zh: word.meaning,
-        audioUrl: word.audioUrl ?? '',
-      }))
-    )
+    words.value = words.value.concat(page.items)
     cursor = page.nextCursor
     hasMore.value = page.hasMore
   } catch (failure) {
@@ -62,10 +97,10 @@ async function loadWords(showError: boolean = true) {
 }
 
 async function loadDetail() {
+  if (libraryId.length === 0) return
   error.value = ''
   try {
-    if (libraryId.length === 0) throw new Error('请从我的词库选择要查看的词库')
-    const detail = await request<LibrarySummary>({
+    const detail = await request<LibraryDetail>({
       showError: false,
       url: '/word-libraries/' + encodeURIComponent(libraryId),
     })
@@ -79,24 +114,110 @@ async function loadDetail() {
   }
 }
 
+async function addLibrary() {
+  if (saving.value) return
+  saving.value = true
+  try {
+    await request<{ addedLibraryIds: string[] }>({
+      url: '/word-libraries/mine',
+      method: 'POST',
+      data: { libraryIds: [libraryId] },
+    })
+    uni.showToast({ title: '已添加到我的词库', icon: 'none' })
+    setTimeout(() => uni.reLaunch({ url: '/pages/word-list/index' }), 400)
+  } catch (failure) {
+    showRequestError(failure)
+  } finally {
+    saving.value = false
+  }
+}
+
+function editWord(contentId: string) {
+  uni.navigateTo({ url: '/pages/content/edit?id=' + encodeURIComponent(contentId) })
+}
+
+function startLearning() {
+  uni.navigateTo({ url: '/pages/word-list/study?id=' + encodeURIComponent(libraryId) })
+}
+
 onLoad((options) => {
   libraryId = options['id'] ?? ''
-  loadDetail()
+  if (libraryId.length === 0) error.value = '请先选择要查看的词库'
 })
+onShow(loadDetail)
 </script>
+
 <style lang="scss">
 @import '../../uni.scss';
 
 .word-library-detail {
-  &__description {
-    display: block;
-    margin: 12rpx 0 28rpx;
-    color: $color-text-secondary;
+  display: flex;
+  flex-direction: column;
+  // grid-template-columns: minmax(0, 1fr);
+  gap: 24rpx;
+
+  &__summary {
+    min-width: 0;
+    padding: 28rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 24rpx;
+    background: linear-gradient(145deg, #fff 0%, #f3f5ff 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 20rpx;
   }
 
-  &__action {
+  &__summary-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10rpx;
+  }
+
+  &__kind {
+    width: fit-content;
+    padding: 5rpx 12rpx;
+    border-radius: 999rpx;
+    color: $color-primary;
+    background-color: #e9edff;
+    font-size: 21rpx;
+  }
+
+  &__description {
+    color: $color-text-secondary;
+    overflow-wrap: anywhere;
+  }
+
+  &__count {
+    padding: 8rpx 14rpx;
+    border-radius: 12rpx;
+    color: $color-text-secondary;
+    background-color: #fff;
+    font-size: 23rpx;
+    white-space: nowrap;
+  }
+
+  &__section-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16rpx;
+
+    .section-title {
+      margin: 8rpx 0 0;
+    }
+
+    .muted {
+      font-size: 22rpx;
+      text-align: right;
+    }
+  }
+
+  &__primary {
     width: 100%;
-    margin-top: 28rpx;
+    margin: 8rpx 0 0;
   }
 }
 </style>

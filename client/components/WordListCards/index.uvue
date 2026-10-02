@@ -1,36 +1,41 @@
 <template>
   <view class="word-list-cards">
-    <view v-for="item in items" :key="item.id" class="word-list-cards__card">
+    <view
+      v-for="item in items"
+      :key="item.id"
+      class="word-list-cards__card"
+      hover-class="is-pressed"
+      @click="$emit('view', item.id)"
+    >
       <view class="word-list-cards__icon" :class="'is-' + item.tone">{{ item.icon }}</view>
       <view class="word-list-cards__content">
         <text class="word-list-cards__kind">{{ item.kindLabel }}</text>
         <text class="word-list-cards__title">{{ item.title }}</text>
         <text class="word-list-cards__description">{{ item.description }}</text>
       </view>
+      <button
+        v-if="item.removable"
+        class="word-list-cards__remove"
+        aria-label="删除词库"
+        @click.stop="$emit('remove', item.id)"
+      >
+        <AppIcon name="trash-2" :size="30" label="删除词库" />
+      </button>
       <view class="word-list-cards__footer">
         <view class="word-list-cards__progress">
           <text>{{ item.completed }} / {{ item.total }}</text>
           <ProgressBar :current="item.completed" :total="item.total" />
         </view>
-        <view class="word-list-cards__actions" :class="item.removable ? 'has-remove' : ''">
-          <button class="outline-button" @click="$emit('view', item.id)">查看单词</button>
-          <button class="primary-button" @click="$emit('learn', item.id)">
-            {{ item.completed > 0 ? '继续学习' : '去学习' }}
-          </button>
-          <button
-            v-if="item.removable"
-            class="outline-button is-remove"
-            @click="$emit('remove', item.id)"
-          >
-            删除
-          </button>
-        </view>
+        <button class="word-list-cards__learn" @click.stop="$emit('learn', item.id)">
+          {{ item.completed > 0 ? '继续学习' : '开始学习' }}
+        </button>
       </view>
     </view>
   </view>
 </template>
 
 <script setup lang="uts">
+import AppIcon from '../AppIcon/index.uvue'
 import ProgressBar from '../ProgressBar/index.uvue'
 import type { WordListCardItem, WordListCardsProps } from '../../src/config/types.uts'
 
@@ -50,23 +55,27 @@ defineEmits(['learn', 'view', 'remove'])
 
   &__card {
     display: grid;
-    grid-template-columns: 82rpx minmax(0, 1fr);
+    grid-template-columns: 72rpx minmax(0, 1fr) 64rpx;
     align-items: center;
     gap: 22rpx;
     padding: 24rpx;
     border: 1rpx solid $color-border;
     border-radius: 18rpx;
     background: #fff;
+
+    &.is-pressed {
+      background-color: #f8f9ff;
+    }
   }
 
   &__icon {
-    width: 82rpx;
-    height: 82rpx;
+    width: 72rpx;
+    height: 72rpx;
     border-radius: 16rpx;
     background: #eef2ff;
     color: $color-primary;
     font-size: 28rpx;
-    line-height: 82rpx;
+    line-height: 72rpx;
     text-align: center;
 
     &.is-green {
@@ -90,31 +99,46 @@ defineEmits(['learn', 'view', 'remove'])
   &__footer {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
     gap: 18rpx;
   }
 
-  &__actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14rpx;
+  &__remove {
+    width: 64rpx;
+    height: 64rpx;
+    min-height: 64rpx;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 14rpx;
+    background-color: #fff5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    button {
-      width: 100%;
-      min-height: 64rpx;
-      margin: 0;
-      font-size: 23rpx;
+    &::after {
+      border: 0;
     }
+  }
 
-    &.has-remove {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  &__learn {
+    width: auto;
+    min-width: 154rpx;
+    min-height: 64rpx;
+    margin: 0;
+    padding: 0 22rpx;
+    border: 0;
+    border-radius: 14rpx;
+    color: #fff;
+    background-color: $color-primary;
+    font-size: 24rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    .is-remove {
-      grid-column: 1 / -1;
-      border-color: #e7b9bd;
-      color: #c55259;
-      background-color: #fff7f7;
+    &::after {
+      border: 0;
     }
   }
 
