@@ -149,7 +149,7 @@ function sendRequest<T>(options: HttpOptions): Promise<T> {
       method: options.method ?? 'GET',
       data: options.data,
       header: headers,
-      timeout: options.timeout ?? 10000,
+      timeout: options.timeout ?? 30000,
       success: (response) => {
         if (
           response.statusCode >= 200 &&
