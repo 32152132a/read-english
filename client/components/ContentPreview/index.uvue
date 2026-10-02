@@ -1,55 +1,100 @@
 <template>
   <view class="content-preview">
-    <view class="content-preview__heading">
-      <text class="content-preview__title">{{ config.word ?? config.ipa }}</text>
-      <PlayButton
-        :src="config.audio.url"
-        :word="config.kind === 'WORD' ? (config.word ?? '') : ''"
-        size="mini"
-      />
+    <view class="content-preview__hero">
+      <view class="content-preview__heading">
+        <view class="content-preview__heading-copy">
+          <text class="content-preview__eyebrow">
+            {{ config.kind === 'WORD' ? '当前单词' : '当前音标' }}
+          </text>
+          <text class="content-preview__title">{{ config.word ?? config.ipa }}</text>
+        </view>
+        <PlayButton
+          :src="config.audio.url"
+          :word="config.kind === 'WORD' ? (config.word ?? '') : ''"
+          size="hero"
+        />
+      </view>
+      <view class="content-preview__pronunciation">
+        <text class="content-preview__slash">/</text>
+        <PhonemeDisplay :segments="config.ipaSegments" />
+        <text class="content-preview__slash">/</text>
+      </view>
+      <text v-if="config.meaning" class="content-preview__meaning">{{ config.meaning }}</text>
+      <text v-if="config.description" class="content-preview__description">
+        {{ config.description }}
+      </text>
     </view>
-    <PhonemeDisplay :segments="config.ipaSegments" size="large" />
-    <text v-if="config.meaning">{{ config.meaning }}</text>
-    <text v-if="config.description">{{ config.description }}</text>
+
     <MouthShape
       v-if="config.mouth"
       :type="config.mouth.type"
       :image-url="config.mouth.imageUrl ?? ''"
     />
-    <text v-for="(step, index) in config.pronunciationSteps ?? []" :key="step">
-      {{ Number(index) + 1 }}. {{ step }}
-    </text>
+
+    <view v-if="(config.pronunciationSteps ?? []).length > 0" class="content-preview__section">
+      <view class="content-preview__section-heading">
+        <text class="content-preview__section-index">01</text>
+        <text class="content-preview__label">发音步骤</text>
+      </view>
+      <view class="content-preview__steps">
+        <view
+          v-for="(step, index) in config.pronunciationSteps"
+          :key="step"
+          class="content-preview__step"
+        >
+          <text class="content-preview__step-number">{{ Number(index) + 1 }}</text>
+          <text>{{ step }}</text>
+        </view>
+      </view>
+    </view>
+
     <view v-if="(config.syllables ?? []).length > 0" class="content-preview__section">
-      <text class="content-preview__label">音节与重音</text>
+      <view class="content-preview__section-heading">
+        <text class="content-preview__section-index">01</text>
+        <text class="content-preview__label">音节与重音</text>
+      </view>
       <view class="content-preview__syllables">
         <view
           v-for="(syllable, index) in config.syllables"
           :key="index"
+          class="content-preview__syllable"
           :class="syllable.emphasized ? 'is-emphasized' : ''"
         >
-          <text>{{ syllable.text }} /{{ syllable.ipa }}/</text>
-          <text class="muted">
+          <text class="content-preview__syllable-text">{{ syllable.text }}</text>
+          <text class="content-preview__syllable-ipa">/{{ syllable.ipa }}/</text>
+          <text class="content-preview__syllable-stress">
             {{ syllable.stress === 1 ? '主重音' : syllable.stress === 2 ? '次重音' : '非重读' }}
           </text>
         </view>
       </view>
     </view>
-    <view v-if="(config.parts ?? []).length > 0" class="content-preview__section">
-      <text class="content-preview__label">字母拆读</text>
-      <view v-for="(part, index) in config.parts" :key="index" class="content-preview__part">
-        <text>{{ part.letters }}</text>
-        <PhonemeDisplay :segments="part.segments" />
-        <text class="muted">{{ part.tip }}</text>
+
+    <TipCard v-if="config.tip" :text="config.tip" />
+    <view
+      v-if="[...(config.commonTips ?? []), ...(config.specialTips ?? [])].length > 0"
+      class="content-preview__tips"
+    >
+      <text class="content-preview__label">拼读提醒</text>
+      <view
+        v-for="tip in [...(config.commonTips ?? []), ...(config.specialTips ?? [])]"
+        :key="tip"
+        class="content-preview__tip"
+      >
+        <view class="content-preview__tip-dot" />
+        <text>{{ tip }}</text>
       </view>
     </view>
-    <TipCard v-if="config.tip" :text="config.tip" />
-    <text v-for="tip in [...(config.commonTips ?? []), ...(config.specialTips ?? [])]" :key="tip">
-      {{ tip }}
-    </text>
     <ExampleWordList v-if="(config.exampleWords ?? []).length > 0" :items="examples" />
     <TipCard v-if="config.memoryTip" :text="config.memoryTip" />
-    <view v-for="question in config.questions" :key="question.id" class="content-preview__question">
-      <text class="content-preview__label">{{ question.prompt }}</text>
+
+    <view v-for="(question, index) in config.questions" :key="question.id" class="content-preview__question">
+      <view class="content-preview__question-heading">
+        <text class="content-preview__question-number">练习 {{ Number(index) + 1 }}</text>
+        <text class="content-preview__question-type">
+          {{ question.type === 'LISTENING' ? '听音选择' : '单项选择' }}
+        </text>
+      </view>
+      <text class="content-preview__question-prompt">{{ question.prompt }}</text>
       <PlayButton
         v-if="question.type === 'LISTENING'"
         :src="question.audioUrl ?? ''"
@@ -58,19 +103,34 @@
       <button
         v-for="option in question.options"
         :key="option.id"
-        class="outline-button"
+        class="content-preview__option"
+        :class="optionState(question.id, option.id)"
         :disabled="busy"
         @click="$emit('answer', question.id, option.id)"
       >
-        {{ option.label }}{{ answers[question.id]?.correctOptionId === option.id ? ' ✓' : ''
-        }}{{
-          answers[question.id]?.selectedOptionId === option.id && !answers[question.id]?.correct
-            ? ' ✗'
-            : ''
-        }}
+        <text class="content-preview__option-id">{{ option.id }}</text>
+        <text class="content-preview__option-label">{{ option.label }}</text>
+        <text v-if="answers[question.id]?.correctOptionId === option.id" class="content-preview__mark">
+          ✓
+        </text>
+        <text
+          v-else-if="answers[question.id]?.selectedOptionId === option.id"
+          class="content-preview__mark"
+        >
+          ✗
+        </text>
       </button>
-      <text v-if="answers[question.id]">{{ answers[question.id].explanation }}</text>
-      <text v-if="revealAnswers" class="muted">
+      <view
+        v-if="answers[question.id]"
+        class="content-preview__feedback"
+        :class="answers[question.id].correct ? 'is-correct' : 'is-wrong'"
+      >
+        <text class="content-preview__feedback-title">
+          {{ answers[question.id].correct ? '回答正确' : '再看一下正确答案' }}
+        </text>
+        <text>{{ answers[question.id].explanation }}</text>
+      </view>
+      <text v-if="revealAnswers" class="content-preview__answer">
         答案：{{ question.correctOptionId }} · {{ question.explanation }}
       </text>
     </view>
@@ -102,9 +162,18 @@ const examples = computed(() =>
     audioUrl: item.audioUrl ?? '',
   }))
 )
+
+function optionState(questionId: string, optionId: string): string {
+  const answer = props.answers[questionId]
+  if (answer == null) return ''
+  if (answer.correctOptionId === optionId) return 'is-correct'
+  if (answer.selectedOptionId === optionId) return 'is-wrong'
+  return 'is-muted'
+}
 </script>
 <style lang="scss">
 @import '../../uni.scss';
+
 .content-preview {
   width: 100%;
   box-sizing: border-box;
@@ -112,43 +181,291 @@ const examples = computed(() =>
   display: grid;
   gap: 24rpx;
   min-width: 0;
+
+  &__hero,
+  &__section,
+  &__tips,
+  &__question {
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1rpx solid $color-border;
+    background-color: $color-surface;
+  }
+
+  &__hero {
+    padding: 30rpx;
+    border-radius: 24rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18rpx;
+    background: linear-gradient(145deg, #fff 0%, #f2f4ff 100%);
+  }
+
   &__heading {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     align-items: center;
-    gap: 20rpx;
+    justify-content: space-between;
+    gap: 24rpx;
   }
+
+  &__heading-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6rpx;
+  }
+
+  &__eyebrow {
+    color: $color-primary;
+    font-size: 21rpx;
+  }
+
   &__title {
-    font-size: 42rpx;
+    overflow-wrap: anywhere;
+    font-size: 48rpx;
     font-weight: 700;
+    line-height: 1.25;
   }
+
+  &__pronunciation {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 3rpx;
+  }
+
+  &__slash,
+  &__description,
+  &__answer {
+    color: $color-text-secondary;
+  }
+
+  &__slash {
+    font-size: 30rpx;
+  }
+
+  &__meaning {
+    font-size: 30rpx;
+    font-weight: 600;
+  }
+
+  &__description,
+  &__answer,
+  &__feedback,
+  &__tip {
+    font-size: 23rpx;
+    line-height: 1.55;
+  }
+
   &__label {
     font-weight: 600;
   }
+
   &__section,
+  &__tips,
   &__question {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16rpx;
     padding: 24rpx;
-    border: 1rpx solid $color-border;
-    border-radius: 16rpx;
+    border-radius: 20rpx;
   }
-  &__syllables {
+
+  &__section-heading,
+  &__question-heading {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12rpx;
+  }
+
+  &__section-index,
+  &__question-number,
+  &__question-type {
+    width: fit-content;
+    padding: 4rpx 10rpx;
+    border-radius: 999rpx;
+    color: $color-primary;
+    background-color: #eef1ff;
+    font-size: 20rpx;
+  }
+
+  &__steps {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12rpx;
+  }
+
+  &__step {
+    display: grid;
+    grid-template-columns: 36rpx minmax(0, 1fr);
+    align-items: start;
+    gap: 12rpx;
+    font-size: 24rpx;
+    line-height: 1.55;
+  }
+
+  &__step-number {
+    width: 34rpx;
+    height: 34rpx;
+    border-radius: 50%;
+    color: #fff;
+    background-color: $color-primary;
+    font-size: 20rpx;
+    line-height: 34rpx;
+    text-align: center;
+  }
+
+  &__syllables {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
-    gap: 20rpx;
-    view {
-      display: grid;
-      gap: 8rpx;
+    gap: 12rpx;
+  }
+
+  &__syllable {
+    flex: 1 1 190rpx;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 16rpx;
+    border-radius: 14rpx;
+    background-color: #f7f8fc;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4rpx;
+    text-align: center;
+  }
+
+  &__syllable-text {
+    font-size: 28rpx;
+    font-weight: 700;
+  }
+
+  &__syllable-ipa,
+  &__syllable-stress {
+    color: $color-text-secondary;
+    font-size: 21rpx;
+  }
+
+  &__tip {
+    display: grid;
+    grid-template-columns: 10rpx minmax(0, 1fr);
+    align-items: start;
+    gap: 10rpx;
+  }
+
+  &__tip-dot {
+    width: 8rpx;
+    height: 8rpx;
+    margin-top: 13rpx;
+    border-radius: 50%;
+    background-color: $color-primary;
+  }
+
+  &__question-heading {
+    justify-content: space-between;
+  }
+
+  &__question-type {
+    color: $color-text-secondary;
+    background-color: #f3f4f7;
+  }
+
+  &__question-prompt {
+    font-size: 28rpx;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  &__option {
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+    min-height: 76rpx;
+    margin: 0;
+    padding: 10rpx 16rpx;
+    box-sizing: border-box;
+    border: 2rpx solid $color-border;
+    border-radius: 14rpx;
+    color: $color-text-primary;
+    background-color: #fff;
+    display: grid;
+    grid-template-columns: 44rpx minmax(0, 1fr) 36rpx;
+    align-items: center;
+    gap: 12rpx;
+    text-align: left;
+    font-size: 25rpx;
+
+    &::after {
+      border: 0;
+    }
+
+    &.is-correct {
+      border-color: #8bd4b2;
+      color: #147648;
+      background-color: #effaf4;
+    }
+
+    &.is-wrong {
+      border-color: #efb0b5;
+      color: #b23b45;
+      background-color: #fff3f4;
+    }
+
+    &.is-muted {
+      opacity: 0.55;
     }
   }
-  &__part {
-    display: grid;
-    gap: 8rpx;
+
+  &__option-id {
+    width: 40rpx;
+    height: 40rpx;
+    border-radius: 50%;
+    background-color: #f0f2f7;
+    font-size: 21rpx;
+    line-height: 40rpx;
+    text-align: center;
   }
-  .is-emphasized {
+
+  &__option-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__mark {
     font-weight: 700;
+    text-align: center;
+  }
+
+  &__feedback {
+    padding: 16rpx;
+    border-radius: 14rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6rpx;
+
+    &.is-correct {
+      color: #147648;
+      background-color: #effaf4;
+    }
+
+    &.is-wrong {
+      color: #a53b44;
+      background-color: #fff3f4;
+    }
+  }
+
+  &__feedback-title {
+    font-weight: 700;
+  }
+
+  .is-emphasized {
     color: $color-primary;
+    background-color: #eef1ff;
   }
 }
 </style>

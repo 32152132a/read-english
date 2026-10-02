@@ -2,7 +2,17 @@
   <view class="library-study">
     <RequestState v-if="session == null" :error="error" @retry="load" />
     <template v-else-if="active">
-      <text>词库练习 {{ index + 1 }} / {{ session!.items.length }}</text>
+      <view class="library-study__progress-card">
+        <view class="library-study__progress-heading">
+          <view class="library-study__progress-copy">
+            <text class="library-study__eyebrow">本次学习</text>
+            <text class="library-study__progress-title">专注掌握当前单词</text>
+          </view>
+          <text class="library-study__counter">{{ index + 1 }} / {{ session!.items.length }}</text>
+        </view>
+        <ProgressBar :current="index" :total="session!.items.length" />
+        <text class="library-study__progress-note">已完成 {{ index }} 个单词</text>
+      </view>
       <ContentPreview
         :key="active!.wordId"
         :config="active"
@@ -10,11 +20,22 @@
         :busy="busy"
         @answer="answer"
       />
-      <button class="primary-button" :disabled="busy" @click="complete">完成此词，继续学习</button>
+      <view class="library-study__action-card">
+        <text class="library-study__action-note">确认理解发音和拆读后再继续</text>
+        <button class="primary-button" :disabled="busy" @click="complete">
+          {{ busy ? '正在保存' : isLast ? '完成本次学习' : '掌握了，学习下一个' }}
+        </button>
+      </view>
     </template>
     <template v-else>
-      <text>本次词库学习已完成</text>
-      <button class="primary-button" @click="back">返回词库</button>
+      <view class="library-study__complete">
+        <view class="library-study__complete-icon">✓</view>
+        <text class="library-study__complete-title">本次学习完成</text>
+        <text class="library-study__complete-description">
+          已完成 {{ session!.items.length }} 个单词，学习进度已经保存。
+        </text>
+        <button class="primary-button" @click="back">返回我的词库</button>
+      </view>
     </template>
   </view>
 </template>
@@ -24,6 +45,7 @@ import type { ContentStudy } from '../../src/config/content-types.uts'
 import type { AnswerResponse } from '../../src/config/api-types.uts'
 import RequestState from '../RequestState/index.uvue'
 import ContentPreview from '../ContentPreview/index.uvue'
+import ProgressBar from '../ProgressBar/index.uvue'
 const props = defineProps<{ libraryId: string }>()
 const session = ref<ContentStudy | null>(null),
   error = ref(''),
@@ -31,6 +53,9 @@ const session = ref<ContentStudy | null>(null),
   busy = ref(false)
 const answers = ref<Record<string, AnswerResponse>>({})
 const active = computed(() => session.value?.items[index.value] ?? null)
+const isLast = computed((): boolean =>
+  session.value == null ? false : index.value === session.value!.items.length - 1
+)
 async function load() {
   error.value = ''
   try {
@@ -84,11 +109,127 @@ function back() {
 watch(() => props.libraryId, load, { immediate: true })
 </script>
 <style lang="scss">
+@import '../../uni.scss';
+
 .library-study {
   width: 100%;
   box-sizing: border-box;
   grid-template-columns: minmax(0, 1fr);
   display: grid;
-  gap: 28rpx;
+  gap: 24rpx;
+
+  &__progress-card,
+  &__action-card,
+  &__complete {
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1rpx solid $color-border;
+    background-color: $color-surface;
+  }
+
+  &__progress-card {
+    padding: 24rpx;
+    border-radius: 20rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14rpx;
+  }
+
+  &__progress-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20rpx;
+  }
+
+  &__progress-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5rpx;
+  }
+
+  &__eyebrow {
+    color: $color-primary;
+    font-size: 21rpx;
+  }
+
+  &__progress-title {
+    font-size: 28rpx;
+    font-weight: 700;
+  }
+
+  &__counter {
+    flex-shrink: 0;
+    padding: 8rpx 14rpx;
+    border-radius: 999rpx;
+    color: $color-primary;
+    background-color: #eef1ff;
+    font-size: 23rpx;
+    font-weight: 600;
+  }
+
+  &__progress-note,
+  &__action-note,
+  &__complete-description {
+    color: $color-text-secondary;
+    font-size: 23rpx;
+    line-height: 1.55;
+  }
+
+  &__progress-note {
+    text-align: right;
+  }
+
+  &__action-card {
+    padding: 22rpx;
+    border-radius: 20rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14rpx;
+
+    button {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  &__action-note {
+    text-align: center;
+  }
+
+  &__complete {
+    margin-top: 80rpx;
+    padding: 56rpx 32rpx 36rpx;
+    border-radius: 28rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 20rpx;
+    text-align: center;
+    background: linear-gradient(145deg, #fff 0%, #f0f3ff 100%);
+
+    button {
+      width: 100%;
+      margin: 12rpx 0 0;
+    }
+  }
+
+  &__complete-icon {
+    width: 96rpx;
+    height: 96rpx;
+    border-radius: 50%;
+    color: #fff;
+    background-color: $color-success;
+    font-size: 48rpx;
+    line-height: 96rpx;
+    text-align: center;
+  }
+
+  &__complete-title {
+    font-size: 36rpx;
+    font-weight: 700;
+  }
 }
 </style>
