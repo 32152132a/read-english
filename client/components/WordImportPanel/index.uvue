@@ -98,6 +98,11 @@ const parsedWords = computed((): ParsedWord[] => {
 })
 const wordCount = computed((): number => parsedWords.value.length)
 const tooManyWords = computed((): boolean => wordCount.value > 200)
+const invalidWords = computed((): string[] =>
+  parsedWords.value
+    .filter((item) => !/^[a-z]+(?:['’-][a-z]+)*$/.test(item.word))
+    .map((item) => item.word)
+)
 let timer = 0,
   visible = false,
   requestKey = '',
@@ -185,6 +190,10 @@ async function create() {
   }
   if (tooManyWords.value) {
     error.value = '每次最多输入 200 个单词，请删减后再生成'
+    return
+  }
+  if (invalidWords.value.length > 0) {
+    error.value = '仅支持英文单词，请检查：' + invalidWords.value.slice(0, 3).join('、')
     return
   }
   busy.value = true
