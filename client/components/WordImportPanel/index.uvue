@@ -33,18 +33,48 @@
     <text v-if="!enabled" class="muted">DeepSeek 尚未配置，暂时不能生成。</text>
     <text v-if="error" class="word-import__error">{{ error }}</text>
     <view v-if="job" class="word-import__result">
-      <text>
-        {{ job!.name }} · {{ statusText(job!.status) }} · {{ job!.completed }} / {{ job!.total }}
-      </text>
+      <view class="word-import__result-heading">
+        <view class="word-import__result-copy">
+          <text class="word-import__result-name">{{ job!.name }}</text>
+          <text class="muted">{{ statusText(job!.status) }} · {{ job!.completed }} / {{ job!.total }}</text>
+        </view>
+        <view class="word-import__result-counts">
+          <text class="is-success">成功 {{ job!.succeeded }}</text>
+          <text :class="job!.failed > 0 ? 'is-failed' : ''">失败 {{ job!.failed }}</text>
+        </view>
+      </view>
       <text class="muted">生成完成后会进入词库预览，你可以逐个检查和修改。</text>
+      <view v-if="failedItems.length > 0" class="word-import__failures">
+        <view class="word-import__failure-heading">
+          <text class="word-import__failure-title">未生成成功的单词</text>
+          <text class="muted">只会重试下面的失败项</text>
+        </view>
+        <view v-for="item in failedItems" :key="item.position" class="word-import__failure">
+          <view class="word-import__failure-copy">
+            <text class="word-import__failure-word">{{ item.word }}</text>
+            <text class="word-import__failure-reason">
+              {{ item.errorMessage ?? '生成结果不完整，请重试' }}
+            </text>
+          </view>
+          <text class="word-import__attempts">
+            {{ item.attempts >= 3 ? '已达上限' : '已尝试 ' + item.attempts + '/3 次' }}
+          </text>
+        </view>
+      </view>
       <button
-        v-if="job!.status === 'PARTIAL_FAILED'"
+        v-if="job!.status === 'PARTIAL_FAILED' && retryableCount > 0"
         class="outline-button"
         :disabled="busy"
         @click="retry"
       >
-        重试失败项（每词最多3次）
+        {{ busy ? '正在重新提交' : '只重试这 ' + retryableCount + ' 个失败单词' }}
       </button>
+      <text
+        v-else-if="job!.status === 'PARTIAL_FAILED' && failedItems.length > 0"
+        class="word-import__retry-limit"
+      >
+        失败单词均已达到 3 次尝试上限，可以稍后重新创建任务。
+      </text>
     </view>
   </view>
 </template>
@@ -55,12 +85,24 @@ type ParsedWord = {
   word: string
   position: number
 }
+type JobItem = {
+  position: number
+  word: string
+  status: string
+  errorMessage: string | null
+  attempts: number
+}
+type JobDetails = ContentJob & { items: JobItem[] }
 const name = ref(''),
   words = ref(''),
   error = ref(''),
   enabled = ref(false),
   busy = ref(false)
 const job = ref<ContentJob | null>(null)
+const failedItems = ref<JobItem[]>([])
+const retryableCount = computed(
+  (): number => failedItems.value.filter((item) => item.attempts < 3).length
+)
 const parsedWords = computed((): ParsedWord[] => {
   const input = words.value.trim()
   if (!input) return []
@@ -107,6 +149,16 @@ function stop() {
 function updateJob(result: ContentJob) {
   job.value = result
 }
+async function loadFailures(id: string) {
+  const details = await request<JobDetails>({
+    url: '/word-libraries/custom-jobs/' + id + '/items',
+    showLoading: false,
+    showError: false,
+  })
+  if (job.value?.id === id) {
+    failedItems.value = details.items.filter((item) => item.status === 'FAILED')
+  }
+}
 function openPreview(libraryId: string) {
   if (navigating) return
   navigating = true
@@ -128,9 +180,12 @@ async function poll() {
     if (job.value?.id !== id) return
     updateJob(result)
     if (result.status === 'SUCCEEDED') {
+      failedItems.value = []
       openPreview(result.libraryId)
       return
     }
+    if (result.status === 'PARTIAL_FAILED') await loadFailures(id)
+    else failedItems.value = []
     error.value = ''
   } catch (e) {
     if (job.value?.id === id) error.value = (e as Error).message
@@ -186,6 +241,7 @@ async function create() {
     requestKey = 'words-' + Date.now() + '-' + Math.random().toString(36).slice(2)
   }
   try {
+    failedItems.value = []
     job.value = await request<ContentJob>({
       url: '/word-libraries/custom-jobs',
       method: 'POST',
@@ -204,6 +260,7 @@ async function retry() {
   if (!job.value || busy.value) return
   busy.value = true
   try {
+    failedItems.value = []
     job.value = await request<ContentJob>({
       url: '/word-libraries/custom-jobs/' + job.value.id + '/retry',
       method: 'POST',
@@ -236,7 +293,6 @@ onUnmounted(stop)
 <style lang="scss">
 @import '../../uni.scss';
 .word-import {
-  display: grid;
   gap: 24rpx;
   input,
   textarea {
@@ -258,8 +314,103 @@ onUnmounted(stop)
     font-weight: 700;
   }
   &__result {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 16rpx;
+    padding: 24rpx;
+    border: 1rpx solid $color-border;
+    border-radius: 18rpx;
+    background-color: $color-surface;
+  }
+  &__result-heading,
+  &__failure-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16rpx;
+  }
+  &__result-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4rpx;
+  }
+  &__result-name,
+  &__failure-title,
+  &__failure-word {
+    font-weight: 700;
+  }
+  &__result-counts {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 12rpx;
+    font-size: 22rpx;
+
+    text {
+      padding: 5rpx 10rpx;
+      border-radius: 999rpx;
+      background-color: #f2f3f7;
+    }
+
+    .is-success {
+      color: #147648;
+      background-color: #effaf4;
+    }
+
+    .is-failed {
+      color: #b23b45;
+      background-color: #fff0f1;
+    }
+  }
+  &__failures {
+    max-height: 420rpx;
+    padding: 18rpx;
+    border-radius: 14rpx;
+    background-color: #fff7f7;
+    gap: 12rpx;
+    overflow-y: auto;
+  }
+  &__failure-heading {
+    align-items: baseline;
+
+    .muted {
+      font-size: 21rpx;
+      text-align: right;
+    }
+  }
+  &__failure {
+    padding: 14rpx;
+    border: 1rpx solid #f2d6d8;
+    border-radius: 12rpx;
+    background-color: #fff;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14rpx;
+  }
+  &__failure-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4rpx;
+  }
+  &__failure-reason {
+    color: #a94a52;
+    font-size: 22rpx;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  &__attempts {
+    flex-shrink: 0;
+    color: $color-text-secondary;
+    font-size: 20rpx;
+  }
+  &__retry-limit {
+    color: #a94a52;
+    font-size: 23rpx;
+    line-height: 1.5;
   }
   &__error {
     color: #cf4040;
