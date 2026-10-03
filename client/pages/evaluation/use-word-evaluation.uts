@@ -1,0 +1,298 @@
+import { request } from '../../src/services/http.uts'
+import type { HttpError } from '../../src/config/types.uts'
+import type { EvaluationResponse } from './evaluation-types.uts'
+
+export function useWordEvaluation(wordId: string, sessionId: string) {
+  const recording = ref(false)
+  const busy = ref(false)
+  const error = ref('')
+  const needsPermission = ref(false)
+  const result = shallowRef<EvaluationResponse | null>(null)
+  const canRetry = ref(false)
+  const supported = ref(false)
+  let active = true
+  let disposed = false
+  let starting = false
+  let recordingAttempt = 0
+  let generation = 0
+  let audioBase64 = ''
+  let requestKey = ''
+  let pollTimer = 0
+  let pollUntil = 0
+
+  // #ifdef MP-WEIXIN
+  supported.value = true
+  const recorder = uni.getRecorderManager()
+  let recorderAttached = false
+  let recordingOwned = false
+
+  function removeRecording(path: string) {
+    if (path.length > 0) uni.getFileSystemManager().unlink({ filePath: path, fail: () => {} })
+  }
+
+  function detachRecorder() {
+    if (!recorderAttached) return
+    recorderAttached = false
+    recorder.offStart(onStart)
+    recorder.offStop(onStop)
+    recorder.offError(onError)
+    recorder.offInterruptionBegin(onInterruption)
+  }
+
+  function onStart() {
+    if (!recordingOwned) return
+    starting = false
+    recording.value = true
+    if (!active || disposed) recorder.stop()
+  }
+
+  async function onStop(event: RecorderManagerOnStopResult) {
+    if (!recordingOwned) return
+    recordingOwned = false
+    starting = false
+    recording.value = false
+    if (!active || disposed) detachRecorder()
+    const path = event.tempFilePath
+    const attempt = recordingAttempt
+    if (!active || disposed || attempt !== generation) {
+      removeRecording(path)
+      return
+    }
+    busy.value = true
+    try {
+      const encoded = await new Promise<string>((resolve, reject) => {
+        uni.getFileSystemManager().readFile({
+          filePath: path,
+          encoding: 'base64',
+          success: (file) => resolve(file.data as string),
+          fail: () => reject(new Error('读取录音失败，请重新录制')),
+        })
+      }).finally(() => removeRecording(path))
+      if (!active || disposed || attempt !== generation) return
+      audioBase64 = encoded
+      requestKey = 'eval_' + Date.now() + '_' + Math.random().toString(36).slice(2)
+      await submit(attempt)
+    } catch (failure) {
+      if (active && attempt === generation) {
+        error.value = (failure as Error).message ?? '录音读取失败，请重试'
+        busy.value = false
+      }
+    }
+  }
+
+  function onError(event: { errMsg: string }) {
+    if (!recordingOwned) return
+    recordingOwned = false
+    starting = false
+    recording.value = false
+    busy.value = false
+    if (!active || disposed) detachRecorder()
+    if (!active || disposed) return
+    error.value = '录音失败，请检查麦克风权限后重试'
+    needsPermission.value = /auth|deny|permission/i.test(event.errMsg)
+  }
+
+  function onInterruption() {
+    if (!recordingOwned) return
+    generation += 1
+    busy.value = false
+    // The stop callback must discard audio from an interrupted recording.
+    active = false
+    recorder.stop()
+    error.value = '录音已中断，请重新录制'
+  }
+
+  function attachRecorder() {
+    if (recorderAttached) return
+    recorderAttached = true
+    recorder.onStart(onStart)
+    recorder.onStop(onStop)
+    recorder.onError(onError)
+    recorder.onInterruptionBegin(onInterruption)
+  }
+  attachRecorder()
+  // #endif
+
+  function accept(response: EvaluationResponse, attempt: number) {
+    if (!active || disposed || attempt !== generation) return
+    result.value = response
+    if (response.status === 'PROCESSING') {
+      if (Date.now() >= pollUntil) {
+        error.value = '评测尚未结束，请稍后查询结果'
+        canRetry.value = true
+        busy.value = false
+        return
+      }
+      pollTimer = setTimeout(() => queryResult(attempt), 1000)
+      return
+    }
+    busy.value = false
+    audioBase64 = ''
+    canRetry.value = false
+    if (response.status === 'FAILED') error.value = errorMessage(response.errorCode ?? '')
+  }
+
+  function errorMessage(code: string): string {
+    if (code === 'EVALUATION_NOT_CONFIGURED') return '发音评测服务尚未配置，请稍后再试'
+    if (code === 'EVALUATION_QUOTA_EXHAUSTED') return '评测服务额度暂不可用，请稍后再试'
+    if (code === 'AUDIO_NO_SPEECH' || code === 'AUDIO_SILENT')
+      return '没有听清发音，请靠近麦克风重新录制'
+    if (code === 'INVALID_AUDIO') return '录音格式或时长不符合要求，请重新录制'
+    if (code === 'EVALUATION_UNSUPPORTED_WORD') return '暂时无法评测这个单词'
+    return '本次评测未完成，请重新录制'
+  }
+
+  async function submit(attempt: number) {
+    busy.value = true
+    error.value = ''
+    canRetry.value = false
+    pollUntil = Date.now() + 45000
+    try {
+      const response = await request<EvaluationResponse>({
+        url: '/evaluations',
+        method: 'POST',
+        timeout: 35000,
+        header: { 'Idempotency-Key': requestKey },
+        data: { wordId, sessionId, audioBase64 },
+        showLoading: false,
+        showError: false,
+      })
+      accept(response, attempt)
+    } catch (failure) {
+      if (!active || disposed || attempt !== generation) return
+      busy.value = false
+      const httpError = failure as HttpError
+      error.value = httpError.message ?? '网络连接失败，请重试'
+      // Reuse both the recording and key after an uncertain network outcome.
+      canRetry.value =
+        httpError.statusCode === 0 || httpError.statusCode >= 500 || httpError.statusCode === 429
+      if (!canRetry.value) audioBase64 = ''
+    }
+  }
+
+  async function queryResult(attempt: number) {
+    const id = result.value?.evaluationId
+    if (id == null || !active || disposed || attempt !== generation) return
+    try {
+      accept(
+        await request<EvaluationResponse>({
+          url: '/evaluations/' + id,
+          showLoading: false,
+          showError: false,
+        }),
+        attempt
+      )
+    } catch (failure) {
+      if (!active || disposed || attempt !== generation) return
+      busy.value = false
+      canRetry.value = true
+      error.value = (failure as HttpError).message ?? '查询失败，请稍后重试'
+    }
+  }
+
+  function retry() {
+    if (!canRetry.value || busy.value || !active || disposed) return
+    error.value = ''
+    busy.value = true
+    canRetry.value = false
+    pollUntil = Date.now() + 45000
+    if (result.value?.status === 'PROCESSING') queryResult(generation)
+    else submit(generation)
+  }
+
+  function toggleRecording() {
+    if (!supported.value || busy.value || starting || disposed) return
+    // #ifdef MP-WEIXIN
+    if (recording.value) {
+      busy.value = true
+      recorder.stop()
+      return
+    }
+    active = true
+    generation += 1
+    recordingAttempt = generation
+    attachRecorder()
+    error.value = ''
+    result.value = null
+    audioBase64 = ''
+    canRetry.value = false
+    needsPermission.value = false
+    starting = true
+    const attempt = generation
+    uni.authorize({
+      scope: 'scope.record',
+      success: () => {
+        if (attempt !== generation) return
+        if (!active || disposed) {
+          starting = false
+          detachRecorder()
+          return
+        }
+        recordingOwned = true
+        recorder.start({ duration: 4000, sampleRate: 16000, numberOfChannels: 1, format: 'wav' })
+      },
+      fail: () => {
+        if (attempt !== generation) return
+        starting = false
+        if (!active || disposed) detachRecorder()
+        if (!active || disposed) return
+        needsPermission.value = true
+        error.value = '需要麦克风权限才能录音'
+      },
+    })
+    // #endif
+  }
+
+  function openSettings() {
+    // #ifdef MP-WEIXIN
+    uni.openSetting({})
+    // #endif
+  }
+
+  function reset() {
+    active = false
+    generation += 1
+    clearTimeout(pollTimer)
+    audioBase64 = ''
+    requestKey = ''
+    busy.value = false
+    canRetry.value = false
+    // #ifdef MP-WEIXIN
+    if (recording.value) recorder.stop()
+    if (!recordingOwned) {
+      starting = false
+      detachRecorder()
+    }
+    // #endif
+  }
+
+  onHide(reset)
+  onShow(() => {
+    if (!disposed && !recording.value && !starting) {
+      active = true
+      // #ifdef MP-WEIXIN
+      attachRecorder()
+      // #endif
+    }
+  })
+  onUnmounted(() => {
+    disposed = true
+    reset()
+    // #ifdef MP-WEIXIN
+    if (!recording.value && !starting) detachRecorder()
+    // #endif
+  })
+
+  return {
+    recording,
+    busy,
+    error,
+    needsPermission,
+    result,
+    canRetry,
+    supported,
+    toggleRecording,
+    retry,
+    openSettings,
+  }
+}

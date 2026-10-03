@@ -1,0 +1,26 @@
+export type EvaluationScore = {
+  overall: number | null
+  accuracy: number
+  phonemes: {
+    reference: string
+    detected: string
+    accuracy: number | null
+    expectedStress: boolean | null
+    detectedStress: boolean | null
+  }[]
+  providerRequestId: string
+}
+
+export type EvaluationResponse = {
+  evaluationId: string
+  status: string
+  result: {
+    word: string
+    accent: string
+    scores: EvaluationScore
+    summary: string
+    suggestions: string[]
+    adviceSource: string
+  } | null
+  errorCode: string | null
+}

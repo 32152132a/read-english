@@ -1,0 +1,111 @@
+<template>
+  <view class="word-evaluation">
+    <template v-if="supported">
+      <button
+        class="word-evaluation__record"
+        :class="{ 'is-recording': recording }"
+        :disabled="busy"
+        :aria-label="recording ? '结束录音' : '开始录音'"
+        @click="toggleRecording"
+      >
+        <AppIcon name="mic-white" :size="48" />
+      </button>
+      <text class="word-evaluation__status">
+        {{ busy ? '正在评测...' : recording ? '正在录音...' : '点击跟读' }}
+      </text>
+    </template>
+    <text v-else class="word-evaluation__status">请在微信小程序中录音评测</text>
+    <text v-if="error.length > 0" class="word-evaluation__error">{{ error }}</text>
+    <button v-if="needsPermission" class="outline-button" @click="openSettings">麦克风设置</button>
+    <button v-if="canRetry" class="outline-button" :disabled="busy" @click="retry">
+      重试本次评测
+    </button>
+    <view
+      v-if="result?.status === 'SUCCEEDED' && result.result != null"
+      class="word-evaluation__result"
+    >
+      <view class="word-evaluation__scores">
+        <view v-if="result.result.scores.overall != null" class="word-evaluation__metric">
+          <text class="word-evaluation__score">{{ result.result.scores.overall }}</text>
+          <text>总分</text>
+        </view>
+        <view class="word-evaluation__metric">
+          <text class="word-evaluation__score">{{ result.result.scores.accuracy }}</text>
+          <text>准确度</text>
+        </view>
+      </view>
+      <text>{{ result.result.summary }}</text>
+      <text v-for="suggestion in result.result.suggestions" :key="suggestion">
+        {{ suggestion }}
+      </text>
+      <button class="primary-button" @click="$emit('complete')">继续学习</button>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { useWordEvaluation } from '../use-word-evaluation.uts'
+
+const props = defineProps<{ wordId: string; sessionId: string }>()
+defineEmits(['complete'])
+const { recording, busy, error, needsPermission, result, canRetry, supported, toggleRecording, retry, openSettings } =
+  useWordEvaluation(props.wordId, props.sessionId)
+</script>
+
+<style lang="scss">
+@import '../../../uni.scss';
+
+.word-evaluation {
+  display: grid;
+  justify-items: center;
+  gap: 24rpx;
+  padding: 32rpx 0;
+
+  &__record {
+    width: 144rpx;
+    height: 144rpx;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: $color-primary;
+    &.is-recording {
+      background: #ca3545;
+    }
+    &[disabled] {
+      opacity: 0.5;
+    }
+  }
+  &__status {
+    color: $color-text-secondary;
+  }
+  &__error {
+    color: #b52d3e;
+  }
+  &__result {
+    width: 100%;
+    display: grid;
+    gap: 20rpx;
+    text {
+      overflow-wrap: anywhere;
+    }
+    button {
+      width: 100%;
+    }
+  }
+  &__scores {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24rpx;
+  }
+  &__metric {
+    display: grid;
+    justify-items: center;
+    gap: 8rpx;
+  }
+  &__score {
+    font-size: 56rpx;
+    color: $color-primary;
+  }
+}
+</style>
