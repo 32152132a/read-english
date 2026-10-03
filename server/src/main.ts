@@ -23,7 +23,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('永庆发音学习 API')
+    .setTitle('Read English 发音学习 API')
     .setDescription('客户端依赖的版本化 REST API')
     .setVersion('1.0')
     .addBearerAuth()

@@ -2,7 +2,7 @@
   <view class="screen">
     <view class="page home">
       <template v-if="!signedIn">
-        <text class="greeting">永庆发音学习</text>
+        <text class="greeting">Read English 发音学习</text>
         <button class="primary-button" :disabled="loggingIn" @click="signIn">
           {{ loginLabel }}
         </button>

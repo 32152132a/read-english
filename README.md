@@ -1,11 +1,11 @@
-# 永庆发音学习
+# Read English 发音学习
 
 面向微信小程序的英语发音学习产品。仓库采用前后端分离结构：
 
 - `client`：UniApp X + Vue 3 + UTS + Pinia
 - `server`：历史 NestJS 实现；当前联调使用相邻 `read-java` 仓库
 - `deploy`：Docker Compose + Nginx
-- `永庆发音学习产品资料包`：产品文档、技术文档与 UI 参考图
+- `Read English 发音学习产品资料包`：产品文档、技术文档与 UI 参考图
 
 ## 本地开发
 

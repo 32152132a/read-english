@@ -30,7 +30,7 @@
     >
       {{ busy ? '正在提交' : '生成词库' }}
     </button>
-    <text v-if="!enabled" class="muted">DeepSeek 尚未配置，暂时不能生成。</text>
+    <text v-if="!enabled" class="muted">AI 生成服务当前不可用，请稍后再试。</text>
     <text v-if="error" class="word-import__error">{{ error }}</text>
     <view v-if="job" class="word-import__result">
       <view class="word-import__result-heading">

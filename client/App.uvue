@@ -1,6 +1,6 @@
 <script setup lang="uts">
 onLaunch(() => {
-  console.log('永庆发音学习启动')
+  console.log('Read English 发音学习启动')
 })
 </script>
 

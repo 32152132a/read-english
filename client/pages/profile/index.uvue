@@ -74,7 +74,7 @@ function handleMenu(code: string) {
     return
   }
   if (code === 'about') {
-    uni.showToast({ title: '永庆发音学习 v1.0.0', icon: 'none' })
+    uni.showToast({ title: 'Read English 发音学习 v1.0.0', icon: 'none' })
     return
   }
   if (code === 'logout') confirmLogout()

@@ -6,7 +6,7 @@
       <text class="page-title">{{ unit!.content!.title }}</text>
       <text class="muted phoneme-quiz__description">{{ unit!.content!.description }}</text>
       <ListeningPrompt v-if="audios.length > 0" :audios="audios" />
-      <TipCard v-else text="本题发音音频尚未配置，暂时无法完成听辨练习。" />
+      <TipCard v-else text="请先根据题目中的音标说明完成练习。" />
       <text class="section-title">请选择</text>
       <ChoiceGroup
         :key="unit!.id"
