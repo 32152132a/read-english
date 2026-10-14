@@ -110,7 +110,7 @@ function confirmLogout() {
       if (!result.confirm) return
       try {
         await logout()
-        uni.reLaunch({ url: '/pages/home/index' })
+        uni.reLaunch({ url: '/pages/login/index' })
       } catch (failure) {
         showRequestError(failure)
       }

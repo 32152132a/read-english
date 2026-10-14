@@ -131,8 +131,8 @@ function handleLoginExpired(error: HttpError) {
   error.message = '登录已过期，请重新登录'
   showRequestError(error)
   const pages = getCurrentPages()
-  if (pages.length === 0 || pages[pages.length - 1].route !== 'pages/home/index') {
-    uni.reLaunch({ url: '/pages/home/index' })
+  if (pages.length === 0 || pages[pages.length - 1].route !== 'pages/login/index') {
+    uni.reLaunch({ url: '/pages/login/index' })
   }
 }
 

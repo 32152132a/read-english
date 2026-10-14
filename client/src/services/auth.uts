@@ -24,6 +24,8 @@ export async function login() {
     url: '/auth/wechat/login',
     method: 'POST',
     auth: false,
+    showLoading: false,
+    showError: false,
     data: { code },
   })
   setLoginTokens(result.accessToken, result.refreshToken)

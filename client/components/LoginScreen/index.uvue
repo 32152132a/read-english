@@ -1,0 +1,328 @@
+<template>
+  <view class="login-screen">
+    <view class="login-screen__brand">
+      <image class="login-screen__logo" src="/static/images/login-brand.svg" mode="aspectFit" />
+      <view class="login-screen__name" aria-label="声芽">
+        <text>声</text>
+        <view class="login-screen__bud-letter">
+          <text>芽</text>
+          <image
+            class="login-screen__sprout"
+            src="/static/images/login-sprout.svg"
+            mode="aspectFit"
+          />
+        </view>
+      </view>
+      <text class="login-screen__english">READ ENGLISH</text>
+    </view>
+
+    <view class="login-screen__tagline">
+      <text>从音标出发，</text>
+      <text>让每个单词读得更清楚。</text>
+    </view>
+    <image
+      class="login-screen__illustration"
+      src="/static/images/login-book.png"
+      mode="aspectFit"
+    />
+
+    <view class="login-screen__actions">
+      <!-- #ifdef MP-WEIXIN -->
+      <button
+        class="login-screen__button"
+        :disabled="loggingIn"
+        :loading="loggingIn"
+        @click="signIn"
+      >
+        <image
+          v-if="!loggingIn"
+          class="login-screen__wechat"
+          src="/static/images/login-wechat.svg"
+          mode="aspectFit"
+        />
+        <text>{{ loggingIn ? '正在登录…' : '微信登录，开始学习' }}</text>
+      </button>
+      <text class="login-screen__hint">首次登录将自动创建学习账号</text>
+      <!-- #endif -->
+      <!-- #ifndef MP-WEIXIN -->
+      <view class="login-screen__account">
+        <input
+          class="login-screen__input"
+          placeholder="用户名"
+          disabled
+          aria-label="用户名，暂未开放"
+        />
+        <input
+          class="login-screen__input"
+          placeholder="密码"
+          password
+          disabled
+          aria-label="密码，暂未开放"
+        />
+        <button class="login-screen__button" disabled>账号登录暂未开放</button>
+        <text class="login-screen__hint">请前往微信小程序，开始你的学习</text>
+      </view>
+      <!-- #endif -->
+      <text v-if="error.length > 0" class="login-screen__error" role="alert">{{ error }}</text>
+
+      <checkbox-group class="login-screen__agreement" @change="changeAgreement">
+        <label class="login-screen__agreement-check">
+          <checkbox value="agree" :checked="agreed" color="#19ae65" />
+          <text>我已阅读并同意</text>
+        </label>
+        <text class="login-screen__link" @click="showLoginNotice">《登录说明》</text>
+      </checkbox-group>
+    </view>
+
+    <view class="login-screen__footer">
+      <view class="login-screen__line" />
+      <text>每天一点进步，让英语有声有色</text>
+      <view class="login-screen__line" />
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { login } from '../../src/services/auth.uts'
+
+const loggingIn = ref(false)
+const agreed = ref(false)
+const error = ref('')
+
+function changeAgreement(event: UniCheckboxGroupChangeEvent) {
+  agreed.value = event.detail.value.includes('agree')
+  error.value = ''
+}
+
+function showLoginNotice() {
+  uni.showModal({
+    title: '登录说明',
+    content: '微信登录用于识别你的学习账号。首次登录会自动创建账号，学习进度将保存在服务器，登录凭证保存在当前设备。本次登录不会读取你的微信头像、昵称或手机号。你可以在“我的”中退出登录，清除当前设备的登录凭证。',
+    showCancel: false,
+    confirmText: '我知道了',
+  })
+}
+
+async function signIn() {
+  if (loggingIn.value) return
+  if (!agreed.value) {
+    error.value = '请先阅读并同意登录说明'
+    return
+  }
+  loggingIn.value = true
+  error.value = ''
+  try {
+    await login()
+    uni.reLaunch({
+      url: '/pages/home/index',
+      fail: () => { error.value = '登录成功，页面打开失败，请重新进入小程序' },
+    })
+  } catch (failure) {
+    error.value = (failure as Error).message || '微信登录失败，请稍后重试'
+  } finally {
+    loggingIn.value = false
+  }
+}
+</script>
+
+<style lang="scss">
+.login-screen {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: calc(116rpx + env(safe-area-inset-top)) 0 calc(40rpx + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-items: center;
+  background: linear-gradient(180deg, #e1f2ff 0%, #f1f8ff 40%, #f1f8ff 100%);
+  color: #17385d;
+
+  &__brand {
+    display: grid;
+    justify-items: center;
+  }
+  &__logo {
+    width: 240rpx;
+    height: 146rpx;
+  }
+  &__name {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12rpx;
+    margin-top: 12rpx;
+    font-size: 106rpx;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  &__bud-letter {
+    display: grid;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    align-items: center;
+    justify-items: center;
+  }
+  &__name > text,
+  &__bud-letter > text {
+    padding-top: 24rpx;
+  }
+  &__bud-letter > text,
+  &__sprout {
+    grid-area: 1 / 1;
+  }
+  &__sprout {
+    width: 66rpx;
+    height: 64rpx;
+    align-self: start;
+  }
+  &__english {
+    margin-top: 10rpx;
+    font-size: 22rpx;
+    letter-spacing: 9rpx;
+  }
+  &__tagline {
+    display: grid;
+    gap: 12rpx;
+    margin-top: 42rpx;
+    text-align: center;
+    font-size: 32rpx;
+    line-height: 1.5;
+    letter-spacing: 3rpx;
+  }
+  &__illustration {
+    width: 100%;
+    height: 480rpx;
+    margin-top: 12rpx;
+  }
+  &__actions {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 64rpx;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18rpx;
+  }
+  &__button {
+    width: 100%;
+    min-height: 94rpx;
+    margin: 0;
+    border: 0;
+    border-radius: 60rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20rpx;
+    background: #20b560;
+    color: #fff;
+    font-size: 31rpx;
+    font-weight: 600;
+  }
+  &__button::after {
+    border: 0;
+  }
+  &__button[disabled] {
+    background: #8ebca5;
+    color: #fff;
+  }
+  &__wechat {
+    width: 54rpx;
+    height: 48rpx;
+  }
+  &__hint {
+    text-align: center;
+    color: #8593a5;
+    font-size: 23rpx;
+    line-height: 1.5;
+  }
+  &__account {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18rpx;
+  }
+  &__input {
+    height: 86rpx;
+    padding: 0 28rpx;
+    border: 1rpx solid #d8e5ef;
+    border-radius: 20rpx;
+    background: #ffffffb3;
+    font-size: 28rpx;
+  }
+  &__error {
+    color: #b43d44;
+    font-size: 24rpx;
+    line-height: 1.5;
+    text-align: center;
+  }
+  &__agreement {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    gap: 6rpx;
+    margin-top: 26rpx;
+    color: #8593a5;
+    font-size: 22rpx;
+    line-height: 36rpx;
+  }
+  &__agreement-check {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10rpx;
+    min-height: 72rpx;
+    flex-shrink: 0;
+    font-size: 22rpx;
+    line-height: 36rpx;
+    white-space: nowrap;
+  }
+  &__link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: #347fca;
+    font-size: 22rpx;
+    line-height: 36rpx;
+    white-space: nowrap;
+  }
+  &__footer {
+    display: grid;
+    grid-template-columns: 34rpx auto 34rpx;
+    align-items: center;
+    gap: 20rpx;
+    margin-top: 30rpx;
+    color: #94a1b2;
+    font-size: 20rpx;
+    letter-spacing: 2rpx;
+  }
+  &__line {
+    height: 1rpx;
+    background: #aab8c8;
+  }
+  &__name text,
+  &__tagline text,
+  &__button text,
+  &__agreement-check text,
+  &__footer text {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+  }
+
+  @media (min-width: 600px) {
+    &__actions {
+      max-width: 480px;
+    }
+    &__illustration {
+      max-width: 560px;
+    }
+  }
+}
+</style>

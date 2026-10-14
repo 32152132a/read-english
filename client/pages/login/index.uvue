@@ -1,0 +1,12 @@
+<template>
+  <LoginScreen />
+</template>
+
+<script setup lang="uts">
+import LoginScreen from '../../components/LoginScreen/index.uvue'
+import { getToken } from '../../src/services/token.uts'
+
+onShow(() => {
+  if (getToken().length > 0) uni.reLaunch({ url: '/pages/home/index' })
+})
+</script>

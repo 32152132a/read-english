@@ -298,7 +298,7 @@ test('expired login overrides silent errors and redirects once for a concurrent 
     app.request({ url: '/stats' }),
   ])
   assert.equal(app.calls.filter((call) => call.url.endsWith('/auth/refresh')).length, 1)
-  assert.deepEqual(app.navigation, ['/pages/home/index'])
+  assert.deepEqual(app.navigation, ['/pages/login/index'])
   assert.equal(app.toasts.length, 1)
   assert.equal(app.toasts[0].title, '登录已过期，请重新登录')
   assert.equal(app.storage.size, 0)
