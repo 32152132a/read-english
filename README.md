@@ -1,5 +1,17 @@
 # Read English 发音学习
 
+## 项目与作者：Read English 学习客户端
+
+曲永庆（quyongqing）独立推进的英语学习应用，围绕发音学习、学习流程、课程练习和学习进度管理开发。本仓库主要包含 UniApp X / Vue 3 / UTS 客户端，当前 Java 后端位于 [read-java](https://gitee.com/quyongqing/read-java) 仓库。
+
+作者负责需求梳理、前端实现、前后端集成和维护，通过 AI Coding 辅助开展 Java / Spring Boot 后端开发。功能完成范围与联调限制以现有项目文档为准，不将规划功能表述为已上线。
+
+曲永庆有 7 年前端开发经验，目前主要从事 AI 应用与 AI Agent 平台开发，具备前端、Node.js 后端和部署交付实践。
+
+- [作者介绍](https://quyongqing.cn/about.html)
+- [组件与项目文档](https://docs.quyongqing.cn/)
+- [Gitee 仓库](https://gitee.com/quyongqing/read-english)
+
 面向微信小程序的英语发音学习产品。仓库采用前后端分离结构：
 
 - `client`：UniApp X + Vue 3 + UTS + Pinia
