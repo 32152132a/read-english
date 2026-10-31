@@ -115,6 +115,45 @@ test('browser builds do not access the mini-program recorder', async () => {
   assert.equal(h.requests.length, 0)
 })
 
+test('returning to a pending evaluation permits querying without resubmitting audio', async () => {
+  const h = await setup({ respond: (_, count) => count === 1
+    ? { evaluationId: 'eval-1', status: 'PROCESSING', result: null }
+    : { evaluationId: 'eval-1', status: 'SUCCEEDED', result: {} } })
+  h.state.toggleRecording()
+  await h.callbacks.Stop({ tempFilePath: '/tmp/recording.wav' })
+  h.lifecycle.hide()
+  assert.equal(h.timers.size, 0)
+  h.lifecycle.show()
+  assert.equal(h.state.canRetry.value, true)
+  h.state.retry()
+  await new Promise(setImmediate)
+  assert.equal(h.requests.length, 2)
+  assert.equal(h.requests[1].url, '/evaluations/eval-1')
+  assert.equal(h.requests[1].method, undefined)
+  assert.equal(h.state.result.value.status, 'SUCCEEDED')
+})
+
+test('returning after an uncertain submission retains audio and its idempotency key', async () => {
+  let finishSubmission
+  const h = await setup({ respond: (_, count) => count === 1
+    ? new Promise((resolve) => { finishSubmission = resolve })
+    : { evaluationId: 'eval-1', status: 'SUCCEEDED', result: {} } })
+  h.state.toggleRecording()
+  const stopped = h.callbacks.Stop({ tempFilePath: '/tmp/recording.wav' })
+  await new Promise(setImmediate)
+  h.lifecycle.hide()
+  finishSubmission({ evaluationId: 'eval-1', status: 'PROCESSING', result: null })
+  await stopped
+  h.lifecycle.show()
+  assert.equal(h.state.canRetry.value, true)
+  h.state.retry()
+  await new Promise(setImmediate)
+  assert.equal(h.requests.length, 2)
+  assert.equal(h.requests[1].header['Idempotency-Key'], h.requests[0].header['Idempotency-Key'])
+  assert.equal(h.requests[1].data.audioBase64, h.requests[0].data.audioBase64)
+  assert.equal(h.state.result.value.status, 'SUCCEEDED')
+})
+
 test('an idle evaluation ignores recording events owned by another page', async () => {
   const h = await setup()
   h.callbacks.Start()

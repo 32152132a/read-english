@@ -77,10 +77,16 @@ npm run start:dev
 
 ## 部署
 
-复制根目录 `.env.example` 为 `.env`，填写数据库密码和 COS 配置后运行：
+当前生产后端是相邻 `read-java` 仓库，部署配置由 `deploy-qyq` 管理。本仓库根目录 Compose 和 `server` 是历史 NestJS 方案，不作为当前生产发布入口。
 
-```bash
-docker compose up -d --build
+微信小程序在 `client` 目录构建：
+
+```powershell
+.\scripts\weixin.ps1
 ```
 
-生产环境不要提交任何 `.env` 文件，也不要使用 `mysql:latest`。
+构建产物位于 `client/unpackage/dist/build/mp-weixin`，导入微信开发者工具验收、上传。脚本校验 `.env.production` 使用 HTTPS，并拒绝当前终端的不同 API 地址覆盖生产配置。
+
+后端已有生产部署入口为 `deploy-qyq/windows/deploy-remote-rebuild.cmd`；该入口会构建多个服务，包含私有环境同步及 Nginx 配置应用，执行前需确认具体影响并取得授权。本地修改须先审查、经授权提交并推送，再按指定入口发布；不要自行切换为单服务发布。凭据不得提交到 Git。
+
+当前验收结果、阻断项和分阶段计划见 [微信小程序上线准备](docs/release-readiness.md)。

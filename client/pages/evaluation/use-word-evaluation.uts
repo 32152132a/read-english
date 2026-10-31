@@ -253,8 +253,10 @@ export function useWordEvaluation(wordId: string, sessionId: string) {
     active = false
     generation += 1
     clearTimeout(pollTimer)
-    audioBase64 = ''
-    requestKey = ''
+    if (disposed) {
+      audioBase64 = ''
+      requestKey = ''
+    }
     busy.value = false
     canRetry.value = false
     // #ifdef MP-WEIXIN
@@ -270,6 +272,10 @@ export function useWordEvaluation(wordId: string, sessionId: string) {
   onShow(() => {
     if (!disposed && !recording.value && !starting) {
       active = true
+      if (result.value?.status === 'PROCESSING' || audioBase64.length > 0) {
+        canRetry.value = true
+        error.value = '评测已暂停，请点击重试继续查询或提交'
+      }
       // #ifdef MP-WEIXIN
       attachRecorder()
       // #endif

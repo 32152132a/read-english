@@ -14,9 +14,14 @@
         "appid" : "wxb0ca3a440601d802",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
-            "urlCheck" : false,
+            "urlCheck" : true,
             "minified" : true
         },
-        "usingComponents" : true
+        "usingComponents" : true,
+        "permission" : {
+            "scope.record" : {
+                "desc" : "用于录制英语跟读音频并进行发音评测"
+            }
+        }
     }
 }
