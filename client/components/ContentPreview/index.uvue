@@ -9,6 +9,7 @@
           <text class="content-preview__title">{{ config.word ?? config.ipa }}</text>
         </view>
         <PlayButton
+          v-if="config.kind === 'WORD'"
           :src="config.audio.url"
           :word="config.kind === 'WORD' ? (config.word ?? '') : ''"
           size="hero"
@@ -23,6 +24,11 @@
       <text v-if="config.description" class="content-preview__description">
         {{ config.description }}
       </text>
+      <TipCard
+        v-if="config.kind === 'PHONEME'"
+        title="近似发音联想（中文仅供参考）"
+        :text="getPhonemeHint(config.ipa)"
+      />
     </view>
 
     <MouthShape
@@ -87,7 +93,11 @@
     <ExampleWordList v-if="(config.exampleWords ?? []).length > 0" :items="examples" />
     <TipCard v-if="config.memoryTip" :text="config.memoryTip" />
 
-    <view v-for="(question, index) in config.questions" :key="question.id" class="content-preview__question">
+    <view
+      v-for="(question, index) in visibleQuestions"
+      :key="question.id"
+      class="content-preview__question"
+    >
       <view class="content-preview__question-heading">
         <text class="content-preview__question-number">练习 {{ Number(index) + 1 }}</text>
         <text class="content-preview__question-type">
@@ -110,7 +120,10 @@
       >
         <text class="content-preview__option-id">{{ option.id }}</text>
         <text class="content-preview__option-label">{{ option.label }}</text>
-        <text v-if="answers[question.id]?.correctOptionId === option.id" class="content-preview__mark">
+        <text
+          v-if="answers[question.id]?.correctOptionId === option.id"
+          class="content-preview__mark"
+        >
           ✓
         </text>
         <text
@@ -144,6 +157,7 @@ import PlayButton from '../PlayButton/index.uvue'
 import MouthShape from '../MouthShape/index.uvue'
 import ExampleWordList from '../ExampleWordList/index.uvue'
 import TipCard from '../TipCard/index.uvue'
+import { getPhonemeHint } from '../../src/config/phoneme-hints.uts'
 const props = withDefaults(
   defineProps<{
     config: TeachingConfig
@@ -154,6 +168,11 @@ const props = withDefaults(
   { revealAnswers: false, busy: false, answers: () => ({}) }
 )
 defineEmits(['answer'])
+const visibleQuestions = computed(() =>
+  props.config.questions.filter(
+    (question) => props.config.kind !== 'PHONEME' || question.type !== 'LISTENING'
+  )
+)
 const examples = computed(() =>
   (props.config.exampleWords ?? []).map((item) => ({
     word: item.word,

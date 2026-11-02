@@ -11,15 +11,8 @@
         size="hero"
       />
       <text class="phoneme-detail__description">{{ content!.description }}</text>
-      <view class="phoneme-detail__listen">
-        <PlayButton
-          :src="phonemeAudio"
-          :word="content!.fallbackWord ?? ''"
-          :accent="accent"
-          :text="phonemeAudio.length > 0 ? '听发音' : '听例词'"
-          size="hero"
-        />
-      </view>
+      <TipCard title="近似发音联想" :text="getPhonemeHint(content!.ipa)" />
+      <text class="phoneme-detail__description">中文仅帮助联想，不是准确的同音字。</text>
       <PronunciationGuide
         :mouth-type="content!.mouth.type"
         :mouth-image-url="content!.mouth.imageUrl"
@@ -44,7 +37,6 @@ import RequestState from '../../components/RequestState/index.uvue'
 import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import { useLearningSession } from '../../src/composables/use-learning-session.uts'
-import PlayButton from '../../components/PlayButton/index.uvue'
 import TipCard from '../../components/TipCard/index.uvue'
 import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
 import PronunciationGuide from '../../components/PronunciationGuide/index.uvue'
@@ -52,21 +44,14 @@ import ExampleWordList from '../../components/ExampleWordList/index.uvue'
 import { request } from '../../src/services/http.uts'
 import type { PhonemeContent } from '../../src/config/api-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
-import { getAccentPreference } from '../../src/services/accent.uts'
+import { getPhonemeHint } from '../../src/config/phoneme-hints.uts'
 
 const { unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
   useLearningSession<PhonemeContent>('phoneme')
 const detail = ref<PhonemeContent | null>(null)
 const browsing = ref(false)
-const accent = ref(getAccentPreference())
 let phonemeId = ''
 const content = computed(() => detail.value ?? unit.value?.content ?? null)
-const phonemeAudio = computed(() => {
-  const value = content.value
-  if (value == null) return ''
-  const preferred = accent.value === 'GB' ? value.audioGbUrl : value.audioUsUrl
-  return preferred?.length ? preferred : (value.audioUrl ?? '')
-})
 const examples = computed(() =>
   (content.value?.exampleWords ?? []).map((word) => ({
     word: word.word,
@@ -97,9 +82,6 @@ onLoad((options) => {
   browsing.value = phonemeId.length > 0
   if (browsing.value) retry()
 })
-onShow(() => {
-  accent.value = getAccentPreference()
-})
 </script>
 <style lang="scss">
 @import '../../uni.scss';
@@ -118,14 +100,6 @@ onShow(() => {
     text-align: center;
     color: $color-text-secondary;
     font-size: 28rpx;
-  }
-
-  &__listen {
-    margin: 26rpx 0 30rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 28rpx;
   }
 }
 </style>

@@ -6,7 +6,6 @@ import type { FlowConfig, FlowTemplate, CompleteStageResponse } from '../config/
 export const DEFAULT_LEARNING_FLOW: LearningFlowNode[] = [
   'phoneme',
   'phoneme-compare',
-  'phoneme-quiz',
   'syllable',
   'ipa-decoding',
   'word-decoding',

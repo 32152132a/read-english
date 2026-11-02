@@ -4,34 +4,15 @@
       <text class="phoneme-grid__phoneme" @click="$emit('select', item.id)">
         {{ item.segments[0].text }}
       </text>
-      <PlayButton
-        :src="audioFor(item)"
-        :word="item.fallbackWord ?? ''"
-        :accent="accent"
-        size="micro"
-        icon="volume"
-      />
     </view>
   </view>
 </template>
 
 <script setup lang="uts">
-import PlayButton from '../PlayButton/index.uvue'
-import type { PhonemeGridItem, PhonemeGridProps } from '../../src/config/types.uts'
-import { getAccentPreference } from '../../src/services/accent.uts'
+import type { PhonemeGridProps } from '../../src/config/types.uts'
 
 defineProps<PhonemeGridProps>()
 defineEmits(['select'])
-const accent = ref(getAccentPreference())
-
-function audioFor(item: PhonemeGridItem): string {
-  const preferred = accent.value === 'GB' ? item.audioGbUrl : item.audioUsUrl
-  return preferred?.length ? preferred : (item.audioUrl ?? '')
-}
-
-onShow(() => {
-  accent.value = getAccentPreference()
-})
 </script>
 
 <style lang="scss">
