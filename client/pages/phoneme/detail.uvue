@@ -12,8 +12,8 @@
       />
       <text class="phoneme-detail__description">{{ content!.description }}</text>
       <TipCard title="近似发音联想" :text="getPhonemeHint(content!.ipa)" />
-      <text class="phoneme-detail__description">中文仅帮助联想，不是准确的同音字。</text>
       <PronunciationGuide
+        mouth-size="medium"
         :mouth-type="content!.mouth.type"
         :mouth-image-url="content!.mouth.imageUrl"
         :steps="content!.pronunciationSteps"

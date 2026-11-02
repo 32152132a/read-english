@@ -47,7 +47,7 @@ withDefaults(defineProps<PronunciationGuideProps>(), {
   &__content {
     width: 100%;
     display: grid;
-    grid-template-columns: 300rpx minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: 18rpx;
   }
