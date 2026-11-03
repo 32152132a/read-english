@@ -37,7 +37,7 @@ const sounds = computed(() =>
     segments: item.teachingConfig?.ipaSegments ?? [
       { text: item.ipa, tone: index === 0 ? 'primary' : 'success' },
     ],
-    name: item.description,
+    name: item.category,
     audioUrl: item.audioUrl ?? '',
     toneColor: index === 0 ? '#3154ff' : '#27a778',
     mouthType: item.mouth.type,
@@ -51,6 +51,7 @@ const wordPairs = computed(() =>
   (unit.value?.content.audioPairs ?? []).map((pair) =>
     [pair.left, pair.right].map((word) => ({
       word: word.word,
+      accent: word.accent,
       audioUrl: word.audioUrl ?? '',
       segments: [],
     }))

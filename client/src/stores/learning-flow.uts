@@ -13,7 +13,11 @@ export const useLearningFlowStore = defineStore('learning-flow', () => {
   const nodes = ref<FlowNode[]>([])
   const currentNodeIndex = ref(0)
   const version = ref(0)
-  const defaultNodes = DEFAULT_LEARNING_FLOW
+  const defaultNodes = computed(() =>
+    DEFAULT_LEARNING_FLOW.filter((node) =>
+      templates.value.some((template) => template.code === node.templateCode)
+    )
+  )
 
   function applyFlow(flow: FlowConfig) {
     nodes.value = flow.nodes

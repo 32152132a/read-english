@@ -11,7 +11,12 @@
         size="hero"
       />
       <text class="phoneme-detail__description">{{ content!.description }}</text>
-      <TipCard title="近似发音联想" :text="getPhonemeHint(content!.ipa)" />
+      <PlayButton
+        v-if="capabilities.phonemeAudioEnabled && phonemeAudio.length > 0"
+        :src="phonemeAudio"
+        text="听发音"
+        size="hero"
+      />
       <PronunciationGuide
         mouth-size="medium"
         :mouth-type="content!.mouth.type"
@@ -38,23 +43,33 @@ import LessonProgress from '../../components/LessonProgress/index.uvue'
 import StepActions from '../../components/StepActions/index.uvue'
 import { useLearningSession } from '../../src/composables/use-learning-session.uts'
 import TipCard from '../../components/TipCard/index.uvue'
+import PlayButton from '../../components/PlayButton/index.uvue'
 import PhonemeDisplay from '../../components/PhonemeDisplay/index.uvue'
 import PronunciationGuide from '../../components/PronunciationGuide/index.uvue'
 import ExampleWordList from '../../components/ExampleWordList/index.uvue'
 import { request } from '../../src/services/http.uts'
 import type { PhonemeContent } from '../../src/config/api-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
-import { getPhonemeHint } from '../../src/config/phoneme-hints.uts'
+import { useCapabilitiesStore } from '../../src/stores/capabilities.uts'
+import { getAccentPreference } from '../../src/services/accent.uts'
 
 const { unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
   useLearningSession<PhonemeContent>('phoneme')
 const detail = ref<PhonemeContent | null>(null)
+const capabilities = useCapabilitiesStore()
+const accent = ref(getAccentPreference())
 const browsing = ref(false)
 let phonemeId = ''
 const content = computed(() => detail.value ?? unit.value?.content ?? null)
+const phonemeAudio = computed(() => {
+  const c = content.value
+  if (c == null) return ''
+  return (accent.value === 'GB' ? c.audioGbUrl : c.audioUsUrl) || c.audioUrl || ''
+})
 const examples = computed(() =>
   (content.value?.exampleWords ?? []).map((word) => ({
     word: word.word,
+    accent: word.accent,
     segments: [{ text: word.ipa, tone: 'muted' }],
     zh: word.meaning,
     audioUrl: word.audioUrl ?? '',
@@ -81,6 +96,9 @@ onLoad((options) => {
   phonemeId = options['phonemeId'] ?? ''
   browsing.value = phonemeId.length > 0
   if (browsing.value) retry()
+})
+onShow(() => {
+  accent.value = getAccentPreference()
 })
 </script>
 <style lang="scss">

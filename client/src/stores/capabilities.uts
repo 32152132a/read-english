@@ -1,0 +1,46 @@
+import { defineStore } from 'pinia'
+import { request } from '../services/http.uts'
+import { getToken } from '../services/token.uts'
+import type { ContentCapabilities } from '../config/content-types.uts'
+
+export const useCapabilitiesStore = defineStore('capabilities', () => {
+  const value = ref<ContentCapabilities | null>(null)
+  const phonemeAudioEnabled = computed(() => value.value?.phonemeAudioEnabled === true)
+  const phonemeListeningEnabled = computed(() => value.value?.phonemeListeningEnabled === true)
+  let pending: Promise<ContentCapabilities | null> | null = null
+  let identity = ''
+
+  function reset() {
+    value.value = null
+    identity = ''
+    pending = null
+  }
+
+  async function load(): Promise<ContentCapabilities | null> {
+    const token = getToken()
+    if (token.length === 0) {
+      reset()
+      return null
+    }
+    if (identity === token && value.value != null) return value.value
+    if (identity === token && pending != null) return pending
+    identity = token
+    value.value = null
+    pending = request<ContentCapabilities>({
+      url: '/content/capabilities',
+      showError: false,
+      showLoading: false,
+    })
+      .then((result) => {
+        if (identity === token) value.value = result
+        return result
+      })
+      .catch(() => null)
+      .finally(() => {
+        if (identity === token) pending = null
+      })
+    return pending
+  }
+
+  return { value, phonemeAudioEnabled, phonemeListeningEnabled, load, reset }
+})

@@ -1,6 +1,11 @@
 <script setup lang="uts">
+import { useCapabilitiesStore } from './src/stores/capabilities.uts'
+const capabilities = useCapabilitiesStore()
 onLaunch(() => {
   console.log('Read English 发音学习启动')
+})
+onShow(() => {
+  capabilities.load()
 })
 </script>
 

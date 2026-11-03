@@ -6,7 +6,7 @@
       <text class="page-title">{{ unit!.content!.title }}</text>
       <text class="muted phoneme-quiz__description">{{ unit!.content!.description }}</text>
       <ListeningPrompt v-if="audios.length > 0" :audios="audios" />
-      <TipCard v-else text="请先根据题目中的音标说明完成练习。" />
+      <TipCard v-else text="音频暂不可用，请稍后重新进入本阶段。" />
       <text class="section-title">请选择</text>
       <ChoiceGroup
         :key="unit!.id"
@@ -19,7 +19,7 @@
       <TipCard v-if="answer != null" :text="answer!.explanation" />
       <button
         class="primary-button phoneme-quiz__confirm"
-        :disabled="selected.length === 0 || submitting"
+        :disabled="audios.length === 0 || selected.length === 0 || submitting"
         @click="confirm"
       >
         {{ answer == null ? '确认答案' : current < total ? '下一题' : '完成本阶段' }}

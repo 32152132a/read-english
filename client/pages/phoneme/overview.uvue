@@ -46,7 +46,6 @@ function itemsFor(code: string) {
     audioUrl: item.audioUrl ?? '',
     audioUsUrl: item.audioUsUrl ?? '',
     audioGbUrl: item.audioGbUrl ?? '',
-    fallbackWord: item.fallbackWord ?? '',
   }))
 }
 

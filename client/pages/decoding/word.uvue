@@ -32,21 +32,23 @@ import type { WordContent } from '../../src/config/api-types.uts'
 const { unit, current, total, error, loadSession, loadStep, completeCurrentStage } =
   useLearningSession<WordContent>('word-decoding')
 const exercise = computed(() => ({
+  accent: unit.value?.content.teachingConfig?.accent ?? '',
   id: unit.value?.id ?? '',
   word: unit.value?.content.word ?? '',
   audioUrl: unit.value?.content.audioUrl ?? '',
   specialTips:
     unit.value?.content.teachingConfig?.specialTips ?? unit.value?.content.specialTips ?? [],
   mappings:
-    unit.value?.content.teachingConfig?.parts?.map((part) => ({
-      part: part.letters,
-      segments: part.segments,
-      tip: part.tip,
-    })) ??
-    (unit.value?.content.parts ?? []).map((part) => ({
-      part: part.letters,
-      segments: [{ text: part.ipa, tone: 'primary' }],
-      tip: '',
-    })),
+    (unit.value?.content.teachingConfig?.parts?.length ?? 0) > 0
+      ? unit.value!.content.teachingConfig!.parts!.map((part) => ({
+          part: part.letters,
+          segments: part.segments,
+          tip: part.tip,
+        }))
+      : (unit.value?.content.parts ?? []).map((part) => ({
+          part: part.letters,
+          segments: [{ text: part.ipa, tone: 'primary' }],
+          tip: '',
+        })),
 }))
 </script>

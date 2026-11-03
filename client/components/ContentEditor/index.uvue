@@ -13,16 +13,21 @@
         <PlayButton
           v-if="form!.kind === 'WORD'"
           :src="form!.audio.url"
+          :accent="form!.accent"
           :word="form!.word ?? detail!.label"
           size="tiny"
         />
       </view>
-      <text class="muted">保存后立即用于新的学习；已经开始的练习保持原内容。</text>
+      <text class="muted">保存后，重新加载相关页面即可使用最新内容。</text>
 
       <view class="content-editor__card content-editor__form">
         <text class="content-editor__section-title">基础内容</text>
         <text class="content-editor__label">音标 IPA</text>
-        <input :disabled="busy" v-model="form!.ipa" placeholder="完整 IPA" />
+        <input
+          :disabled="busy || form!.kind === 'WORD'"
+          v-model="form!.ipa"
+          placeholder="完整 IPA"
+        />
         <template v-if="form!.kind === 'WORD'">
           <text class="content-editor__label">中文释义</text>
           <textarea :disabled="busy" v-model="form!.meaning" :maxlength="300" />
@@ -45,19 +50,25 @@
         </template>
       </view>
 
-      <view class="content-editor__card content-editor__form">
+      <view v-if="publicResource" class="content-editor__card content-editor__form">
         <text class="content-editor__section-title">发音资源</text>
-        <text class="content-editor__label">标准音频 HTTPS 地址（可留空）</text>
-        <input :disabled="busy" v-model="form!.audio.url" />
-        <text v-if="form!.kind === 'WORD'" class="muted content-editor__help">
-          单词没有标准音频时，Web 会使用浏览器声线朗读。
-        </text>
-        <template v-if="form!.kind === 'PHONEME'">
-          <text class="content-editor__label">美式发音音频（可留空）</text>
-          <input :disabled="busy" v-model="form!.audio.usUrl" />
-          <text class="content-editor__label">英式发音音频（可留空）</text>
-          <input :disabled="busy" v-model="form!.audio.gbUrl" />
-        </template>
+        <text class="muted content-editor__help">统一公共资源，所有引用此词条的页面共同使用。</text>
+        <view v-for="resource in pronunciationForms" :key="resource.accent">
+          <text class="content-editor__label">
+            {{ resource.accent === 'GB' ? '英式' : '美式' }}发音
+          </text>
+          <input
+            v-if="form!.kind === 'WORD'"
+            :disabled="busy"
+            v-model="resource.ipa"
+            placeholder="对应口音 IPA，留空表示尚未提供"
+          />
+          <input
+            :disabled="busy"
+            v-model="resource.audioUrl"
+            placeholder="音频 HTTPS 地址，可留空"
+          />
+        </view>
       </view>
 
       <button class="outline-button content-editor__advanced" @click="showAdvanced = !showAdvanced">
@@ -90,7 +101,7 @@
 
 <script setup lang="uts">
 import { request, showRequestError } from '../../src/services/http.uts'
-import type { TeachingConfig, ContentDetail } from '../../src/config/content-types.uts'
+import type { TeachingConfig, ContentDetail, Pronunciations } from '../../src/config/content-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
 import PlayButton from '../PlayButton/index.uvue'
 import RequestState from '../RequestState/index.uvue'
@@ -102,10 +113,17 @@ const sections = ref<{ key: string; label: string; help: string; text: string }[
 const error = ref('')
 const busy = ref(false)
 const showAdvanced = ref(false)
+const publicResource = ref(false)
+const pronunciationForms = ref<{ accent: string; ipa: string; audioUrl: string }[]>([])
 
 function populate(value: ContentDetail) {
   detail.value = value
+  publicResource.value = value.publicResource
   form.value = JSON.parse(JSON.stringify(value.config)) as TeachingConfig
+  pronunciationForms.value = ['US', 'GB'].map((accent) => {
+    const resource = accent === 'GB' ? value.config.pronunciations.GB : value.config.pronunciations.US
+    return { accent, ipa: resource?.ipa ?? '', audioUrl: resource?.audioUrl ?? '' }
+  })
   const definitions =
     value.kind === 'WORD'
       ? [
@@ -123,7 +141,7 @@ function populate(value: ContentDetail) {
       : [
           ['ipaSegments', '音标片段与加粗', '每项 text、tone、bold。'],
           ['pronunciationSteps', '发音步骤', '字符串数组。'],
-          ['exampleWords', '例词', '每项 word、ipa、meaning、audioUrl。'],
+          ['exampleWords', '例词引用', '每项 wordId、accent（US 或 GB）；展示内容由单词资源统一读取。'],
           ['questions', '练习题', 'CHOICE 或 LISTENING，听辨题必须配置 audioUrl。'],
         ]
   const object = value.config as unknown as UTSJSONObject
@@ -151,6 +169,28 @@ function assemble(): TeachingConfig {
     if (!Array.isArray(value)) throw new Error(section.label + '必须是数组')
     result[section.key] = value
   })
+  if (publicResource.value) {
+    const resources: Pronunciations = {}
+    for (const row of pronunciationForms.value) {
+      if (form.value!.kind === 'WORD' && row.ipa.trim().length === 0 && row.audioUrl.trim().length > 0) {
+        throw new Error('请先填写该口音对应的 IPA')
+      }
+      if ((form.value!.kind === 'WORD' ? row.ipa : row.audioUrl).trim().length === 0) continue
+      const resource = { ipa: row.ipa.trim(), audioUrl: row.audioUrl.trim() }
+      if (row.accent === 'GB') resources.GB = resource
+      else resources.US = resource
+    }
+    result['pronunciations'] = resources
+    if (form.value!.kind === 'WORD') {
+      const selected = form.value!.accent === 'GB' ? resources.GB : resources.US
+      const actual = selected ?? resources.GB ?? resources.US
+      if (actual == null) throw new Error('至少填写一种口音的 IPA')
+      result['ipa'] = actual.ipa ?? ''
+      if (form.value!.ipa !== actual.ipa) {
+        result['ipaSegments'] = [{ text: actual.ipa ?? '', tone: 'muted', bold: false }]
+      }
+    }
+  }
   return result as unknown as TeachingConfig
 }
 

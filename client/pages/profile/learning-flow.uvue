@@ -21,7 +21,7 @@ import { useLearningFlowStore } from '../../src/stores/learning-flow.uts'
 
 const learningFlowStore = useLearningFlowStore()
 const { templates, nodes } = storeToRefs(learningFlowStore)
-const defaultNodes = learningFlowStore.defaultNodes
+const defaultNodes = computed(() => learningFlowStore.defaultNodes)
 const loaded = ref(false)
 const error = ref('')
 let saving = false

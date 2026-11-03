@@ -110,6 +110,7 @@ export type AnswerResponse = {
 
 export type MouthContent = { type: string; imageUrl?: string }
 export type ExampleWordContent = {
+  accent: string
   word: string
   ipa: string
   meaning: string
@@ -124,13 +125,13 @@ export type PhonemeContent = {
   audioUrl: string | null
   audioUsUrl?: string | null
   audioGbUrl?: string | null
-  fallbackWord?: string | null
   mouth: MouthContent
   pronunciationSteps: string[]
   exampleWords: ExampleWordContent[]
   memoryTip: string
 }
 export type ComparePhoneme = {
+  category: string
   teachingConfig?: TeachingConfig
   ipa: string
   description: string
@@ -138,7 +139,7 @@ export type ComparePhoneme = {
   audioUrl: string | null
   examples: string[]
 }
-export type WordAudio = { word: string; audioUrl: string | null }
+export type WordAudio = { word: string; accent: string; audioUrl: string | null }
 export type AudioPair = { left: WordAudio; right: WordAudio }
 export type CompareContent = {
   category: string
@@ -192,7 +193,6 @@ export type PhonemeItem = {
   audioUrl: string | null
   audioUsUrl: string | null
   audioGbUrl: string | null
-  fallbackWord: string | null
 }
 export type PhonemeGroup = { code: string; name: string; items: PhonemeItem[] }
 export type PhonemeGroups = { groups: PhonemeGroup[] }

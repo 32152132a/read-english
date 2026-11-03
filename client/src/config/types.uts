@@ -77,6 +77,7 @@ export type SegmentPart = {
 }
 
 export type ExampleWord = {
+  accent?: string
   word: string
   segments: PhonemeSegment[]
   zh: string
@@ -98,6 +99,7 @@ export type AiCorrectionData = {
 }
 
 export type EvaluationTargetData = {
+  accent?: string
   word: string
   ipaSegments: PhonemeSegment[]
   syllables: SegmentPart[]
@@ -124,7 +126,6 @@ export type PhonemeGridItem = {
   audioUrl: string
   audioUsUrl?: string
   audioGbUrl?: string
-  fallbackWord?: string
 }
 
 export type PronunciationMappingItem = {
@@ -134,6 +135,7 @@ export type PronunciationMappingItem = {
 }
 
 export type WordDecodingCardData = {
+  accent?: string
   id: string
   word: string
   audioUrl: string
@@ -173,6 +175,7 @@ export type SystemLibraryOption = {
 }
 
 export type WordPairItem = {
+  accent?: string
   word: string
   segments: PhonemeSegment[]
   audioUrl: string
@@ -342,6 +345,7 @@ export type SegmentedWordProps = {
   hint?: string
 }
 export type IpaReadingCardData = {
+  accent?: string
   word: string
   hint: string
   ipaSegments: PhonemeSegment[]

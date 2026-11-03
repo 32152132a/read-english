@@ -5,6 +5,7 @@
         class="example-word-list__play"
         :src="item.audioUrl"
         :word="item.word"
+        :accent="item.accent ?? ''"
         size="tiny"
       />
       <text class="example-word-list__word">{{ item.word }}</text>

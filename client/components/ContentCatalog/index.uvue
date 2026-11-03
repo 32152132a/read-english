@@ -30,25 +30,24 @@
 </template>
 <script setup lang="uts">
 import { request } from '../../src/services/http.uts'
-import type { ContentEntry, ContentCapabilities } from '../../src/config/content-types.uts'
+import type { ContentEntry } from '../../src/config/content-types.uts'
+import { useCapabilitiesStore } from '../../src/stores/capabilities.uts'
 import type { HttpError } from '../../src/config/types.uts'
 import RequestState from '../RequestState/index.uvue'
 const query = ref(''),
   kind = ref('WORD'),
   error = ref(''),
   loaded = ref(false)
-const items = ref<ContentEntry[]>([]),
-  capabilities = ref<ContentCapabilities | null>(null)
+const items = ref<ContentEntry[]>([])
+const capabilityStore = useCapabilitiesStore()
+const capabilities = computed(() => capabilityStore.value)
 let requestVersion = 0
 async function load() {
   const version = ++requestVersion
   loaded.value = false
   error.value = ''
   try {
-    capabilities.value = await request<ContentCapabilities>({
-      url: '/content/capabilities',
-      showError: false,
-    })
+    await capabilityStore.load()
     const result = await request<{ items: ContentEntry[] }>({
       url: '/content?kind=' + kind.value + '&q=' + encodeURIComponent(query.value),
       showError: false,

@@ -8,7 +8,13 @@
     >
       <PhonemeDisplay :segments="item.segments" size="hero" />
       <text class="phoneme-comparison__name">{{ item.name }}</text>
-      <text class="phoneme-comparison__tip">近似联想：{{ getPhonemeHint(item.ipa) }}</text>
+      <PlayButton
+        v-if="capabilities.phonemeAudioEnabled && item.audioUrl.length > 0"
+        :src="item.audioUrl"
+        text="听发音"
+        icon="volume"
+        :color="item.toneColor"
+      />
       <view class="phoneme-comparison__mouth">
         <MouthShape
           :type="item.mouthType"
@@ -25,10 +31,12 @@
 
 <script setup lang="uts">
 import PhonemeDisplay from '../PhonemeDisplay/index.uvue'
-import { getPhonemeHint } from '../../src/config/phoneme-hints.uts'
+import PlayButton from '../PlayButton/index.uvue'
+import { useCapabilitiesStore } from '../../src/stores/capabilities.uts'
 import type { PhonemeComparisonProps } from '../../src/config/types.uts'
 
 defineProps<PhonemeComparisonProps>()
+const capabilities = useCapabilitiesStore()
 </script>
 
 <style lang="scss">

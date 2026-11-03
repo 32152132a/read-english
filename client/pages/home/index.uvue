@@ -26,10 +26,12 @@ import QuickAccessList from '../../components/QuickAccessList/index.uvue'
 import RequestState from '../../components/RequestState/index.uvue'
 import { request } from '../../src/services/http.uts'
 import { getToken } from '../../src/services/token.uts'
+import { useCapabilitiesStore } from '../../src/stores/capabilities.uts'
 import type { HomeResponse } from '../../src/config/api-types.uts'
 import type { HttpError } from '../../src/config/types.uts'
 
 const home = ref<HomeResponse | null>(null)
+const capabilities = useCapabilitiesStore()
 const error = ref('')
 const currentIndex = computed(
   () => home.value?.learningPath.filter((node) => node.reviewable).length ?? 0
@@ -68,6 +70,7 @@ async function loadHome() {
   }
   error.value = ''
   try {
+    await capabilities.load()
     home.value = await request<HomeResponse>({ url: '/home', showError: false })
   } catch (failure) {
     home.value = null

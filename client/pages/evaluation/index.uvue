@@ -41,13 +41,13 @@ const target = computed(() => {
       { text: content?.ipa ?? '', tone: 'muted' },
     ],
     syllables:
-      teachingSyllables ??
-      stressParts.map((text) => ({
+      (teachingSyllables?.length ?? 0) > 0 ? teachingSyllables! : stressParts.map((text) => ({
         text,
         emphasized: text === text.toUpperCase(),
       })),
     stressIndex: (teachingStressIndex >= 0 ? teachingStressIndex : fallbackStressIndex) + 1,
     audioUrl: content?.standardAudioUrl ?? '',
+    accent: content?.teachingConfig?.accent ?? '',
   }
 })
 </script>

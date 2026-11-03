@@ -23,11 +23,7 @@
         <text>{{ item.word }}</text>
       </view>
     </view>
-    <button
-      class="primary-button"
-      :disabled="busy || !enabled || tooManyWords"
-      @click="create"
-    >
+    <button class="primary-button" :disabled="busy || !enabled || tooManyWords" @click="create">
       {{ busy ? '正在提交' : '生成词库' }}
     </button>
     <text v-if="!enabled" class="muted">AI 生成服务当前不可用，请稍后再试。</text>
@@ -36,7 +32,9 @@
       <view class="word-import__result-heading">
         <view class="word-import__result-copy">
           <text class="word-import__result-name">{{ job!.name }}</text>
-          <text class="muted">{{ statusText(job!.status) }} · {{ job!.completed }} / {{ job!.total }}</text>
+          <text class="muted">
+            {{ statusText(job!.status) }} · {{ job!.completed }} / {{ job!.total }}
+          </text>
         </view>
         <view class="word-import__result-counts">
           <text class="is-success">成功 {{ job!.succeeded }}</text>
@@ -80,7 +78,8 @@
 </template>
 <script setup lang="uts">
 import { request, showRequestError } from '../../src/services/http.uts'
-import type { ContentCapabilities, ContentJob } from '../../src/config/content-types.uts'
+import type { ContentJob } from '../../src/config/content-types.uts'
+import { useCapabilitiesStore } from '../../src/stores/capabilities.uts'
 type ParsedWord = {
   word: string
   position: number
@@ -276,11 +275,8 @@ onShow(async () => {
   visible = true
   navigating = false
   try {
-    const cap = await request<ContentCapabilities>({
-      url: '/content/capabilities',
-      showError: false,
-    })
-    enabled.value = cap.generationEnabled
+    const cap = await useCapabilitiesStore().load()
+    enabled.value = cap?.generationEnabled === true
     if (job.value == null) await resumeActiveJob()
     else poll()
   } catch (e) {

@@ -3,7 +3,13 @@
     <text class="evaluation-target__word">{{ data.word }}</text>
     <view class="evaluation-target__audio">
       <PhonemeDisplay :segments="data.ipaSegments" />
-      <PlayButton :src="data.audioUrl" :word="data.word" size="tiny" icon="volume" />
+      <PlayButton
+        :src="data.audioUrl"
+        :word="data.word"
+        :accent="data.accent ?? ''"
+        size="tiny"
+        icon="volume"
+      />
     </view>
     <SegmentedWord :parts="data.syllables" separator="·" />
     <text v-if="data.stressIndex > 0" class="evaluation-target__hint">

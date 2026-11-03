@@ -2,12 +2,20 @@ export type ContentOption = { id: string; label: string }
 export type ContentSyllable = { text: string; ipa: string; stress: number; emphasized: boolean }
 export type ContentPart = { letters: string; segments: PhonemeSegment[]; tip: string }
 export type ContentMouth = { type: string; imageUrl?: string }
-export type ContentExample = { word: string; ipa: string; meaning: string; audioUrl?: string }
+export type ContentExample = {
+  wordId: string
+  accent: string
+  word: string
+  ipa: string
+  meaning: string
+  audioUrl?: string
+}
+export type Pronunciation = { ipa?: string; audioUrl: string }
+export type Pronunciations = { US?: Pronunciation; GB?: Pronunciation }
 export type ContentAudio = {
   url: string
   usUrl?: string
   gbUrl?: string
-  objectKey?: string
 }
 import type { PhonemeSegment } from './types.uts'
 export type ContentQuestion = {
@@ -25,6 +33,7 @@ export type TeachingConfig = {
   accent: string
   word?: string
   wordId?: string
+  variantKey?: string
   ipa: string
   meaning?: string
   tip?: string
@@ -41,6 +50,7 @@ export type TeachingConfig = {
   exampleWords?: ContentExample[]
   memoryTip?: string
   audio: ContentAudio
+  pronunciations: Pronunciations
   questions: ContentQuestion[]
 }
 export type ContentEntry = {
@@ -49,8 +59,14 @@ export type ContentEntry = {
   label: string
   version: number
 }
-export type ContentDetail = ContentEntry & { config: TeachingConfig }
-export type ContentCapabilities = { admin: boolean; generationEnabled: boolean; userId: string }
+export type ContentDetail = ContentEntry & { publicResource: boolean; config: TeachingConfig }
+export type ContentCapabilities = {
+  admin: boolean
+  generationEnabled: boolean
+  userId: string
+  phonemeAudioEnabled: boolean
+  phonemeListeningEnabled: boolean
+}
 export type ContentJob = {
   id: string
   name: string
